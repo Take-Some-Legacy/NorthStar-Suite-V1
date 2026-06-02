@@ -5,70 +5,18 @@ from pathlib import Path
 
 from .model import DatasetHit
 
-DATASET_DIR_NAMES = {"CONSTANTS", "SNAPSHOTS", "RESEARCH", "DATASET", "Data", "docs", "Docs"}
+DATASET_ROOTS = ("CONSTANTS", "SNAPSHOTS", "RESEARCH", "Data", "docs", "Docs")
+ROOT_DOCS = ("README.md", "WORKSPACE.md")
 REQUIRED_NAMES = (
-    "CAPABILITY",
-    "CONFORMANCE",
-    "GATEWAY",
-    "PROVIDER",
-    "NO_LEGACY",
-    "NO-LEGACY",
-    "SCHEDULING",
-    "INTENTS",
-    "ECS_ENTITY",
-    "BOUNDARIES",
-    "REQUEST_NOTES",
-    "STATUS_BLOCK",
-    "RUNTIME_MODULE",
-    "ENGINE_AS_HOST",
-    "ARCHITECTURE_INVARIANTS",
+    "CAPABILITY", "CONFORMANCE", "GATEWAY", "PROVIDER", "NO_LEGACY", "NO-LEGACY",
+    "SCHEDULING", "INTENTS", "ECS_ENTITY", "BOUNDARIES", "REQUEST_NOTES", "STATUS_BLOCK",
+    "RUNTIME_MODULE", "ENGINE_AS_HOST", "ARCHITECTURE_INVARIANTS",
 )
-ALWAYS_INCLUDE = {"README.md", "WORKSPACE.md"}
-IGNORED_DIRS = {
-    ".git",
-    ".idea",
-    ".vs",
-    ".takesome",
-    "target",
-    "logs",
-    "cache",
-    "stamps",
-    "node_modules",
-    "bin",
-    "obj",
-    "out",
-    "dist",
-    "artifacts",
-    "__pycache__",
-}
-
-
-def _looks_like_dataset_file(path: Path) -> bool:
-    if path.name in ALWAYS_INCLUDE:
-        return True
-    if path.suffix.lower() not in {".md", ".txt"}:
-        return False
-    upper_name = path.name.upper()
-    if any(part in DATASET_DIR_NAMES for part in path.parts):
-        return True
-    return any(token in upper_name for token in REQUIRED_NAMES)
+IGNORED_DIRS = {".git", ".takesome", "target", "logs", "cache", "stamps", "node_modules", "__pycache__"}
 
 
 def _keywords_for_task(task_title: str) -> set[str]:
-    keywords = {
-        "engine",
-        "gateway",
-        "provider",
-        "capability",
-        "conformance",
-        "diagnostics",
-        "legacy",
-        "fallback",
-        "dto",
-        "world",
-        "entityid",
-        "dataset",
-    }
+    keywords = {"engine", "gateway", "provider", "capability", "conformance", "diagnostics", "legacy", "fallback", "dto", "world", "entityid", "dataset"}
     for raw in task_title.replace("/", " ").replace("_", " ").replace("-", " ").split():
         token = raw.strip().lower()
         if len(token) >= 4:
@@ -83,65 +31,63 @@ def _extract_relevant_lines(text: str, keywords: set[str], *, limit: int) -> lis
         if not clean:
             continue
         lowered = clean.lower()
-        if clean.startswith("#") or "final invariant" in lowered or "rule:" in lowered:
-            excerpts.append(clean)
-        elif any(keyword in lowered for keyword in keywords):
+        if clean.startswith("#") or "final invariant" in lowered or "rule:" in lowered or any(keyword in lowered for keyword in keywords):
             excerpts.append(clean)
         if len(excerpts) >= limit:
             break
     return excerpts[:limit]
 
 
-def _iter_candidate_files(root: Path):
-    for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [name for name in dirnames if name not in IGNORED_DIRS]
-        current = Path(dirpath)
-        try:
-            rel_dir = current.relative_to(root)
-        except ValueError:
+def _iter_dataset_files(root: Path, *, max_files: int = 300):
+    yielded = 0
+    for doc in ROOT_DOCS:
+        path = root / doc
+        if path.exists():
+            yield path, path.relative_to(root)
+            yielded += 1
+    for name in DATASET_ROOTS:
+        scan_root = root / name
+        if not scan_root.exists():
             continue
-        if any(part in IGNORED_DIRS for part in rel_dir.parts):
+        for dirpath, dirnames, filenames in os.walk(scan_root):
+            dirnames[:] = [dirname for dirname in dirnames if dirname not in IGNORED_DIRS]
+            for filename in filenames:
+                path = Path(dirpath) / filename
+                if path.suffix.lower() not in {".md", ".txt"}:
+                    continue
+                yield path, path.relative_to(root)
+                yielded += 1
+                if yielded >= max_files:
+                    return
+    # Fallback for datasets kept as root-level named markdown files.
+    for path in root.glob("*.md"):
+        if path.name in ROOT_DOCS:
             continue
-        for filename in filenames:
-            path = current / filename
-            try:
-                rel = path.relative_to(root)
-            except ValueError:
-                continue
-            if _looks_like_dataset_file(rel):
-                yield path, rel
+        upper = path.name.upper()
+        if any(token in upper for token in REQUIRED_NAMES):
+            yield path, path.relative_to(root)
+            yielded += 1
+            if yielded >= max_files:
+                return
 
 
 def resolve_dataset_context(root: Path, task_title: str, *, max_files: int = 12, excerpt_limit: int = 5) -> list[DatasetHit]:
     keywords = _keywords_for_task(task_title)
     candidates: list[tuple[int, Path, Path]] = []
-    for path, rel in _iter_candidate_files(root):
+    for path, rel in _iter_dataset_files(root):
         upper_name = rel.name.upper()
         score = 0
-        if any(part in DATASET_DIR_NAMES for part in rel.parts):
-            score += 50
         if any(token in upper_name for token in REQUIRED_NAMES):
             score += 80
-        if rel.name in ALWAYS_INCLUDE:
-            score += 15
         score += sum(1 for keyword in keywords if keyword in str(rel).lower())
         candidates.append((score, path, rel))
     candidates.sort(key=lambda item: (-item[0], str(item[2])))
-
     hits: list[DatasetHit] = []
     for _, path, rel in candidates[: max(1, max_files)]:
         try:
             text = path.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        excerpts = _extract_relevant_lines(text, keywords, limit=excerpt_limit)
-        if not excerpts:
-            excerpts = ["Engine as Host.", "Service as Plugin.", "Capability as Option."][:excerpt_limit]
-        hits.append(
-            DatasetHit(
-                path=str(rel),
-                reason=f"matched task keywords: {', '.join(sorted(list(keywords))[:8])}",
-                excerpts=excerpts,
-            )
-        )
+        excerpts = _extract_relevant_lines(text, keywords, limit=excerpt_limit) or ["Engine as Host.", "Service as Plugin.", "Capability as Option."][:excerpt_limit]
+        hits.append(DatasetHit(str(rel), f"matched task keywords: {', '.join(sorted(list(keywords))[:8])}", excerpts))
     return hits
