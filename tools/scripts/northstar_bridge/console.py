@@ -157,7 +157,3 @@ def emit(level: str, message: str, **fields: Any) -> None:
         print(" ".join(pieces), file=sys.stderr, flush=True)
 
 
-def tool_ok(payload: Any) -> bool:
-    if isinstance(payload, dict):
-        return bool(payload.get("ok", True)) and not payload.get("error")
-    return True

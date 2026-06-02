@@ -15,6 +15,8 @@ from .terminal_style import color, fit_ansi, strip_ansi, style
 
 FOOTER_STATE_REL = Path(".takesome") / "ai-bridge" / "state" / "agent-status.json"
 FOOTER_ENABLED_ENV = "NORTHSTAR_SUPERVISOR_FOOTER"
+FOOTER_MODE_ENV = "NORTHSTAR_SUPERVISOR_FOOTER_MODE"
+
 
 
 @dataclass
@@ -63,8 +65,15 @@ _FOOTER_DRAWN_ROWS: set[int] = set()
 
 
 def _footer_enabled() -> bool:
-    raw = os.environ.get(FOOTER_ENABLED_ENV, "1").strip().lower()
-    if raw in {"0", "false", "off", "no"}:
+    # Default to stream-safe mode. The old fixed footer used alternate screen,
+    # scroll-region control and cursor repositioning; that keeps the footer
+    # visually pinned, but it also breaks terminal scrollback and can pull the
+    # operator back to the bottom while new log lines arrive.
+    #
+    # The footer can still be re-enabled explicitly for demos with:
+    #   NORTHSTAR_SUPERVISOR_FOOTER=1
+    raw = os.environ.get(FOOTER_ENABLED_ENV, "0").strip().lower()
+    if raw not in {"1", "true", "on", "yes", "y", "force"}:
         return False
     if os.environ.get("NO_COLOR"):
         return False
@@ -114,8 +123,9 @@ def _footer_clear_rows_sequence_locked(rows: set[int], *, reset_scroll: bool = F
 
 
 def _footer_alt_screen_enabled() -> bool:
-    raw = os.environ.get("NORTHSTAR_SUPERVISOR_ALT_SCREEN", "1").strip().lower()
-    return raw not in {"0", "false", "off", "no"}
+    # Alternate screen is never enabled by default: it hides normal scrollback.
+    raw = os.environ.get("NORTHSTAR_SUPERVISOR_ALT_SCREEN", "0").strip().lower()
+    return raw in {"1", "true", "on", "yes", "y", "force"}
 
 
 def _footer_enter_alt_screen_locked() -> None:
@@ -123,9 +133,6 @@ def _footer_enter_alt_screen_locked() -> None:
     if _FOOTER_ALT_SCREEN_ACTIVE or not _footer_enabled() or not _footer_alt_screen_enabled():
         return
     try:
-        # Alternate screen keeps the visible operator layout independent from
-        # terminal scrollback. That is the only reliable way to keep the footer
-        # pinned while the operator scrolls in terminal emulators.
         sys.stdout.write("\033[?1049h\033[2J\033[H")
         sys.stdout.flush()
         _FOOTER_ALT_SCREEN_ACTIVE = True
@@ -265,7 +272,7 @@ def _footer_line(width: int | None = None) -> str:
 
 
 def _footer_separator(width: int) -> str:
-    title = " North Star Bridge — fixed footer "
+    title = " North Star Bridge — footer "
     if width <= len(title) + 4:
         return color("─" * width, "gray")
     left = max(1, (width - len(title)) // 2)

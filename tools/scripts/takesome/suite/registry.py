@@ -23,6 +23,8 @@ from ..endless.recipes import fix_direct_provider_scan, full_cycle, loop
 from .context import context_build_args, context_profile_args, select_suite_context
 from .settings import select_suite_visual_settings
 from .build_center import build_center
+from .fs_plan import filesystem_plan, filesystem_status
+from .fs_execute import fs_mkdir
 from .long_tasks import bootstrap_long_tasks, long_tasks_status, record_long_task_iteration, seed_engine_research_backlog, run_long_task_verification, pin_long_task_success_to_github
 from .missions import build_mission_actions
 from .patches import apply_changed_files_patch, inspect_patch_zip, rollback_last_patch, verify_last_patch
@@ -318,6 +320,9 @@ def build_builtin_registry() -> SuiteRegistry:
         SuiteAction("endless.fix.direct-provider-scan", "Fix direct provider scanner precision", "ignore legal provider ids in capability/conformance/test descriptors", fix_direct_provider_scan, "FIX", "devtools", "endless stream", "writes_source", output_schema="northstar.endless.recipe.v1"),
         SuiteAction("endless.full-cycle", "Run Endless Stream full cycle", "run local Endless Stream cycle through registered Suite action", full_cycle, "RUN", "devtools", "endless stream", "writes_reports", output_schema="northstar.endless.full_cycle.v1"),
         SuiteAction("endless.loop", "Run Endless Stream loop", "run unbounded local Endless Stream cycles until STOP signal, interrupt or failure", loop, "RUN", "devtools", "endless stream", "writes_reports", output_schema="northstar.endless.loop.v1"),
+        SuiteAction("filesystem.status", "Filesystem operator status", "show controlled filesystem operator policy and default plan path", filesystem_status, "DIAG", "devtools", "filesystem", "diagnostics", output_schema="northstar.filesystem.status.v1"),
+        SuiteAction("filesystem.plan", "Validate filesystem plan", "validate .takesome/filesystem/operations.json without executing operations", filesystem_plan, "PLAN", "devtools", "filesystem", "diagnostics", output_schema="northstar.filesystem.plan.v1"),
+        SuiteAction("filesystem.mkdir", "Create filesystem workspace", "create .takesome/filesystem/workspace controlled directory", fs_mkdir, "MKDIR", "devtools", "filesystem", "writes_files", output_schema="northstar.filesystem.mkdir.v1"),
         SuiteAction("tools.operator.toolbelt", "Pin operator toolbelt", "write the simple bounded toolbelt for chat/Suite work", write_operator_toolbelt, "DIAG", "devtools", "operator tooling", "writes_reports", output_schema="northstar.suite.operator_toolbelt.v1"),
         SuiteAction("source.pack", "Pack source snapshot", "create clean source archive", _pack_source, "PACK", "devtools", "source", "writes_zip"),
     )

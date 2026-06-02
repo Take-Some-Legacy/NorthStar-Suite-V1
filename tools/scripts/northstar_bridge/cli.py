@@ -5,9 +5,11 @@ import getpass
 import json
 import os
 import sys
+import threading
 from pathlib import Path
 from typing import Any, Dict, List
 
+from . import access
 from .auth import forget_key, openai_env, openai_status, write_cached_key
 from .console import emit
 from .contracts import BRIDGE_VERSION, DEFAULT_HTTP_HOST, DEFAULT_HTTP_PORT, BridgeContext, BridgeError
@@ -171,6 +173,90 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     return ns
 
 
+
+def _confirm_trusted_connection(root: Path, *, requested_write: bool, interactive: bool) -> bool:
+    if not requested_write:
+        return False
+    if access.token_path(root).exists():
+        token = access.ensure_token(root)
+        print(f"[OK] Trusted bridge token found: {access.token_fingerprint(token)}")
+        return True
+    if not interactive:
+        print("[WARN] Bridge write/sudo requested but no trusted token exists and stdin is not interactive; write mode disabled.")
+        return False
+    print("North Star Bridge requests trusted local workspace access.")
+    print("This will create .takesome/authority/bridge_access_token.txt for future connections.")
+    answer = input("Trust this connection? (y/n) > ").strip().lower()
+    if answer not in {"y", "yes"}:
+        print("[WARN] Connection not trusted; write mode disabled.")
+        return False
+    token = access.ensure_token(root)
+    print(f"[OK] Trusted bridge connection recorded: {access.token_fingerprint(token)}")
+    return True
+
+def _console_command_loop(ctx: BridgeContext) -> None:
+    """Tiny operator console loop for the local bridge window.
+
+    It intentionally uses a simple Linux-style prompt so the owner can approve
+    local trust and inspect bridge state without restarting the origin.
+    """
+    print("North Star Bridge console ready. Type 'help' for commands.")
+    while True:
+        try:
+            print("> ", end="", flush=True)
+            line = sys.stdin.readline()
+        except Exception as exc:
+            emit("WARN", "console input stopped", error=f"{type(exc).__name__}: {exc}")
+            return
+        if not line:
+            return
+        command = line.strip().lower()
+        if not command:
+            continue
+        if command in {"help", "?"}:
+            print("commands: help, status, trust, token, read, write, quit")
+            continue
+        if command == "status":
+            token = access.ensure_token(ctx.root)
+            print(json.dumps({
+                "ok": True,
+                "write_enabled": ctx.write_enabled,
+                "sudo": ctx.sudo,
+                "token": access.token_fingerprint(token),
+                "root": str(ctx.root),
+            }, ensure_ascii=False, indent=2))
+            continue
+        if command in {"trust", "authorize", "auth"}:
+            token = access.ensure_token(ctx.root)
+            ctx.write_enabled = True
+            ctx.sudo = True
+            os.environ["NORTHSTAR_SUITE_SUDO"] = "1"
+            os.environ.setdefault("NORTHSTAR_SUITE_SUDO_REASON", "console")
+            print(f"[OK] trusted local connection: {access.token_fingerprint(token)}")
+            continue
+        if command == "token":
+            token = access.ensure_token(ctx.root)
+            print(f"bridge token: {access.token_fingerprint(token)}")
+            continue
+        if command in {"read", "readonly", "read-only"}:
+            ctx.write_enabled = False
+            ctx.sudo = False
+            print("[OK] bridge switched to read-only for this session")
+            continue
+        if command in {"write", "sudo"}:
+            token = access.ensure_token(ctx.root)
+            ctx.write_enabled = True
+            ctx.sudo = True
+            os.environ["NORTHSTAR_SUITE_SUDO"] = "1"
+            os.environ.setdefault("NORTHSTAR_SUITE_SUDO_REASON", "console")
+            print(f"[OK] bridge write/sudo enabled: {access.token_fingerprint(token)}")
+            continue
+        if command in {"quit", "exit"}:
+            print("[INFO] console loop stopped; bridge keeps running")
+            return
+        print(f"[WARN] unknown command: {command}")
+
+
 def make_context(ns: argparse.Namespace) -> BridgeContext:
     root = find_root(Path(ns.root))
     config = _load_bridge_config(root)
@@ -185,11 +271,13 @@ def make_context(ns: argparse.Namespace) -> BridgeContext:
         os.environ.setdefault("NORTHSTAR_SUITE_SUDO_REASON", "bridge")
         os.environ.setdefault("NORTHSTAR_BRIDGE_SUDO", "1")
     trusted_by_config = _config_requests_write(config)
-    write_enabled = bool(ns.write or sudo or env_write or trusted_by_config)
+    requested_write = bool(ns.write or sudo or env_write or trusted_by_config)
+    interactive = (not ns.stdio) and sys.stdin.isatty()
+    trusted_connection = _confirm_trusted_connection(root, requested_write=requested_write, interactive=interactive)
+    write_enabled = requested_write and trusted_connection
     if bool(ns.read_only or env_read):
         write_enabled = False
-    interactive = (not ns.stdio) and sys.stdin.isatty()
-    return BridgeContext(root=root, write_enabled=write_enabled, python_cmd=[sys.executable], interactive=interactive, sudo=sudo)
+    return BridgeContext(root=root, write_enabled=write_enabled, python_cmd=[sys.executable], interactive=interactive, sudo=sudo and trusted_connection)
 
 
 def main(argv: List[str]) -> int:
@@ -218,6 +306,8 @@ def main(argv: List[str]) -> int:
     if ns.stdio:
         return run_stdio(ctx)
     if ns.http:
+        if ctx.interactive:
+            threading.Thread(target=_console_command_loop, args=(ctx,), daemon=True).start()
         return run_http(ctx, ns.host, ns.port, ns.status_interval)
     return run_hello(ctx)
 

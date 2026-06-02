@@ -7,7 +7,7 @@ from .cache import scan_and_cache_tools
 from .constants import LEGACY_TOOL_IDENTITIES, LEGACY_TOOL_PATHS
 from .descriptors import discover_tools
 from .legacy_scan import validate_source_for_legacy_tool_identities
-from .invariants import run_p0_invariant_scan, run_p1_capability_conformance_scan, run_p2_schema_property_scan, run_p21_schema_runtime_scan, run_p3_editor_shell_scan, run_p4_import_pipeline_scan, run_p5_world_scene_save_load_scan, run_p6_gameplay_foundation_scan, run_p7_rendering_maturity_scan, run_p8_reference_module_completeness_scan, run_p9_dataset_maturity_scan
+from .invariants import run_p0_invariant_scan, run_p1_capability_conformance_scan, run_p2_schema_property_scan, run_p21_schema_runtime_scan, run_p3_editor_shell_scan, run_p4_import_pipeline_scan, run_p5_world_scene_save_load_scan, run_p6_gameplay_foundation_scan, run_p7_rendering_maturity_scan, run_p8_reference_module_completeness_scan, run_dataset_maturity_scan
 
 
 def _normalized_delete_text(repo_root: Path) -> str:
@@ -66,7 +66,7 @@ def validate_build_tools(repo_root: Path, *, log: TeeLog | None = None) -> int:
     own_log = log or TeeLog()
     own_log.emit("[CHECK] Build preflight: native tool surface + blocking Workspace Doctor diagnostics")
     tool_code = validate_native_tool_surface(repo_root, log=own_log)
-    legacy_code = validate_legacy_tool_identity_absent(repo_root, log=own_log)
+    legacy_code = validate_source_for_legacy_tool_identities(repo_root, log=own_log)
 
     from .doctor import run_workspace_doctor
 

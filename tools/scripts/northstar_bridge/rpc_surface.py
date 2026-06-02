@@ -3,13 +3,11 @@ from __future__ import annotations
 import os
 from typing import Any, Dict
 
+from . import oauth_scopes, release_info
 from .contracts import ToolSpec
 
-PUBLIC_APP_TITLE = "North Star Suite"
-PUBLIC_APP_DESCRIPTION = (
-    "North Star Engine operator and workspace bridge for diagnostics, safe project inspection, "
-    "Suite commands, dataset search, and controlled text-file maintenance."
-)
+PUBLIC_APP_TITLE = release_info.BRIDGE_PUBLIC_TITLE
+PUBLIC_APP_DESCRIPTION = release_info.BRIDGE_PUBLIC_DESCRIPTION
 PUBLIC_APP_TAGS = ["northstar", "suite", "game-engine", "developer-tools"]
 
 PUBLIC_TOOL_TITLES: Dict[str, str] = {
@@ -29,6 +27,13 @@ PUBLIC_TOOL_TITLES: Dict[str, str] = {
     "reload_bridge_origin": "Reload bridge origin",
     "restart_bridge_origin": "Restart bridge origin",
 }
+
+PUBLIC_NOAUTH_TOOLS = {
+    "bridge_origin_status",
+    "get_status",
+    "bridge_inspect_tool_descriptors",
+}
+
 
 PUBLIC_TOOL_MAP: Dict[str, str] = {
     "get_status": "northstar.status",
@@ -231,8 +236,8 @@ def _public_title(public_name: str) -> str:
     return words[:1].upper() + words[1:] if words else public_name
 
 
-def _tool_security() -> list[Dict[str, Any]]:
-    return [{"type": "noauth"}]
+def _tool_security(public_name: str = "") -> list[Dict[str, Any]]:
+    return [{"type": "oauth2", "scopes": oauth_scopes.required_scopes(public_name)}]
 
 
 def _truthy_env(name: str) -> bool:
@@ -244,16 +249,11 @@ def _suite_sudo_active() -> bool:
 
 
 def _tool_risk_tier(public_name: str = "") -> str:
-    read_only_project_tools = {"tool_registry", "grep", "rg", "awk", "fd", "find", "ls", "cat", "head", "tail", "wc"}
-    if public_name in {"delete_path", "rm", "reload_bridge_origin", "restart_bridge_origin"}:
-        return "sudo_write" if _suite_sudo_active() else "dangerous"
-    if public_name in {"execute_suite_command", "write_text_file"}:
-        return "sudo_write" if _suite_sudo_active() else "write"
-    if public_name and public_name not in PUBLIC_TOOL_MAP:
-        if public_name in read_only_project_tools:
-            return "read_only"
-        return "sudo_write" if _suite_sudo_active() else "write"
-    return "read_only"
+    return oauth_scopes.risk_tier(
+        public_name,
+        suite_sudo_active=_suite_sudo_active(),
+        is_public_static_tool=public_name in PUBLIC_TOOL_MAP,
+    )
 
 
 def _tool_annotations(public_name: str = "") -> Dict[str, Any]:
@@ -286,7 +286,7 @@ def tool_descriptor(tool: ToolSpec) -> Dict[str, Any]:
 
 
 def _public_descriptor(public_name: str, internal: ToolSpec) -> Dict[str, Any]:
-    security = _tool_security()
+    security = _tool_security(public_name)
     return {
         "name": public_name,
         "title": _public_title(public_name),
@@ -302,6 +302,8 @@ def _public_descriptor(public_name: str, internal: ToolSpec) -> Dict[str, Any]:
             "northstar/tags": PUBLIC_APP_TAGS,
             "northstar/sudo": _suite_sudo_active(),
             "northstar/riskTier": _tool_risk_tier(public_name),
+            "northstar/releaseName": release_info.BRIDGE_RELEASE_NAME,
+            "northstar/releaseNotes": release_info.BRIDGE_RELEASE_NOTES,
         },
     }
 

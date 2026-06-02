@@ -95,11 +95,6 @@ def archive_info(ctx: BridgeContext, archive: Path) -> Dict[str, Any]:
     return {"path": rel(ctx.root, archive), "dataset_relative_path": rel(ds, archive), "size_bytes": st.st_size, "modified_utc": int(st.st_mtime)}
 
 
-def archive_manifest(archive: Path) -> Dict[str, Any]:
-    with zipfile.ZipFile(archive, "r") as zf:
-        infos = zf.infolist()
-        return {"entry_count": len(infos), "file_count": sum(1 for i in infos if not i.is_dir())}
-
 
 def top_extracted_dirs(ctx: BridgeContext, limit: int = 20) -> List[Path]:
     extracted = dataset_dirs(ctx)["extracted"]

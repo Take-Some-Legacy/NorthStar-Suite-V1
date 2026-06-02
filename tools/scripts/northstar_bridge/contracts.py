@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
-BRIDGE_VERSION = "0.4.5"
+BRIDGE_VERSION = "dev mode"
 PROTOCOL_VERSION = "2025-03-26"
 DEFAULT_HTTP_HOST = "127.0.0.1"
 DEFAULT_HTTP_PORT = 8797

@@ -107,10 +107,6 @@ def context_profile_args(root: Path) -> list[str]:
     return [context.profile]
 
 
-def context_platform_args(root: Path) -> list[str]:
-    context = load_suite_context(root)
-    return ["--platform", context.platform.id]
-
 
 def _select_profile(root: Path, current: SuiteContext) -> str | None:
     choices = [

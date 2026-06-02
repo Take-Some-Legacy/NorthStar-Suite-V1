@@ -12,12 +12,13 @@ from itertools import count
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
-from . import dataset, repo, status as bridge_status
+from . import access, dataset, oauth, release_info, repo, status as bridge_status
 from .console import emit
 from .contracts import BRIDGE_VERSION, BridgeContext
 from .registry import build_tools
 from .rpc import discovery_payload, handle_rpc_batch, tool_descriptor
 from .paths import rel
+from .mcp_routes import DEFAULT_MCP_ROUTES, all_head_paths, is_direct_tool_call_path, is_discovery_path, is_mcp_path, is_operator_get_path, route_label
 
 _REQUEST_IDS = count(1)
 _SECRET_KEY_PARTS = ("key", "token", "secret", "password", "authorization", "credential")
@@ -47,6 +48,39 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def log_message(self, fmt: str, *args: Any) -> None:
         return
+
+    def _auth_required(self, path: str) -> bool:
+        return is_direct_tool_call_path(path) or is_operator_get_path(path)
+
+    def _rpc_body_requires_auth(self, body: Any) -> bool:
+        def one(item: Any) -> bool:
+            return isinstance(item, dict) and item.get("method") == "tools/call"
+        if isinstance(body, list):
+            return any(one(item) for item in body)
+        return one(body)
+
+    def _authorized(self, path: str) -> bool:
+        if not self._auth_required(path):
+            return True
+        ctx = self.server.ctx  # type: ignore[attr-defined]
+        return access.authorized(ctx.root, self.headers)
+
+    def _send_forbidden_local(self, request_id: int, started: float) -> None:
+        ctx = self.server.ctx  # type: ignore[attr-defined]
+        self._send({"ok": False, "error": "forbidden_local_token_required", "auth": access.status(ctx.root)}, 403, request_id=request_id, started=started)
+
+    def _send_oauth_required(self, request_id: int, started: float) -> None:
+        ctx = self.server.ctx  # type: ignore[attr-defined]
+        payload = {"ok": False, "error": "oauth_required", "auth": oauth.protected_resource_metadata(oauth.base_url_from_headers(self.headers), _request_path(self.path) if is_mcp_path(_request_path(self.path)) else DEFAULT_MCP_ROUTES.endpoint)}
+        data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        self.send_response(401)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("WWW-Authenticate", f'Bearer resource_metadata="{oauth.base_url_from_headers(self.headers)}/.well-known/oauth-protected-resource"')
+        self._send_common_headers()
+        self.end_headers()
+        self.wfile.write(data)
+        _emit_response("POST", _request_path(self.path), request_id, 401, int((time.time() - started) * 1000), len(data), response_status="oauth_required")
 
     def _send_common_headers(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -171,9 +205,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
             trace={"optional_asset": "favicon.ico", "asset_path": rel(ctx.root, favicon)},
         )
 
-    def _read_json(self) -> Tuple[Any, bytes]:
+    def _read_body_bytes(self) -> bytes:
         length = int(self.headers.get("Content-Length", "0") or "0")
-        raw = self.rfile.read(length) if length else b"{}"
+        return self.rfile.read(length) if length else b""
+
+    def _read_json(self) -> Tuple[Any, bytes]:
+        raw = self._read_body_bytes() or b"{}"
         if not raw:
             return {}, raw
         return json.loads(raw.decode("utf-8", errors="replace")), raw
@@ -183,7 +220,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         request_id = next(_REQUEST_IDS)
         path = _request_path(self.path)
         _emit_request("HEAD", path, request_id)
-        status_code = 200 if path in {"/", "/mcp", "/health", "/status", "/tools", "/dataset", "/logs", "/favicon.ico"} else 404
+        status_code = 200 if path in all_head_paths() else 404
         self.send_response(status_code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", "0")
@@ -197,13 +234,30 @@ class Handler(http.server.BaseHTTPRequestHandler):
         path = _request_path(self.path)
         _emit_request("GET", path, request_id)
         try:
+            if not self._authorized(path):
+                self._send_forbidden_local(request_id, started)
+                return
             ctx = self.server.ctx  # type: ignore[attr-defined]
             tools = self.server.tools  # type: ignore[attr-defined]
-            if path == "/favicon.ico":
+            if oauth.is_well_known_path(path):
+                status_code, payload = oauth.well_known_response(oauth.base_url_from_headers(self.headers), path)
+                self._send(payload, status_code=status_code, request_id=request_id, started=started)
+            elif path == "/oauth/authorize":
+                status_code, headers, data = oauth.authorize(ctx.root, self.headers, urllib.parse.urlparse(self.path).query)
+                self.send_response(status_code)
+                for key, value in headers.items():
+                    self.send_header(key, value)
+                self.send_header("Content-Length", str(len(data)))
+                self._send_common_headers()
+                self.end_headers()
+                if data:
+                    self.wfile.write(data)
+                _emit_response("GET", path, request_id, status_code, int((time.time() - started) * 1000), len(data), response_status="ok" if status_code < 400 else "error")
+            elif path == "/favicon.ico":
                 self._send_favicon(ctx, request_id=request_id, started=started)
             elif path == "/health":
-                self._send({"ok": True, "name": "northstar-ai-bridge", "version": BRIDGE_VERSION, "mode": "http", "endpoints": ["/mcp", "/status", "/tools", "/dataset", "/logs", "/favicon.ico"]}, request_id=request_id, started=started)
-            elif path in {"/", "/mcp"}:
+                self._send({"ok": True, "name": "northstar-ai-bridge", "version": BRIDGE_VERSION, "releaseName": release_info.BRIDGE_RELEASE_NAME, "releaseNotes": release_info.BRIDGE_RELEASE_NOTES, "mode": "http", "endpoints": [DEFAULT_MCP_ROUTES.endpoint, "/status", "/tools", "/dataset", "/logs", "/favicon.ico"]}, request_id=request_id, started=started)
+            elif is_discovery_path(path):
                 payload = discovery_payload(tools)
                 accept = self.headers.get("Accept", "")
                 if "text/event-stream" in accept:
@@ -228,6 +282,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
         started = time.time()
         request_id = next(_REQUEST_IDS)
         path = _request_path(self.path)
+        ctx = self.server.ctx  # type: ignore[attr-defined]
+        tools = self.server.tools  # type: ignore[attr-defined]
+
+        if path == "/oauth/token":
+            raw = self._read_body_bytes()
+            trace = {"raw_bytes": len(raw), "oauth_endpoint": "token"}
+            _emit_request("POST", path, request_id, **trace)
+            try:
+                status_code, headers, payload = oauth.token(ctx.root, raw, self.headers.get("Content-Type", ""))
+                self._send(payload, status_code=status_code, request_id=request_id, started=started, trace=trace)
+            except Exception as exc:
+                self._send({"ok": False, "error": "oauth_token_exception", "message": str(exc)}, 500, request_id=request_id, started=started, trace={**trace, "error_details": str(exc)})
+            return
+
         try:
             body, raw = self._read_json()
         except Exception as exc:
@@ -238,12 +306,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
         trace = _request_trace(path, body, len(raw))
         _emit_request("POST", path, request_id, **trace)
         try:
-            ctx = self.server.ctx  # type: ignore[attr-defined]
-            tools = self.server.tools  # type: ignore[attr-defined]
-            if path == "/mcp":
+            if path == "/oauth/register":
+                payload = oauth.register_client(ctx.root, body if isinstance(body, dict) else {})
+                self._send(payload, status_code=201, request_id=request_id, started=started, trace=trace)
+                return
+            if is_mcp_path(path) and self._rpc_body_requires_auth(body) and not access.authorized(ctx.root, self.headers):
+                self._send_oauth_required(request_id, started)
+                return
+            if not is_mcp_path(path) and not self._authorized(path):
+                self._send_forbidden_local(request_id, started)
+                return
+            if is_mcp_path(path):
                 response, status_code = handle_rpc_batch(ctx, tools, body)
                 self._send(response, status_code=status_code, request_id=request_id, started=started, trace=trace)
-            elif path == "/tools/call":
+            elif is_direct_tool_call_path(path):
                 response = _handle_direct_tool_call(ctx, tools, body)
                 self._send(response, request_id=request_id, started=started, trace=trace)
             else:
@@ -270,23 +346,7 @@ def _request_path(raw: str) -> str:
 
 
 def _route(path: str) -> str:
-    if path == "/favicon.ico":
-        return "asset"
-    if path == "/health":
-        return "health"
-    if path in {"/", "/mcp"}:
-        return "mcp"
-    if path == "/tools/call":
-        return "tool-call"
-    if path.startswith("/tools"):
-        return "tools"
-    if path.startswith("/dataset"):
-        return "dataset"
-    if path.startswith("/logs"):
-        return "logs"
-    if path.startswith("/status"):
-        return "status"
-    return "http"
+    return route_label(path)
 
 
 def _truthy_env(name: str) -> bool:
@@ -380,7 +440,7 @@ def _request_trace(path: str, body: Any, raw_bytes: int) -> Dict[str, Any]:
     if method == "tools/call":
         tool = str(params.get("name", ""))
         args = params.get("arguments") or {}
-    elif path == "/tools/call":
+    elif is_direct_tool_call_path(path):
         tool = str(body.get("name") or body.get("tool") or "")
         args = body.get("arguments") or body.get("args") or {}
     fields: Dict[str, Any] = {"raw_bytes": raw_bytes}

@@ -155,14 +155,3 @@ def run_dataset_maturity_scan(
     if strict:
         args.append("--strict")
     return _run_engine_script(repo_root, "dataset_maturity_scan.py", args, log=log)
-
-
-# Compatibility name used by older P9 Suite actions.
-def run_p9_dataset_maturity_scan(
-    repo_root: Path,
-    *,
-    write_index: bool = True,
-    strict: bool = False,
-    log: TeeLog | None = None,
-) -> int:
-    return run_dataset_maturity_scan(repo_root, write_index=write_index, strict=strict, log=log)

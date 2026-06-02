@@ -103,24 +103,6 @@ def _write_file(
     return True
 
 
-def _copy_file(
-    zf: zipfile.ZipFile,
-    root: Path,
-    path: Path,
-    *,
-    archive_name: str | None = None,
-    category: str = "files",
-    used_archives: set[str] | None = None,
-    copied_entries: list[dict[str, Any]] | None = None,
-    seen_sources: set[str] | None = None,
-) -> bool:
-    # Compatibility helper for older call sites; new collect-run passes explicit manifests.
-    used = used_archives if used_archives is not None else set()
-    entries = copied_entries if copied_entries is not None else []
-    seen = seen_sources if seen_sources is not None else set()
-    name = archive_name or f"files/{rel(root, path)}"
-    return _write_file(zf, root, path, archive_name=name, category=category, used_archives=used, copied_entries=entries, seen_sources=seen)
-
 
 def _copy_tree(
     zf: zipfile.ZipFile,

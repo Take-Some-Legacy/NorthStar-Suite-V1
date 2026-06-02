@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, Optional
 
+from . import release_info
 from .contracts import BRIDGE_VERSION, PROTOCOL_VERSION, BridgeContext, BridgeError, ToolSpec, MAX_PUBLIC_RESPONSE_BYTES, MAX_PUBLIC_STRING_BYTES
+from .mcp_routes import DEFAULT_MCP_ROUTES
 from .rpc_surface import (
     PUBLIC_APP_DESCRIPTION,
     PUBLIC_APP_TAGS,
@@ -32,18 +34,33 @@ def discovery_payload(tools: Dict[str, ToolSpec]) -> Dict[str, Any]:
         "version": BRIDGE_VERSION,
         "title": PUBLIC_APP_TITLE,
         "description": PUBLIC_APP_DESCRIPTION,
+        "releaseName": release_info.BRIDGE_RELEASE_NAME,
+        "releaseNotes": release_info.BRIDGE_RELEASE_NOTES,
         "tags": PUBLIC_APP_TAGS,
         "transport": "mcp-streamable-http",
-        "endpoint": "/mcp",
+        "endpoint": DEFAULT_MCP_ROUTES.endpoint,
         "http": {
-            "POST /mcp": "JSON-RPC MCP messages",
-            "OPTIONS /mcp": "transport preflight / allowed methods",
-            "HEAD /mcp": "reachability probe / zero-byte metadata headers",
-            "GET /mcp": "operator discovery; use POST for MCP clients",
+            f"POST {DEFAULT_MCP_ROUTES.endpoint}": "JSON-RPC MCP messages",
+            f"OPTIONS {DEFAULT_MCP_ROUTES.endpoint}": "transport preflight / allowed methods",
+            f"HEAD {DEFAULT_MCP_ROUTES.endpoint}": "reachability probe / zero-byte metadata headers",
+            f"GET {DEFAULT_MCP_ROUTES.endpoint}": "operator discovery; use POST for MCP clients",
         },
         "protocolVersion": PROTOCOL_VERSION,
-        "capabilities": {"tools": {"listChanged": False}},
-        "methods": ["initialize", "notifications/initialized", "ping", "tools/list", "tools/call"],
+        "capabilities": {
+            "tools": {"listChanged": False},
+            "resources": {"subscribe": False, "listChanged": False},
+            "prompts": {"listChanged": False},
+        },
+        "methods": [
+            "initialize",
+            "notifications/initialized",
+            "ping",
+            "tools/list",
+            "tools/call",
+            "resources/list",
+            "resources/templates/list",
+            "prompts/list",
+        ],
         "toolCount": len(public_tool_descriptors(tools)),
     }
 
@@ -195,8 +212,12 @@ def handle_rpc(ctx: BridgeContext, tools: Dict[str, ToolSpec], request: Dict[str
         if method == "initialize":
             return rpc_result(request_id, {
                 "protocolVersion": PROTOCOL_VERSION,
-                "serverInfo": {"name": "northstar-ai-bridge", "title": PUBLIC_APP_TITLE, "version": BRIDGE_VERSION},
-                "capabilities": {"tools": {"listChanged": False}},
+                "serverInfo": {"name": "northstar-ai-bridge", "title": PUBLIC_APP_TITLE, "version": BRIDGE_VERSION, "releaseName": release_info.BRIDGE_RELEASE_NAME, "releaseNotes": release_info.BRIDGE_RELEASE_NOTES},
+                "capabilities": {
+                    "tools": {"listChanged": False},
+                    "resources": {"subscribe": False, "listChanged": False},
+                    "prompts": {"listChanged": False},
+                },
                 "instructions": "North Star Engine operator MCP bridge. execute_suite_command, write_text_file and delete_path are always visible; write/delete execution requires bridge write mode and remains bounded to the repository root. Project tool registry exposes discovered tools such as grep, sed, git, cargo and descriptor tools as first-class MCP tools with bounded stdout/stderr.",
             })
         if method == "notifications/initialized":
@@ -205,6 +226,12 @@ def handle_rpc(ctx: BridgeContext, tools: Dict[str, ToolSpec], request: Dict[str
             return rpc_result(request_id, {})
         if method == "tools/list":
             return rpc_result(request_id, {"tools": public_tool_descriptors(tools)})
+        if method == "resources/list":
+            return rpc_result(request_id, {"resources": []})
+        if method == "resources/templates/list":
+            return rpc_result(request_id, {"resourceTemplates": []})
+        if method == "prompts/list":
+            return rpc_result(request_id, {"prompts": []})
         if method == "tools/call":
             requested_name = str(params.get("name") or "")
             name = _map_tool_name(requested_name)
