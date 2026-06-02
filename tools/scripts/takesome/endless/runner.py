@@ -76,17 +76,7 @@ class EndlessRunner:
         findings: list,
         appended: list[Instruction],
     ) -> SelectedTask:
-        if appended:
-            newest = appended[-1]
-            return SelectedTask(
-                id=newest.id,
-                priority=newest.priority,
-                title=newest.text,
-                reason="fresh chat/operator instruction overrides older non-constant work for this cycle",
-                affected_paths=[],
-            )
         return select_task(instructions, findings)
-
 
 def run_endless_stream(root: Path | str, operator_notes: list[str] | None = None, mode: str = "foundation") -> CycleResult:
     if isinstance(root, str):

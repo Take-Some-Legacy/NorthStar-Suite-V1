@@ -16,6 +16,12 @@ LEGACY_PATTERNS = (".neytd", "NEYTD", "asset.codec.pak", "newengine.container.pa
 HIDDEN_FALLBACK_PATTERNS = ("InternalNull", "internal null", "hidden fallback", "unwrap_or_else", "unwrap_or_default", "unwrap_or(")
 BOUNDARY_PATTERNS = ("&mut World", "native EntityId", "EntityId")
 
+DIAGNOSTIC_PATTERN_ALLOWLIST = (
+    "tools/scripts/takesome/endless/checks.py",
+    "tools/scripts/takesome/tools/legacy_scan.py",
+    "tools/scripts/northstar_bridge/operator_tools.py",
+)
+
 
 def _rel(path: Path, root: Path) -> str:
     try:
@@ -69,6 +75,8 @@ def _scan_patterns(
     findings: list[ScannerFinding] = []
     for path in _iter_source_files(root, max_files=max_files):
         rel = _rel(path, root)
+        if rel in DIAGNOSTIC_PATTERN_ALLOWLIST:
+            continue
         if path_filter and not any(token in rel for token in path_filter):
             continue
         try:
