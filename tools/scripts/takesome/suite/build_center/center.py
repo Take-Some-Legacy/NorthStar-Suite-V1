@@ -215,7 +215,7 @@ def _build_plugins_and_codecs(root: Path, *, profile: str, platform_id: str, sel
 def _build_game_app(root: Path, *, profile: str) -> int:
     # Build-only path for the game app: runGame owns sync+launch, but Build Center
     # needs a non-launching game target. Reuse the same Cargo manifest contract.
-    manifest = root / "NewEngine" / "neocore2" / "apps" / "game-ready-fps" / "Cargo.toml"
+    manifest = engine_core_root(root) / "apps" / "game-ready-fps" / "Cargo.toml"
     if not manifest.exists():
         console_emit(f"[ERROR] game-ready-fps manifest not found: {rel(root, manifest)}")
         return 2

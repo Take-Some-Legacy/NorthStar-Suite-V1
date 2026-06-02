@@ -1,8 +1,6 @@
 from __future__ import annotations
-
 import json
 from typing import Any, Dict, Optional
-
 from . import release_info
 from .contracts import BRIDGE_VERSION, PROTOCOL_VERSION, BridgeContext, BridgeError, ToolSpec, MAX_PUBLIC_RESPONSE_BYTES, MAX_PUBLIC_STRING_BYTES
 from .mcp_routes import DEFAULT_MCP_ROUTES
@@ -14,19 +12,13 @@ from .rpc_surface import (
     public_tool_descriptors,
     tool_descriptor,
 )
-
-
 def rpc_result(request_id: Any, result: Any) -> Dict[str, Any]:
     return {"jsonrpc": "2.0", "id": request_id, "result": result}
-
-
 def rpc_error(request_id: Any, code: int, message: str, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     error: Dict[str, Any] = {"code": code, "message": message}
     if data:
         error["data"] = data
     return {"jsonrpc": "2.0", "id": request_id, "error": error}
-
-
 def discovery_payload(tools: Dict[str, ToolSpec]) -> Dict[str, Any]:
     return {
         "ok": True,
@@ -63,13 +55,9 @@ def discovery_payload(tools: Dict[str, ToolSpec]) -> Dict[str, Any]:
         ],
         "toolCount": len(public_tool_descriptors(tools)),
     }
-
-
 def _map_tool_name(name: Any) -> str:
     text = str(name or "")
     return PUBLIC_TOOL_MAP.get(text, text)
-
-
 def _bounded_value(value: Any, *, depth: int = 0) -> Any:
     if depth > 8:
         return "…"
@@ -89,8 +77,6 @@ def _bounded_value(value: Any, *, depth: int = 0) -> Any:
     if isinstance(value, dict):
         return {str(k): _bounded_value(v, depth=depth + 1) for k, v in value.items()}
     return value
-
-
 def _bounded_payload(payload: Any) -> Any:
     bounded = _bounded_value(payload)
     # Second-pass hard cap: if nested JSON is still too large, keep a safe
@@ -108,8 +94,6 @@ def _bounded_payload(payload: Any) -> Any:
         summary["available_keys"] = sorted(str(k) for k in bounded.keys())[:80]
         return summary
     return {"ok": True, "truncated": True, "response_truncated_bytes": len(raw), "summary": str(type(bounded).__name__)}
-
-
 def _content_summary(payload: Any) -> Any:
     if isinstance(payload, dict):
         keys = (
@@ -119,39 +103,110 @@ def _content_summary(payload: Any) -> Any:
         )
         summary = {k: payload.get(k) for k in keys if k in payload}
         if "stdout" in payload:
-            summary["stdout_tail_preview"] = str(payload.get("stdout", ""))[-2000:]
+            summary["stdout"] = _stream_summary(payload, "stdout")
         if "stderr" in payload and payload.get("stderr"):
-            summary["stderr_tail_preview"] = str(payload.get("stderr", ""))[-2000:]
+            summary["stderr"] = _stream_summary(payload, "stderr")
         if not summary:
             summary = {"keys": sorted(str(k) for k in payload.keys())[:40]}
         return summary
     if isinstance(payload, list):
         return {"list_count": len(payload), "first": payload[:3]}
     return payload
-
-
+def _stream_summary(payload: dict[str, Any], name: str) -> dict[str, Any]:
+    text = str(payload.get(name, "") or "")
+    byte_count = int(payload.get(f"{name}_bytes", len(text.encode("utf-8", errors="replace"))) or 0)
+    truncated = bool(payload.get(f"{name}_truncated", False))
+    policy = payload.get("output_policy", {}) if isinstance(payload.get("output_policy"), dict) else {}
+    mode = str(policy.get(name, "bounded"))
+    return {
+        "bytes": byte_count,
+        "truncated": truncated,
+        "mode": mode,
+        "line_count": len(text.splitlines()),
+        "preview": _format_console_text(text),
+    }
+def _render_public_text(payload: Any, *, is_error: bool = False) -> str:
+    title = "North Star Bridge Error" if is_error else "North Star Bridge Result"
+    lines: list[str] = [title, "=" * len(title)]
+    if isinstance(payload, dict):
+        summary = _content_summary(payload)
+        scalar_summary = {k: v for k, v in summary.items() if k not in {"stdout", "stderr"}}
+        if scalar_summary:
+            lines.extend(["", "Summary", "-------", _json_block(scalar_summary)])
+        for stream_name in ("stdout", "stderr"):
+            if stream_name not in summary:
+                continue
+            stream = summary[stream_name]
+            if not isinstance(stream, dict):
+                continue
+            header = stream_name.upper()
+            meta = (
+                f"bytes={stream.get('bytes', 0)} "
+                f"lines={stream.get('line_count', 0)} "
+                f"mode={stream.get('mode', 'bounded')} "
+                f"truncated={str(stream.get('truncated', False)).lower()}"
+            )
+            lines.extend([
+                "",
+                f"{header} ({meta})",
+                "-" * (len(header) + len(meta) + 3),
+                str(stream.get("preview", "")),
+            ])
+        if "stdout" not in summary and "stderr" not in summary:
+            lines.extend(["", "Payload", "-------", _json_block(payload)])
+        return "\n".join(lines).rstrip() + "\n"
+    return "\n".join([*lines, "", _json_block(payload)]).rstrip() + "\n"
+def _json_block(value: Any) -> str:
+    return "```json\n" + json.dumps(value, ensure_ascii=False, indent=2) + "\n```"
+def _text_block(text: str) -> str:
+    return "```text\n" + text.rstrip() + "\n```"
+def _format_console_text(text: str) -> str:
+    if not text:
+        return "```text\n<empty>\n```"
+    stripped = text.strip()
+    parsed = _try_parse_json(stripped)
+    if parsed is not None:
+        return _json_block(parsed)
+    return _text_block(_wrap_long_lines(text.rstrip()))
+def _try_parse_json(text: str) -> Any | None:
+    if not text:
+        return None
+    if text[0] not in "[{\"":
+        return None
+    try:
+        return json.loads(text)
+    except Exception:
+        return None
+def _wrap_long_lines(text: str, *, width: int = 180) -> str:
+    out: list[str] = []
+    for line in text.splitlines():
+        if len(line) <= width:
+            out.append(line)
+            continue
+        current = line
+        while len(current) > width:
+            out.append(current[:width] + " ↩")
+            current = "    " + current[width:]
+        out.append(current)
+    return "\n".join(out)
 def _tool_result_payload(payload: Any) -> Dict[str, Any]:
     payload = _bounded_payload(payload)
     result: Dict[str, Any] = {
-        "content": [{"type": "text", "text": json.dumps(_content_summary(payload), ensure_ascii=False, indent=2)}],
+        "content": [{"type": "text", "text": _render_public_text(payload, is_error=False)}],
         "isError": False,
     }
     if isinstance(payload, dict):
         result["structuredContent"] = payload
     return result
-
-
 def _tool_error_payload(error: Any) -> Dict[str, Any]:
     error = _bounded_payload(error)
     result: Dict[str, Any] = {
-        "content": [{"type": "text", "text": json.dumps(_content_summary(error), ensure_ascii=False, indent=2)}],
+        "content": [{"type": "text", "text": _render_public_text(error, is_error=True)}],
         "isError": True,
     }
     if isinstance(error, dict):
         result["structuredContent"] = error
     return result
-
-
 def _sanitize_public_arguments(public_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
     if public_name == "execute_suite_command":
         # Public execution is deliberately narrower than the internal
@@ -178,8 +233,6 @@ def _sanitize_public_arguments(public_name: str, arguments: Dict[str, Any]) -> D
                 sanitized["timeout_sec"] = 60
         return sanitized
     return arguments
-
-
 def _decorate_public_result(public_name: str, arguments: Dict[str, Any], payload: Any) -> Any:
     if public_name != "execute_suite_command" or not isinstance(payload, dict):
         return payload
@@ -199,15 +252,12 @@ def _decorate_public_result(public_name: str, arguments: Dict[str, Any], payload
         "allowed_surface": allowed_surface,
         **payload,
     }
-
-
 def handle_rpc(ctx: BridgeContext, tools: Dict[str, ToolSpec], request: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     method = request.get("method")
     request_id = request.get("id")
     params = request.get("params") or {}
     if not isinstance(params, dict):
         params = {}
-
     try:
         if method == "initialize":
             return rpc_result(request_id, {
@@ -250,11 +300,8 @@ def handle_rpc(ctx: BridgeContext, tools: Dict[str, ToolSpec], request: Dict[str
         return rpc_result(request_id, _tool_error_payload({"ok": False, "error": exc.code, "message": str(exc), **exc.data}))
     except Exception as exc:
         return rpc_result(request_id, _tool_error_payload({"ok": False, "error": "internal_error", "message": str(exc)}))
-
-
 def handle_rpc_batch(ctx: BridgeContext, tools: Dict[str, ToolSpec], request: Any) -> tuple[Any, int]:
     """Handle a single JSON-RPC message or a JSON-RPC batch.
-
     Returns (payload, status_code).  Pure notifications return HTTP 202.
     """
     if isinstance(request, list):
@@ -271,10 +318,8 @@ def handle_rpc_batch(ctx: BridgeContext, tools: Dict[str, ToolSpec], request: An
         if not responses:
             return {"ok": True, "notification": True}, 202
         return responses, 200
-
     if not isinstance(request, dict):
         return rpc_error(None, -32600, "invalid request", {"reason": "request is not object"}), 400
-
     response = handle_rpc(ctx, tools, request)
     if response is None:
         return {"ok": True, "notification": True}, 202

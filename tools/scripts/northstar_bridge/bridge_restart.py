@@ -9,7 +9,7 @@ from .console import emit
 from .contracts import BridgeContext, BridgeError
 from .paths import rel, truncate
 
-_ALLOWED_COMMANDS = {"status", "stop-origin", "wait-down", "wait-up"}
+_ALLOWED_COMMANDS = {"preflight", "status", "stop-origin", "wait-down", "wait-up"}
 
 
 def bridge_restart(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str, Any]:
@@ -72,7 +72,7 @@ def bridge_reload_origin(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str, 
     stamp = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
     report = reports / f"bridge-origin-reload-{stamp}.json"
 
-    helper_source = 'import json\nimport subprocess\nimport sys\nimport time\nfrom pathlib import Path\n\nhelper, root, host, port, timeout, wait_sec, delay_sec, dry_run, report = sys.argv[1:]\ntime.sleep(float(delay_sec))\nbase = [sys.executable, helper]\ncommon = ["--root", root, "--host", host, "--port", port, "--timeout", timeout, "--wait-sec", wait_sec]\nsteps = []\ncommands = ("status",) if dry_run == "1" else ("status", "stop-origin", "wait-down", "wait-up")\nfor command in commands:\n    argv = [*base, command, *common]\n    started = time.time()\n    proc = subprocess.run(argv, cwd=root, text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)\n    steps.append({\n        "command": command,\n        "exit_code": proc.returncode,\n        "elapsed_ms": int((time.time() - started) * 1000),\n        "stdout_tail": proc.stdout[-8192:],\n        "stderr_tail": proc.stderr[-8192:],\n    })\n    if proc.returncode != 0:\n        break\npayload = {\n    "schema": "northstar.bridge.origin_reload_report.v1",\n    "ok": all(step["exit_code"] == 0 for step in steps),\n    "host": host,\n    "port": int(port),\n    "dry_run": dry_run == "1",\n    "steps": steps,\n    "cloudflared_policy": "preserve: this helper never stops cloudflared or tunnel processes",\n    "restart_policy": "status -> stop-origin -> wait-down -> wait-up; dry-run performs status only",\n}\nPath(report).parent.mkdir(parents=True, exist_ok=True)\nPath(report).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")'
+    helper_source = 'import json\nimport subprocess\nimport sys\nimport time\nfrom pathlib import Path\n\nhelper, root, host, port, timeout, wait_sec, delay_sec, dry_run, report = sys.argv[1:]\ntime.sleep(float(delay_sec))\nbase = [sys.executable, helper]\ncommon = ["--root", root, "--host", host, "--port", port, "--timeout", timeout, "--wait-sec", wait_sec]\nsteps = []\ncommands = ("preflight", "status") if dry_run == "1" else ("preflight", "status", "stop-origin", "wait-down", "wait-up")\nfor command in commands:\n    argv = [*base, command, *common]\n    started = time.time()\n    proc = subprocess.run(argv, cwd=root, text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)\n    steps.append({\n        "command": command,\n        "exit_code": proc.returncode,\n        "elapsed_ms": int((time.time() - started) * 1000),\n        "stdout_tail": proc.stdout[-8192:],\n        "stderr_tail": proc.stderr[-8192:],\n    })\n    if proc.returncode != 0:\n        break\npayload = {\n    "schema": "northstar.bridge.origin_reload_report.v1",\n    "ok": all(step["exit_code"] == 0 for step in steps),\n    "host": host,\n    "port": int(port),\n    "dry_run": dry_run == "1",\n    "steps": steps,\n    "cloudflared_policy": "preserve: this helper never stops cloudflared or tunnel processes",\n    "restart_policy": "preflight -> status -> stop-origin -> wait-down -> wait-up; dry-run performs preflight -> status only",\n}\nPath(report).parent.mkdir(parents=True, exist_ok=True)\nPath(report).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")'
     command = [
         sys.executable,
         "-c",
@@ -118,14 +118,14 @@ def bridge_reload_origin(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str, 
 def bridge_restart_sequence(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str, Any]:
     """Run a bounded restart sequence for local HTTP origin.
 
-    Sequence: status -> stop-origin -> wait-down. wait-up is intentionally not
+    Sequence: preflight -> status -> stop-origin -> wait-down. wait-up is intentionally not
     performed unless the caller starts a new process outside this old origin;
     stopping the current process cannot also bring itself back.
     """
     if not ctx.write_enabled:
         raise BridgeError("bridge restart sequence requires write mode", "write_disabled")
     steps = []
-    commands = ("status",) if dry_run else ("status", "stop-origin", "wait-down", "wait-up")
+    commands = ("preflight", "status") if dry_run else ("preflight", "status", "stop-origin", "wait-down", "wait-up")
     for command in commands:
         step = bridge_restart(ctx, {**args, "command": command})
         steps.append(step)
@@ -133,4 +133,4 @@ def bridge_restart_sequence(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[st
             break
     ok = all(bool(step.get("ok")) for step in steps)
     emit("BRIDGE", "restart requested", status="ok" if ok else "failed", steps=len(steps))
-    return {"ok": ok, "steps": steps, "note": "Restart sequence verified: local origin stopped, went down, then came back up; cloudflared/tunnel is preserved."}
+    return {"ok": ok, "steps": steps, "note": "Restart sequence verified: virtual origin preflight passed, local origin stopped, went down, then came back up; cloudflared/tunnel is preserved."}

@@ -148,6 +148,7 @@ def main(argv: list[str]) -> int:
     p.add_argument("--list-actions", action="store_true", help="List grouped suite actions and exit.")
     p.add_argument("--run", default="", help="Run one suite action by key, then return/exit.")
     p.add_argument("--json", action="store_true", help="Emit SuiteOutputEnvelope JSON for --list-actions or --run.")
+    p.add_argument("--compact", action="store_true", help="With --json --run, print a compact operator summary and keep full JSON in result.json.")
     p.add_argument("--output-dir", default="", help="Directory for structured Suite run artifacts. Defaults to .takesome/suite/runs.")
     p.add_argument("-sudo", dest="sudo", action="store_true", help="Run Suite-owned write confirmations in explicit operator mode.")
 

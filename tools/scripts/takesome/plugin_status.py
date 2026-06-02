@@ -12,7 +12,7 @@ from .cargo import (
     select_runtime_crate,
     stamp_path,
 )
-from .paths import now_stamp, rel, utc_iso
+from .paths import now_stamp, rel, utc_iso, engine_core_root, plugins_root
 from .status_cache import write_status_snapshot
 from .platforms import BuildPlatform, normalize_build_platform, platform_artifact_root
 from .console import (
@@ -34,7 +34,7 @@ _VALID_BUILD_TYPES = {"dev", "debug", "release"}
 
 
 def _read_build_manifest(root: Path) -> dict[str, Any]:
-    path = root / "Plugins" / "build_manifest.json"
+    path = plugins_root(root) / "build_manifest.json"
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
@@ -46,7 +46,7 @@ def _discover_plugin_names(root: Path) -> list[str]:
     names = [str(item) for item in m.get("plugins", []) if str(item).strip()]
     if names:
         return names
-    plugins_dir = root / "Plugins"
+    plugins_dir = plugins_root(root)
     if not plugins_dir.exists():
         return []
     return sorted(
@@ -61,7 +61,7 @@ def _discover_codec_worker_names(root: Path) -> list[str]:
     names = [str(item) for item in m.get("codecWorkers", []) if str(item).strip()]
     if names:
         return names
-    codecs_dir = root / "Plugins" / "AssetManager" / "codecs"
+    codecs_dir = plugins_root(root) / "AssetManager" / "codecs"
     if not codecs_dir.exists():
         return []
     return sorted(
@@ -77,7 +77,7 @@ def normalize_build_type(build_type: str) -> str:
 
 
 def _engine_root(root: Path) -> Path:
-    return root / "NewEngine" / "neocore2"
+    return engine_core_root(root)
 
 
 def _plugin_out_dir(root: Path, kind: str, platform: BuildPlatform) -> Path:
@@ -87,8 +87,8 @@ def _plugin_out_dir(root: Path, kind: str, platform: BuildPlatform) -> Path:
 
 def _target_workspace(root: Path, kind: str, name: str) -> Path:
     if kind == "codec-worker":
-        return root / "Plugins" / "AssetManager" / "codecs" / name
-    return root / "Plugins" / name
+        return plugins_root(root) / "AssetManager" / "codecs" / name
+    return plugins_root(root) / name
 
 
 def _read_stamp(path: Path) -> dict[str, Any]:

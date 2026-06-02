@@ -178,7 +178,7 @@ def _system_probe(root: Path) -> dict:
 
 
 def _plugin_route_dump(root: Path) -> dict:
-    plugin_dir = root / "NewEngine" / "neocore2" / "plugins"
+    plugin_dir = engine_core_root(root) / "plugins"
     binaries = []
     if plugin_dir.exists():
         for path in sorted(plugin_dir.rglob("*"), key=lambda p: p.as_posix().lower()):
@@ -191,7 +191,7 @@ def _plugin_route_dump(root: Path) -> dict:
                 size = 0
                 sha = ""
             binaries.append({"name": path.name, "path": compact_path(root, rel(root, path)), "size": size, "sha256": sha[:16], "extension": path.suffix.lower()})
-    manifest = root / "Plugins" / "build_manifest.json"
+    manifest = plugins_root(root) / "build_manifest.json"
     manifest_data = {}
     if manifest.exists():
         try:
@@ -237,7 +237,7 @@ def _latest_profiler_reports(root: Path) -> list[Path]:
 
 def _profiler_data_roots(root: Path) -> list[Path]:
     candidates = [
-        root / "NewEngine" / "neocore2" / "cache" / "profiler",
+        engine_core_root(root) / "cache" / "profiler",
         suite_path(root, "profiler"),
         suite_path(root, "reports", "profiler"),
     ]
@@ -322,7 +322,7 @@ def _read_json_file(path: Path) -> dict[str, Any]:
 
 
 def _engine_health_snapshot(root: Path, plugin_routes: dict[str, Any]) -> dict[str, Any]:
-    engine_root = root / "NewEngine" / "neocore2"
+    engine_root = engine_core_root(root)
     runtime_plugin_dir = engine_root / "plugins"
     runtime_codec_dir = runtime_plugin_dir / "codecs"
     logs_root = engine_root / "logs"
@@ -534,7 +534,7 @@ def _is_inside(path: Path, parent: Path) -> bool:
 
 def _bundle_cache_cleanup_roots(root: Path) -> list[Path]:
     candidates = [
-        root / "NewEngine" / "neocore2" / "cache",
+        engine_core_root(root) / "cache",
         suite_path(root, "tools"),
         suite_path(root, "profiler"),
         suite_path(root, "reports"),
@@ -615,7 +615,7 @@ def collect_run_bundle(root: Path, *, log: TeeLog | None = None) -> int:
         _copy_tree(
             zf,
             root,
-            root / "NewEngine" / "neocore2" / "logs" / "run",
+            engine_core_root(root) / "logs" / "run",
             archive_root="logs/run",
             category="logs",
             used_archives=used_archives,
@@ -635,7 +635,7 @@ def collect_run_bundle(root: Path, *, log: TeeLog | None = None) -> int:
             log_paths=log_paths,
         )
         for name in ["newengine.log", "game-ready-early.log", "platform-host-early.log", "winit-early.log"]:
-            for base, archive_root in [(root / "NewEngine" / "neocore2", "logs/early"), (root, "logs/root")]:
+            for base, archive_root in [(engine_core_root(root), "logs/early"), (root, "logs/root")]:
                 path = base / name
                 if _write_file(
                     zf,
@@ -671,7 +671,7 @@ def collect_run_bundle(root: Path, *, log: TeeLog | None = None) -> int:
         )
         config_sources = [
             (tool_cache_dir(root) / "tool-registry.json", "config/tool-registry.json"),
-            (root / "NewEngine" / "neocore2" / "config.json", "config/neocore2-config.json"),
+            (engine_core_root(root) / "config.json", "config/neocore2-config.json"),
             (root / "config.json", "config/root-config.json"),
         ]
         for path, archive_name in config_sources:

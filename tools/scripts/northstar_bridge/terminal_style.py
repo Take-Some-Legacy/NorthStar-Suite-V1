@@ -49,6 +49,27 @@ def enable_windows_ansi() -> None:
         pass
 
 
+def disable_windows_quick_edit() -> None:
+    """Prevent Windows console selection mode from freezing live log output."""
+    if os.name != "nt":
+        return
+    try:
+        import ctypes
+
+        kernel32 = ctypes.windll.kernel32
+        stdin = kernel32.GetStdHandle(-10)
+        mode = ctypes.c_uint32()
+        if not kernel32.GetConsoleMode(stdin, ctypes.byref(mode)):
+            return
+        enable_extended_flags = 0x0080
+        quick_edit_mode = 0x0040
+        insert_mode = 0x0020
+        new_mode = (mode.value | enable_extended_flags) & ~quick_edit_mode & ~insert_mode
+        kernel32.SetConsoleMode(stdin, new_mode)
+    except Exception:
+        pass
+
+
 def ansi_allowed() -> bool:
     return not bool(os.environ.get("NO_COLOR"))
 

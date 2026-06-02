@@ -13,7 +13,7 @@ from ..build_info import build_info_dir
 from ..constants import DLL_EXT, ROOT_EXCLUDED_DIRS, SOURCE_ARCHIVE_EXCLUDED_EXTENSIONS
 from ..cargo import cargo_version, rust_target_available
 from ..logs import TeeLog
-from ..paths import rel, suite_path, suite_root, utc_iso
+from ..paths import engine_core_root, plugins_root, rel, suite_path, suite_root, utc_iso
 from ..status_cache import write_status_snapshot
 from .cache import scan_and_cache_tools, tool_cache_dir
 from .constants import LEGACY_TOOL_PATHS
@@ -36,15 +36,7 @@ class CheckResult:
         return {"OK": 0, "WARN": 1, "ERROR": 2}.get(self.status, 2)
 
     def as_record(self) -> dict[str, Any]:
-        return {
-            "key": self.key,
-            "status": self.status,
-            "rank": self.rank,
-            "summary": self.summary,
-            "details": self.details,
-            "blocking": self.blocking,
-            "remediation": self.remediation,
-        }
+        return {"key": self.key, "status": self.status, "rank": self.rank, "summary": self.summary, "details": self.details, "blocking": self.blocking, "remediation": self.remediation}
 
 
 def _ok(key: str, summary: str, details: list[str] | None = None) -> CheckResult:
@@ -71,7 +63,7 @@ def check_env(repo_root: Path) -> CheckResult:
     env_ok = os.environ.get("NEWENGINE_SCRIPT_ENV") == "1"
     expected = {
         "NEWENGINE_REPO_ROOT": repo_root,
-        "NEWENGINE_ROOT": repo_root / "NewEngine" / "neocore2",
+        "NEWENGINE_ROOT": engine_core_root(repo_root),
         "NEWENGINE_SCRIPT_ROOT": repo_root / "tools" / "scripts",
         "NEWENGINE_SUITE_ROOT": suite_root(repo_root),
     }
@@ -115,14 +107,15 @@ def check_rust_target() -> CheckResult:
 
 
 def check_plugin_manifest(repo_root: Path) -> CheckResult:
-    manifest = repo_root / "Plugins" / "build_manifest.json"
+    plugin_root = plugins_root(repo_root)
+    manifest = plugin_root / "build_manifest.json"
     data, err = _read_json(manifest)
     if data is None:
         return _error("plugins", "plugin manifest invalid", [err])
     plugins = data.get("plugins", [])
     if not isinstance(plugins, list) or not plugins:
         return _error("plugins", "plugin manifest has no plugins")
-    missing = [name for name in plugins if not (repo_root / "Plugins" / str(name)).exists()]
+    missing = [name for name in plugins if not (plugin_root / str(name)).exists()]
     if missing:
         return _warn("plugins", f"{len(plugins)} descriptors, {len(missing)} missing roots", missing)
     return _ok("plugins", f"{len(plugins)} descriptors")
@@ -153,12 +146,7 @@ def check_p0_invariants(repo_root: Path, log: TeeLog | None = None) -> CheckResu
     rc = run_p0_invariant_scan(repo_root, strict_large_files=False, strict_boundaries=False, log=log or TeeLog())
     if rc == 0:
         return _ok("invariants", "P0 invariant scan passed; large-module/boundary debt is reported as staged warnings")
-    return _warn(
-        "invariants",
-        "P0 invariant scan has findings; non-blocking for dev plugin rebuild",
-        ["Architecture/invariant findings are diagnostic here, not a plugin-build preflight blocker."],
-        remediation=["Run diag.invariants for the full architecture report; continue rebuild with build.plugins.force.dev when build preflight is otherwise clean."],
-    )
+    return _warn("invariants", "P0 invariant scan has findings; non-blocking for dev plugin rebuild", ["Architecture/invariant findings are diagnostic here, not a plugin-build preflight blocker."], remediation=["Run diag.invariants for the full architecture report; continue rebuild with build.plugins.force.dev when build preflight is otherwise clean."])
 
 
 def check_build_info(repo_root: Path) -> CheckResult:
@@ -191,7 +179,7 @@ def _runtime_dlls(plugin_dir: Path) -> list[Path]:
 
 
 def check_runtime_plugin_dir(repo_root: Path) -> CheckResult:
-    plugin_dir = repo_root / "NewEngine" / "neocore2" / "plugins"
+    plugin_dir = engine_core_root(repo_root) / "plugins"
     if not plugin_dir.exists():
         return _warn("runtime", "runtime plugin dir missing")
     details: list[str] = []
@@ -206,7 +194,7 @@ def check_runtime_plugin_dir(repo_root: Path) -> CheckResult:
 
 def check_dll_mismatch(repo_root: Path) -> CheckResult:
     buckets: dict[str, set[str]] = {}
-    for dll in _runtime_dlls(repo_root / "NewEngine" / "neocore2" / "plugins"):
+    for dll in _runtime_dlls(engine_core_root(repo_root) / "plugins"):
         stem = dll.stem.lower()
         profile = ""
         for suffix in ("-dev", "-debug", "-release"):
@@ -231,7 +219,7 @@ def check_legacy_paths(repo_root: Path) -> CheckResult:
 
 def check_logs(repo_root: Path) -> CheckResult:
     old_paths = [
-        repo_root / "NewEngine" / "neocore2" / "logs" / "build",
+        engine_core_root(repo_root) / "logs" / "build",
         suite_path(repo_root, "logs", "build"),
     ]
     live = [path for path in old_paths if path.exists()]
@@ -242,17 +230,10 @@ def check_logs(repo_root: Path) -> CheckResult:
 
 def check_root_clean(repo_root: Path) -> CheckResult:
     forbidden_exts = {".zip", ".7z", ".rar", ".log", ".dll", ".exe", ".pdb", ".bin"}
-    offenders = [
-        p.name
-        for p in repo_root.iterdir()
-        if p.is_file()
-        and p.suffix.lower() in forbidden_exts
-        and not (p.name == "lastbuild.log" or (p.name.startswith("lastbuild-") and p.suffix.lower() == ".log"))
-    ]
+    offenders = [p.name for p in repo_root.iterdir() if p.is_file() and p.suffix.lower() in forbidden_exts and not (p.name == "lastbuild.log" or (p.name.startswith("lastbuild-") and p.suffix.lower() == ".log"))]
     if offenders:
         return _warn("root", "root has random archive/log/bin files", sorted(offenders))
     return _ok("root", "root has no random zip/log/bin")
-
 
 
 def _json_path_bool(data: dict[str, Any], path: list[str], default: bool | None = None) -> bool | None:
@@ -266,11 +247,10 @@ def _json_path_bool(data: dict[str, Any], path: list[str], default: bool | None 
 
 def check_performance_policy(repo_root: Path) -> CheckResult:
     details: list[str] = []
-
     for rel_path in [
-        "Plugins/winit-platform-plugin/newengine-platform-winit/assets/default_config.json",
-        "Plugins/winit-platform-plugin/newengine-platform-winit/startup_config_schema.json",
-        "NewEngine/neocore2/config.json",
+        "EngineRepo/Plugins/winit-platform-plugin/newengine-platform-winit/assets/default_config.json",
+        "EngineRepo/Plugins/winit-platform-plugin/newengine-platform-winit/startup_config_schema.json",
+        "EngineRepo/NewEngine/neocore2/config.json",
     ]:
         path = repo_root / rel_path
         if not path.exists():
@@ -279,24 +259,16 @@ def check_performance_policy(repo_root: Path) -> CheckResult:
         if data is None:
             details.append(f"{rel_path}: invalid json: {err}")
             continue
-        for candidate in [
-            ["display", "vsync"],
-            ["defaults", "display", "vsync"],
-            ["plugins", "newengine", "platform.winit", "display", "vsync"],
-            ["plugins", "newengine", "startup_window", "display", "vsync"],
-        ]:
+        for candidate in [["display", "vsync"], ["defaults", "display", "vsync"], ["plugins", "newengine", "platform.winit", "display", "vsync"], ["plugins", "newengine", "startup_window", "display", "vsync"]]:
             value = _json_path_bool(data, candidate, None)
             if value is True:
                 details.append(f"{rel_path}: {'.'.join(candidate)} is true; max-FPS runs require explicit opt-in vsync")
-
     present_mode = os.environ.get("NEWENGINE_VULKAN_PRESENT_MODE", "").strip().lower()
     if present_mode in {"fifo", "vsync", "stable"}:
         details.append(f"NEWENGINE_VULKAN_PRESENT_MODE={present_mode} caps presentation; use immediate/mailbox/uncapped for benchmark/dev max-FPS")
-
     frame_driver = os.environ.get("NEWENGINE_PLATFORM_FRAME_DRIVER", "").strip().lower()
     if frame_driver in {"wait", "redraw", "redraw-wait"}:
         details.append(f"NEWENGINE_PLATFORM_FRAME_DRIVER={frame_driver} can idle-cap redraw cadence; default poll is preferred for max-FPS development")
-
     if details:
         return _warn("perf", "max-FPS policy has explicit caps", details)
     return _ok("perf", "max-FPS defaults active; caps require explicit opt-in")
@@ -306,9 +278,6 @@ def check_source_archive_policy(repo_root: Path) -> CheckResult:
     details: list[str] = []
     if not SOURCE_ARCHIVE_EXCLUDED_EXTENSIONS:
         details.append("SOURCE_ARCHIVE_EXCLUDED_EXTENSIONS is empty")
-    for name in ROOT_EXCLUDED_DIRS:
-        if name in {"target", ".takesome", ".git"}:
-            continue
     packer = repo_root / "tools" / "scripts" / "takesome" / "archive.py"
     if not packer.exists():
         details.append("archive.py missing")
@@ -318,116 +287,51 @@ def check_source_archive_policy(repo_root: Path) -> CheckResult:
 
 
 def render_workspace_doctor_markdown(payload: dict[str, Any]) -> str:
-    lines = [
-        "# Workspace Doctor",
-        "",
-        f"- generated_utc: `{payload.get('generated_utc', '')}`",
-        f"- status: `{payload.get('status', '')}`",
-        "",
-        "| status | key | summary |",
-        "|---|---|---|",
-    ]
-    for check in payload.get("checks", []):
-        if not isinstance(check, dict):
-            continue
-        summary = str(check.get("summary", "")).replace("|", "/")
-        lines.append(f"| {check.get('status', '')} | `{check.get('key', '')}` | {summary} |")
-        details = check.get("details", [])
-        if isinstance(details, list):
-            for detail in details[:10]:
-                lines.append(f"|  |  | - {str(detail).replace('|', '/')} |")
-    return "\n".join(lines) + "\n"
+    lines = ["# Workspace Doctor", "", f"- generated_utc: `{payload.get('generated_utc', '')}`", f"- status: `{payload.get('status', '')}`", "", "| status | key | summary |", "|---|---|---|"]
+    for item in payload.get("checks", []):
+        lines.append(f"| `{item.get('status')}` | `{item.get('key')}` | {item.get('summary', '')} |")
+    lines.append("")
+    for item in payload.get("checks", []):
+        if item.get("details"):
+            lines.append(f"## {item.get('key')}")
+            for detail in item.get("details", []):
+                lines.append(f"- {detail}")
+            lines.append("")
+        if item.get("remediation"):
+            lines.append(f"### {item.get('key')} remediation")
+            for detail in item.get("remediation", []):
+                lines.append(f"- {detail}")
+            lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
 
 
-def run_workspace_doctor(repo_root: Path, *, full: bool, log: TeeLog | None = None) -> int:
-    own_log = log or TeeLog()
-    checks = [
-        check_env(repo_root),
-        check_python(),
-        check_cargo(),
-        check_rust_target(),
-        check_plugin_manifest(repo_root),
-        check_tool_registry(repo_root, log=own_log),
-        check_p0_invariants(repo_root, log=own_log),
-        check_build_info(repo_root),
-        check_runtime_plugin_dir(repo_root),
-        check_dll_mismatch(repo_root),
-        check_performance_policy(repo_root),
-        check_legacy_paths(repo_root),
-        check_logs(repo_root),
-        check_root_clean(repo_root),
-        check_source_archive_policy(repo_root),
-    ]
-    grouped = {
-        "env": ["env", "python", "cargo", "rust"],
-        "plugins": ["plugins"],
-        "tools": ["tools"],
-        "invariants": ["invariants"],
-        "buildInfo": ["buildInfo"],
-        "runtime": ["runtime", "dlls"],
-        "perf": ["perf"],
-        "legacy": ["legacy"],
-        "logs": ["logs"],
-        "root": ["root"],
-        "source": ["source"],
-    }
-    by_key = {check.key: check for check in checks}
-    own_log.emit("")
-    own_log.emit("WORKSPACE DOCTOR")
-    worst = 0
-    for group, keys in grouped.items():
-        group_checks = [by_key[key] for key in keys if key in by_key]
-        rank = max((c.rank for c in group_checks), default=0)
-        worst = max(worst, rank)
-        status = {0: "OK", 1: "WARN", 2: "ERROR"}[rank]
-        summary = "; ".join(c.summary for c in group_checks if c.rank == rank) or "; ".join(c.summary for c in group_checks)
-        own_log.emit(f"  {group:<10} {status:<5} {summary}")
-        if full:
-            for check in group_checks:
-                if check.details:
-                    for detail in check.details:
-                        own_log.emit(f"    - {check.key}: {detail}")
-    blocking_checks = [check for check in checks if check.status == "ERROR" and check.blocking]
-    warning_checks = [check for check in checks if check.status == "WARN" or (check.status == "ERROR" and not check.blocking)]
-    status_label = "ERROR" if blocking_checks else ({0: "OK", 1: "WARN", 2: "WARN"}.get(worst, "WARN"))
-    payload = {
-        "schema": "takesome.workspaceDoctor.v1",
-        "generated_utc": utc_iso(),
-        "full": bool(full),
-        "status": status_label,
-        "worst_rank": worst,
-        "blocking_count": len(blocking_checks),
-        "warning_count": len(warning_checks),
-        "blocking": [check.as_record() for check in blocking_checks],
-        "warnings": [check.as_record() for check in warning_checks],
-        "remediation": [item for check in blocking_checks for item in check.remediation],
-        "checks": [check.as_record() for check in checks],
-        "groups": {
-            group: {
-                "status": {0: "OK", 1: "WARN", 2: "ERROR"}[max((by_key[key].rank for key in keys if key in by_key), default=0)],
-                "keys": [key for key in keys if key in by_key],
-            }
-            for group, keys in grouped.items()
-        },
-    }
-    summary_md = render_workspace_doctor_markdown(payload)
-    write_status_snapshot(
-        repo_root,
-        "workspace-doctor",
-        payload,
-        summary_markdown=summary_md,
-        source="tools.doctor.run_workspace_doctor",
-    )
-    own_log.emit("")
-    if not blocking_checks and not warning_checks:
-        own_log.emit("[OK] Workspace doctor passed.")
-        own_log.emit("[NEXT] Agent-safe rebuild command: build.plugins.force.dev")
-        return 0
-    if not blocking_checks:
-        own_log.emit(f"[WARN] Workspace doctor completed with {len(warning_checks)} non-blocking warning/check finding(s).")
-        own_log.emit("[NEXT] Optional cleanup: workspace.clean.full")
-        own_log.emit("[NEXT] Agent-safe rebuild command: build.plugins.force.dev")
-        return 0
-    own_log.emit(f"[ERROR] Workspace doctor found {len(blocking_checks)} blocking error(s).")
-    own_log.emit("[NEXT] Fix blocking checks listed above, then run workspace.clean.full and build.plugins.force.dev.")
-    return 1
+def workspace_doctor_payload(repo_root: Path, *, full: bool = False, log: TeeLog | None = None) -> dict[str, Any]:
+    checks = [check_env(repo_root), check_python(), check_cargo(), check_rust_target(), check_plugin_manifest(repo_root), check_tool_registry(repo_root, log=log), check_p0_invariants(repo_root, log=log), check_build_info(repo_root), check_runtime_plugin_dir(repo_root), check_dll_mismatch(repo_root), check_legacy_paths(repo_root), check_logs(repo_root), check_root_clean(repo_root), check_performance_policy(repo_root), check_source_archive_policy(repo_root)]
+    if full:
+        checks.extend([])
+    status = "OK" if all(item.status == "OK" for item in checks) else "WARN" if all(item.status != "ERROR" for item in checks) else "ERROR"
+    payload = {"schema": "takesome.workspace.doctor.v1", "generated_utc": utc_iso(), "status": status, "blocking": any(item.blocking for item in checks), "checks": [item.as_record() for item in checks]}
+    return payload
+
+
+def run_workspace_doctor(repo_root: Path, *, full: bool = False, log: TeeLog | None = None) -> int:
+    payload = workspace_doctor_payload(repo_root, full=full, log=log)
+    out_dir = build_info_dir(repo_root)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / "workspace-doctor.json"
+    md_path = out_dir / "workspace-doctor.md"
+    json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    md_path.write_text(render_workspace_doctor_markdown(payload), encoding="utf-8")
+    write_status_snapshot(repo_root, "workspace-doctor", payload)
+    if log:
+        log.emit(f"[INFO] Workspace doctor: {json_path}")
+        log.emit(f"[INFO] Workspace doctor markdown: {md_path}")
+        for check in payload["checks"]:
+            log.emit(f"[{check['status']}] {check['key']}: {check['summary']}")
+            for detail in check.get("details", [])[:10]:
+                log.emit(f"  - {detail}")
+    return 2 if payload.get("blocking") else 0
+
+
+def workspace_doctor_command(repo_root: Path, _ns: Any) -> int:
+    return run_workspace_doctor(repo_root, full=True, log=TeeLog())

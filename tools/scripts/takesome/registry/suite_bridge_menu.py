@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 import json
 
+from ..paths import engine_core_root
 from .suite_action_registry import SuiteActionRegistry, discover_suite_actions
 
 
@@ -71,7 +72,7 @@ def render_bridge_menu_actions(registry: SuiteActionRegistry) -> list[dict[str, 
 
 def write_bridge_menu_json(repo_root: Path, output_path: Path | None = None) -> Path:
     registry = discover_suite_actions(repo_root)
-    output_path = output_path or repo_root / "NewEngine" / "neocore2" / "buildInfo" / "tools" / "SUITE_ACTIONS_BRIDGE_MENU.json"
+    output_path = output_path or engine_core_root(repo_root) / "buildInfo" / "tools" / "SUITE_ACTIONS_BRIDGE_MENU.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "schema": "northstar.suite.bridge_menu_actions.v1",

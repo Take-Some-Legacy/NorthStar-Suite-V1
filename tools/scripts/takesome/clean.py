@@ -11,7 +11,7 @@ from .logs import TeeLog
 from .console_menu import ConsoleChoice, ConsoleMenuOption, interactive_menu_enabled, run_multi_select_menu
 from .workspace_status import DetailPathProbe, TargetDllProbe, TargetPresenceProbe, make_workspace_status_provider
 from .migration import apply_delete_list
-from .paths import rel, suite_path, suite_root
+from .paths import rel, suite_path, suite_root, engine_core_root, plugins_root, importers_root
 from .progress import progress_configure, progress_update
 from .selection import exclusive_choice_kind, split_choice_tokens
 from .tools.constants import LEGACY_TOOL_PATHS
@@ -41,9 +41,9 @@ def _append_target(items: list[CleanTarget], root: Path, *, key: str, label: str
 
 def discover_clean_targets(root: Path) -> list[CleanTarget]:
     items: list[CleanTarget] = []
-    _append_target(items, root, key="engine", label="Engine workspace", path=root / "NewEngine" / "neocore2" / "target", category="engine", workspace_dir=root / "NewEngine" / "neocore2")
+    _append_target(items, root, key="engine", label="Engine workspace", path=engine_core_root(root) / "target", category="engine", workspace_dir=engine_core_root(root))
 
-    plugins_root = root / "Plugins"
+    plugins_root = plugins_root(root)
     if plugins_root.exists():
         for child in sorted(plugins_root.iterdir(), key=lambda p: p.name.lower()):
             if child.is_dir():
@@ -55,7 +55,7 @@ def discover_clean_targets(root: Path) -> list[CleanTarget]:
                             if nested.is_dir():
                                 _append_target(items, root, key=f"codec:{nested.name}", label=f"Codec: {nested.name}", path=nested / "target", category="codec", workspace_dir=nested)
 
-    importers_root = root / "Importers"
+    importers_root = importers_root(root)
     if importers_root.exists():
         for child in sorted(importers_root.iterdir(), key=lambda p: p.name.lower()):
             if child.is_dir():
@@ -239,7 +239,7 @@ def _iter_direct_dynamic_libraries(root: Path, directory: Path) -> list[Path]:
 
 
 def _runtime_plugin_binary_roots(root: Path) -> list[Path]:
-    plugin_dir = root / "NewEngine" / "neocore2" / "plugins"
+    plugin_dir = engine_core_root(root) / "plugins"
     if not plugin_dir.exists():
         return []
     return [plugin_dir]
@@ -441,14 +441,14 @@ def clean_workspace(root: Path, args: argparse.Namespace) -> int:
     full_paths: list[Path] = []
     if not args.keep_logs:
         full_paths.extend([
-            root / "NewEngine" / "neocore2" / "logs",
+            engine_core_root(root) / "logs",
             suite_path(root, "logs"),
             suite_path(root, "buildLog"),
             suite_path(root, "buildInfo"),
         ])
         full_paths.extend(sorted(root.glob("lastbuild*.log")))
     if not args.keep_cache:
-        full_paths.extend([root / "NewEngine" / "neocore2" / "cache", suite_path(root, "tools")])
+        full_paths.extend([engine_core_root(root) / "cache", suite_path(root, "tools")])
     full_paths.append(suite_path(root, "build-state"))
     if full_paths:
         progress_configure(total=max(1, len(full_paths)), current=0, unit="path", phase="full cleanup plan resolved")

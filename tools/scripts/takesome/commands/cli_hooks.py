@@ -5,6 +5,7 @@ from typing import Sequence, Protocol
 
 from .build_preflight_registry import run_registry_build_preflight
 from .registry_report import run_registry_report
+from .observability import run_suite_observability_check
 from .suite_bridge_menu import run_suite_bridge_menu_generate
 from .suite_registry import run_suite_list_actions, run_suite_validate_actions
 from .tool_registry import run_tools_doctor, run_tools_list, run_tools_validate
@@ -29,6 +30,8 @@ def try_handle_registry_command(argv: Sequence[str], repo_root: Path, log: _LogL
         return run_registry_report(repo_root, log=log)
     if command == "registry-preflight":
         return run_registry_build_preflight(repo_root, log=log)
+    if command == "observability":
+        return run_suite_observability_check(repo_root, log=log)
     if command == "suite-actions-list":
         return run_suite_list_actions(repo_root, log=log)
     if command == "suite-actions-validate":
@@ -48,6 +51,7 @@ def try_handle_registry_command(argv: Sequence[str], repo_root: Path, log: _LogL
 REGISTRY_COMMAND_IDS = (
     "registry-report",
     "registry-preflight",
+    "observability",
     "suite-actions-list",
     "suite-actions-validate",
     "suite-bridge-menu-generate",

@@ -28,7 +28,7 @@ from .registry import SuiteRegistry, build_suite_registry
 from .output import emit_actions_json, run_suite_action_structured
 from .settings import apply_suite_settings, ensure_suite_settings, load_suite_settings
 
-SUITE_VERSION = "0.6.0"
+SUITE_VERSION = "0.6.4"
 
 
 def _clear_screen() -> None:
@@ -159,7 +159,7 @@ def _banner(root: Path, context: SuiteContext | None = None) -> list[str]:
     path_rows = [
         ("Project root", _path_label(root, root, width=width)),
         ("Suite root", _path_label(root, suite_root(root), width=width)),
-        ("Engine root", _path_label(root, root / "NewEngine" / "neocore2", width=width)),
+        ("Engine root", _path_label(root, engine_core_root(root), width=width)),
     ]
     density_mode = density().path_mode
     lines = [top, *_panel("COCKPIT", cockpit_rows, width=width)]
@@ -169,11 +169,11 @@ def _banner(root: Path, context: SuiteContext | None = None) -> list[str]:
         if density_mode == "wide" and height >= 18:
             lines.extend(_panel("PATHS", path_rows, width=width))
         elif density_mode == "compact" and height >= 20:
-            lines.extend(_panel("PATHS", [("Root", _path_label(root, root, width=width)), ("Engine", _path_label(root, root / "NewEngine" / "neocore2", width=width))], width=width))
+            lines.extend(_panel("PATHS", [("Root", _path_label(root, root, width=width)), ("Engine", _path_label(root, engine_core_root(root), width=width))], width=width))
         elif height >= 24:
             lines.extend(_panel("PATHS", path_rows, width=width))
         elif height >= 18:
-            lines.extend(_panel("PATHS", [("Project", _path_label(root, root, width=width)), ("Engine", _path_label(root, root / "NewEngine" / "neocore2", width=width))], width=width))
+            lines.extend(_panel("PATHS", [("Project", _path_label(root, root, width=width)), ("Engine", _path_label(root, engine_core_root(root), width=width))], width=width))
     lines.append(bottom)
     if color_enabled():
         rendered: list[str] = []

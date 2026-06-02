@@ -13,7 +13,7 @@ from typing import Any
 from .paths import rel
 from .cargo.process import cargo_exe
 
-ENGINE_REL = Path("NewEngine") / "neocore2"
+ENGINE_REL = Path("EngineRepo") / "NewEngine" / "neocore2"
 IMPORTER_DESCRIPTOR = ENGINE_REL / "config" / "importers" / "importer_descriptors.v1.json"
 PIPELINE_GRAPH = ENGINE_REL / "config" / "assets" / "import_pipeline.generated_graph.v1.json"
 INVALIDATION_PLAN = ENGINE_REL / "config" / "assets" / "import_pipeline.invalidation_plan.v1.json"

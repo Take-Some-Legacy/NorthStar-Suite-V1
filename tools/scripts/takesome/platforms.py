@@ -6,7 +6,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from .paths import suite_path
+from .paths import suite_path, engine_core_root
 
 
 @dataclass(frozen=True)
@@ -196,5 +196,5 @@ def cargo_profile_dir(build_type: str, platform: BuildPlatform) -> str:
 
 def platform_artifact_root(root: Path, platform: BuildPlatform) -> Path:
     if platform.host:
-        return root / "NewEngine" / "neocore2" / "plugins"
+        return engine_core_root(root) / "plugins"
     return suite_path(root, "build-artifacts", platform.id, "plugins")

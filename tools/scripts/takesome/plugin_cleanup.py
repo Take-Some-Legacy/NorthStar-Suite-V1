@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .paths import rel, suite_path, utc_iso
+from .paths import rel, suite_path, utc_iso, plugins_root
 
 
 TEMP_DIR_NAMES = {"_split_stage"}
@@ -24,7 +24,7 @@ class CleanupFinding:
 
 
 def _plugin_repositories(root: Path) -> list[Path]:
-    plugins = root / "Plugins"
+    plugins = plugins_root(root)
     if not plugins.exists():
         return []
     return [p for p in sorted(plugins.iterdir(), key=lambda item: item.name.lower()) if p.is_dir() and (p / ".git").exists()]

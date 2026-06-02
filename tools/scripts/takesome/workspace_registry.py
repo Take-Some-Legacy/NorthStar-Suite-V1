@@ -9,7 +9,7 @@ from typing import Any
 from .build_info import file_manifest, sha256_file
 from .constants import DLL_EXT, ROOT_EXCLUDED_DIRS
 from .git_tools import git_repo_info
-from .paths import now_stamp, rel, suite_path, utc_iso
+from .paths import now_stamp, rel, suite_path, utc_iso, engine_core_root, plugins_root, importers_root
 from .status_cache import write_status_snapshot
 from .plugin_build.manifest import discover_plugin_names, manifest as plugin_manifest
 from .tools.descriptors import discover_tools
@@ -184,7 +184,7 @@ def _cargo_packages_under(root: Path, directory: Path) -> list[dict[str, Any]]:
 
 
 def plugin_record(root: Path, plugin_name: str, manifest_plugins: set[str]) -> dict[str, Any]:
-    plugin_dir = root / "Plugins" / plugin_name
+    plugin_dir = plugins_root(root) / plugin_name
     root_cargo = cargo_manifest_record(root, plugin_dir / "Cargo.toml")
     packages = _cargo_packages_under(root, plugin_dir)
     cdylib_packages = [p for p in packages if "cdylib" in p.get("crate_type", [])]
@@ -209,7 +209,7 @@ def plugin_record(root: Path, plugin_name: str, manifest_plugins: set[str]) -> d
 
 
 def codec_worker_record(root: Path, name: str, manifest_codecs: set[str]) -> dict[str, Any]:
-    codec_dir = root / "Plugins" / "AssetManager" / "codecs" / name
+    codec_dir = plugins_root(root) / "AssetManager" / "codecs" / name
     cargo = cargo_manifest_record(root, codec_dir / "Cargo.toml")
     target = codec_dir / "target"
     return {
@@ -243,7 +243,7 @@ def build_workspace_registry(root: Path) -> dict[str, Any]:
     declared_plugins = {str(x) for x in m.get("plugins", [])}
     declared_codecs = {str(x) for x in m.get("codecWorkers", [])}
     plugin_names = discover_plugin_names(root)
-    codec_root = root / "Plugins" / "AssetManager" / "codecs"
+    codec_root = plugins_root(root) / "AssetManager" / "codecs"
     discovered_codecs = [p.name for p in sorted(codec_root.iterdir(), key=lambda p: p.name.lower()) if p.is_dir() and (p / "Cargo.toml").exists()] if codec_root.exists() else []
     codec_names = []
     seen_codecs: set[str] = set()
@@ -255,14 +255,14 @@ def build_workspace_registry(root: Path) -> dict[str, Any]:
         codec_names.append(str(name))
 
     tools, tool_warnings = discover_tools(root)
-    engine_root = root / "NewEngine" / "neocore2"
+    engine_root = engine_core_root(root)
     runtime_plugin_dir = engine_root / "plugins"
     runtime_codec_dir = runtime_plugin_dir / "codecs"
     root_entries = [
         directory_record(root, "workspace-root", root, "root"),
         directory_record(root, "engine", engine_root, "engine"),
-        directory_record(root, "plugins-source", root / "Plugins", "plugins"),
-        directory_record(root, "importers", root / "Importers", "importers"),
+        directory_record(root, "plugins-source", plugins_root(root), "plugins"),
+        directory_record(root, "importers", importers_root(root), "importers"),
         directory_record(root, "tools", root / "tools", "tools"),
         directory_record(root, "docs", root / "docs", "docs"),
     ]
@@ -281,8 +281,8 @@ def build_workspace_registry(root: Path) -> dict[str, Any]:
             "runtime_codec_dylib_count": len(_direct_dylibs(runtime_codec_dir)),
         },
         "plugin_manifest": {
-            "path": rel(root, root / "Plugins" / "build_manifest.json"),
-            "file": file_manifest(root, root / "Plugins" / "build_manifest.json"),
+            "path": rel(root, plugins_root(root) / "build_manifest.json"),
+            "file": file_manifest(root, plugins_root(root) / "build_manifest.json"),
             "declared_plugins": sorted(declared_plugins, key=str.lower),
             "declared_codec_workers": sorted(declared_codecs, key=str.lower),
         },

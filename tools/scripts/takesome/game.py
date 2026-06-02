@@ -8,7 +8,7 @@ from typing import Any
 from .build_info import build_log_dir
 from .logs import TeeLog, pause_on_error, run_process, quote_for_log
 from .migration import apply_delete_list
-from .paths import now_stamp, rel, utc_iso
+from .paths import now_stamp, rel, utc_iso, engine_core_root
 from .progress import progress_configure, progress_update
 from .plugin_build import build_plugins
 from .incidents import emit_incident_console_lines, safe_incident_name, write_incident_bundle
@@ -143,12 +143,12 @@ def _cargo_executable() -> str:
 
 
 def _manifest_path(root: Path) -> Path:
-    return root / "NewEngine" / "neocore2" / "apps" / _GAME_BIN / "Cargo.toml"
+    return engine_core_root(root) / "apps" / _GAME_BIN / "Cargo.toml"
 
 
 def _runtime_binary_path(root: Path, cargo_profile: str) -> Path:
     exe_name = f"{_GAME_BIN}.exe" if os.name == "nt" else _GAME_BIN
-    return root / "NewEngine" / "neocore2" / "target" / _target_profile_dir(cargo_profile) / exe_name
+    return engine_core_root(root) / "target" / _target_profile_dir(cargo_profile) / exe_name
 
 
 def _build_command(root: Path, cargo_profile: str) -> list[str]:
@@ -257,7 +257,7 @@ def run_game(root: Path, args: list[str]) -> int:
     requested_profile, profile_source = _resolve_requested_profile(root, args)
     cargo_profile = _cargo_profile(requested_profile)
 
-    log_dir = root / "NewEngine" / "neocore2" / "logs" / "run"
+    log_dir = engine_core_root(root) / "logs" / "run"
     run_stamp = now_stamp()
     started_utc = utc_iso()
     finished_utc = ""
@@ -319,7 +319,7 @@ def run_game(root: Path, args: list[str]) -> int:
                         run_args = [str(runtime_exe), *_runtime_args(args)]
                         log.emit(f"[runGame] launching {_GAME_BIN}: {' '.join(quote_for_log(a) for a in run_args)}")
                         progress_update(current=2, phase="running game-ready-fps")
-                        code = run_process(run_args, cwd=root / "NewEngine" / "neocore2", log=log, env=env)
+                        code = run_process(run_args, cwd=engine_core_root(root), log=log, env=env)
                         progress_update(current=3, phase="runtime exited")
                         log.emit(f"[runGame] latest run log: {rel(root, latest)}")
                         if code != 0:

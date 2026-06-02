@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ..paths import rel
+from ..paths import engine_core_root, rel
 from .constants import LEGACY_TOOL_PATHS, TOOL_SCHEMA
 
 
@@ -182,7 +182,7 @@ def expand_tool_args(repo_root: Path, tool: ToolDescriptor, args: list[str]) -> 
     replacements = {
         "$repo_root": str(repo_root),
         "$tool_root": str(tool.root),
-        "$engine_root": str(repo_root / "NewEngine" / "neocore2"),
+        "$engine_root": str(engine_core_root(repo_root)),
     }
     expanded: list[str] = []
     for arg in args:

@@ -6,7 +6,7 @@ from .build_info import build_log_dir
 from .constants import WIN
 from .logs import TeeLog, run_process
 from .migration import apply_delete_list
-from .paths import now_stamp, rel
+from .paths import now_stamp, rel, importers_root
 from .progress import progress_configure, progress_update
 
 def _importer_profile(args: list[str]) -> str:
@@ -29,7 +29,7 @@ def build_importers(root: Path, args: list[str]) -> int:
         log.emit(f"[LOG] args={' '.join(args)}")
         log.emit(f"[STATE] importer profile={profile}")
         log.emit(f"[INFO] Importer build log: {rel(root, current_log)}")
-        importers = root / "Importers"
+        importers = importers_root(root)
         if not importers.exists():
             log.emit("[WARN] Importers directory not found; nothing to build.")
             log.emit(f"[INFO] Latest importer build log: {rel(root, latest_log)}")

@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Protocol
 
+from ..paths import engine_core_root
 from ..registry.registry_report import build_registry_report
 from ..registry.suite_action_registry import discover_suite_actions
 
@@ -28,7 +29,7 @@ def run_suite_list_actions(repo_root: Path, log: _LogLike | None = None) -> int:
 
 
 def run_suite_validate_actions(repo_root: Path, output_dir: Path | None = None, log: _LogLike | None = None) -> int:
-    output_dir = output_dir or repo_root / "NewEngine" / "neocore2" / "buildInfo" / "tools"
+    output_dir = output_dir or engine_core_root(repo_root) / "buildInfo" / "tools"
     report = build_registry_report(repo_root)
     report.write_all(output_dir)
     if log:

@@ -8,15 +8,15 @@ from ..paths import suite_path
 
 
 def manifest(root: Path) -> dict:
-    path = root / "Plugins" / "build_manifest.json"
+    path = plugins_root(root) / "build_manifest.json"
     if not path.exists():
         return {"plugins": [], "codecWorkers": []}
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def ensure_dirs(root: Path) -> None:
-    (root / "NewEngine" / "neocore2" / "plugins").mkdir(parents=True, exist_ok=True)
-    (root / "NewEngine" / "neocore2" / "plugins" / "codecs").mkdir(parents=True, exist_ok=True)
+    (engine_core_root(root) / "plugins").mkdir(parents=True, exist_ok=True)
+    (engine_core_root(root) / "plugins" / "codecs").mkdir(parents=True, exist_ok=True)
     suite_path(root, "build-state", "stamps").mkdir(parents=True, exist_ok=True)
     # Build logs are centralized under .takesome/buildLog. Remove the old
     # split path on build startup so stale runs do not look authoritative.
@@ -29,7 +29,7 @@ def discover_plugin_names(root: Path) -> list[str]:
     """Discover buildable top-level plugins without hardcoded script lists."""
     m = manifest(root)
     ordered: list[str] = [str(name) for name in m.get("plugins", [])]
-    plugin_root = root / "Plugins"
+    plugin_root = plugins_root(root)
     discovered: list[str] = []
     if plugin_root.exists():
         for child in sorted(plugin_root.iterdir(), key=lambda p: p.name.lower()):

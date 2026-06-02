@@ -47,8 +47,143 @@ def _emit_json(payload: dict[str, Any]) -> None:
     sys.stdout.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
 
 
+def _status_icon(status: Any, exit_code: Any = None) -> str:
+    status_text = str(status or "").lower()
+    try:
+        code = int(exit_code)
+    except Exception:
+        code = None
+    if status_text in {"ok", "success", "passed"} or code == 0:
+        return "✅"
+    if status_text in {"timeout", "timed_out"}:
+        return "⏱️"
+    if status_text in {"failed", "fail", "error"} or (code is not None and code != 0):
+        return "❌"
+    return "ℹ️"
+
+
+def _risk_icon(risk: Any) -> str:
+    risk_text = str(risk or "").lower()
+    if risk_text in {"safe", "readonly", "read_only", "diagnostic"}:
+        return "🟢"
+    if "write" in risk_text or "mutat" in risk_text:
+        return "🟠"
+    if "danger" in risk_text or "destructive" in risk_text:
+        return "🔴"
+    return "⚪"
+
+
+def _emit_compact_result(envelope: dict[str, Any]) -> None:
+    result = envelope.get("result") if isinstance(envelope.get("result"), dict) else {}
+    call_note = result.get("call_note") if isinstance(result, dict) else {}
+    call_result = result.get("call_result") if isinstance(result, dict) else {}
+    summary = envelope.get("summary") if isinstance(envelope.get("summary"), dict) else {}
+    artifacts = envelope.get("artifacts") if isinstance(envelope.get("artifacts"), list) else []
+    artifact_paths = [item.get("path") for item in artifacts if isinstance(item, dict) and item.get("path")]
+    status = call_result.get("status") or envelope.get("status")
+    exit_code = call_result.get("exit_code") if call_result else result.get("exit_code")
+    status_icon = _status_icon(status, exit_code)
+    risk = call_note.get("risk_level") or "<unknown>"
+    lines = [
+        "🧭 [SUITE CALL]",
+        f"🔧 command: {call_note.get('command_id') or envelope.get('action_id')}",
+        f"🎯 purpose: {call_note.get('purpose') or summary.get('human') or '<unknown>'}",
+        f"{_risk_icon(risk)} risk: {risk}",
+        f"📌 expected: {call_note.get('expected_result') or '<unknown>'}",
+        "",
+        f"{status_icon} [SUITE RESULT]",
+        f"🔧 command: {call_result.get('command_id') or envelope.get('action_id')}",
+        f"{status_icon} status: {status}",
+        f"{status_icon} exit_code: {exit_code}",
+        f"⏱️ duration_ms: {call_result.get('duration_ms') or envelope.get('duration_ms')}",
+        f"📤 stdout_bytes: {call_result.get('stdout_bytes', 0)}",
+        f"📥 stderr_bytes: {call_result.get('stderr_bytes', 0)}",
+        f"📝 summary: {call_result.get('summary') or summary.get('human') or ''}",
+    ]
+    if artifact_paths:
+        lines.append("📦 artifacts:")
+        for artifact_path in artifact_paths[:8]:
+            lines.append(f"  📄 {artifact_path}")
+    stdout_tail = str(call_result.get("stdout_tail") or "")
+    stderr_tail = str(call_result.get("stderr_tail") or "")
+    if stdout_tail:
+        lines.extend(["", "📤 [STDOUT TAIL]", stdout_tail])
+    if stderr_tail:
+        lines.extend(["", "📥 [STDERR TAIL]", stderr_tail])
+    sys.stdout.write("\n".join(lines).rstrip() + "\n")
+
 def _write_and_attach(root: Path, envelope: dict[str, Any], output_dir: str | Path | None) -> dict[str, Any]:
     return write_suite_output(root, envelope, output_dir)
+
+
+def _first_non_empty(*values: Any) -> str:
+    for value in values:
+        text = str(value or "").strip()
+        if text:
+            return text
+    return ""
+
+
+def _tail_text(text: str, *, max_lines: int = 12, max_chars: int = 2400) -> str:
+    if not text:
+        return ""
+    lines = text.rstrip().splitlines()[-max_lines:]
+    tail = "\n".join(lines)
+    if len(tail) > max_chars:
+        return "…" + tail[-max_chars:]
+    return tail
+
+
+def _make_call_note(action_id: str, action: Any | None) -> dict[str, Any]:
+    metadata = _action_metadata(action) if action is not None else {"key": action_id}
+    purpose = _first_non_empty(
+        metadata.get("detail"),
+        metadata.get("label"),
+        metadata.get("primary_tag"),
+        "Run Suite action through the structured command surface.",
+    )
+    return {
+        "schema": "northstar.suite.call_note.v1",
+        "command_id": action_id,
+        "label": _first_non_empty(metadata.get("label"), action_id),
+        "purpose": purpose,
+        "risk_level": _first_non_empty(metadata.get("risk_level"), "unspecified"),
+        "target_domain": _first_non_empty(metadata.get("target_domain"), metadata.get("category"), "suite"),
+        "expected_result": _first_non_empty(
+            metadata.get("output_schema"),
+            "exit_code=0 with stdout/stderr captured and diagnostics written",
+        ),
+        "output_mode": _first_non_empty(metadata.get("output_mode"), "process_exit"),
+    }
+
+
+def _make_call_result(
+    *,
+    action_id: str,
+    status: str,
+    exit_code: int,
+    duration_ms: int,
+    stdout: str,
+    stderr: str,
+    exception_payload: dict[str, Any] | None,
+) -> dict[str, Any]:
+    summary_bits = [f"{action_id} finished with status={status}", f"exit_code={exit_code}"]
+    if stderr:
+        summary_bits.append("stderr captured")
+    if exception_payload is not None:
+        summary_bits.append(f"exception={exception_payload.get('type')}")
+    return {
+        "schema": "northstar.suite.call_result.v1",
+        "command_id": action_id,
+        "status": status,
+        "exit_code": int(exit_code),
+        "duration_ms": int(duration_ms),
+        "stdout_tail": _tail_text(stdout),
+        "stderr_tail": _tail_text(stderr),
+        "stdout_bytes": len(stdout.encode("utf-8", errors="replace")),
+        "stderr_bytes": len(stderr.encode("utf-8", errors="replace")),
+        "summary": "; ".join(summary_bits) + ".",
+    }
 
 
 def emit_actions_json(root: Path, suite_version: str, build_registry: Callable[[], Any], *, output_dir: str = "") -> int:
@@ -95,16 +230,26 @@ def run_suite_action_structured(
 ) -> int:
     action_id = str(getattr(args, "run", "") or "").strip()
     output_dir = str(getattr(args, "output_dir", "") or "")
+    compact = bool(getattr(args, "compact", False))
     timer = Timer()
     stdout_buffer = io.StringIO()
     stderr_buffer = io.StringIO()
     exit_code = 2
     exception_payload: dict[str, Any] | None = None
     action: Any | None = None
+    call_note: dict[str, Any] = {
+        "schema": "northstar.suite.call_note.v1",
+        "command_id": action_id,
+        "purpose": "Resolve Suite action metadata before execution.",
+        "risk_level": "unknown",
+        "target_domain": "suite",
+        "expected_result": "resolved Suite action or structured failure envelope",
+    }
 
     try:
         registry = build_registry()
         action = registry.action(action_id)
+        call_note = _make_call_note(action_id, action)
         if action is None:
             raise KeyError(f"Unknown Suite action: {action_id}")
         with contextlib.redirect_stdout(stdout_buffer), contextlib.redirect_stderr(stderr_buffer):
@@ -150,6 +295,15 @@ def run_suite_action_structured(
 
     declared_output_schema = getattr(action, "output_schema", None) if action is not None else None
     result_schema = "northstar.suite.process_result.v1"
+    call_result = _make_call_result(
+        action_id=action_id,
+        status=status,
+        exit_code=int(exit_code),
+        duration_ms=int(duration_ms),
+        stdout=stdout,
+        stderr=stderr,
+        exception_payload=exception_payload,
+    )
     result = {
         "exit_code": int(exit_code),
         "stdout": stdout,
@@ -158,6 +312,8 @@ def run_suite_action_structured(
         "process_contract": "exit_code_zero_means_ok",
         "declared_output_schema": declared_output_schema,
         "exception": exception_payload,
+        "call_note": call_note,
+        "call_result": call_result,
     }
 
     envelope = make_envelope(
@@ -172,11 +328,14 @@ def run_suite_action_structured(
         result=result,
         diagnostics=diagnostics,
         summary_title=f"Suite action {action_id} {status}",
-        summary_human=f"{action_id} finished with exit_code={exit_code}.",
+        summary_human=f"{call_note.get('purpose')} Result: {call_result.get('summary')}",
     )
 
     ensure_builtin_output_schemas(root)
     envelope["diagnostics"].extend(validate_suite_output_envelope(envelope))
     envelope = _write_and_attach(root, envelope, output_dir)
-    _emit_json(envelope)
+    if compact:
+        _emit_compact_result(envelope)
+    else:
+        _emit_json(envelope)
     return int(exit_code)

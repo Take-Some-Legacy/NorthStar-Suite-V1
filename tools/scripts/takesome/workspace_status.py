@@ -21,7 +21,7 @@ from .console import (
 )
 from .constants import DLL_EXT
 from .platforms import normalize_build_platform
-from .paths import rel
+from .paths import rel, plugins_root
 
 DYNAMIC_LIBRARY_EXTENSIONS = {".dll", ".so", ".dylib"}
 DEFAULT_ARTIFACT_SCAN_DIRS = ("", "debug", "release", "debug/deps", "release/deps")
@@ -244,7 +244,7 @@ def workspace_row_subject(row: Any, root: Path) -> WorkspaceRowSubject | None:
         )
 
     if isinstance(value, str) and value and not value.startswith("__"):
-        plugin_dir = root / "Plugins" / value
+        plugin_dir = plugins_root(root) / value
         if plugin_dir.exists():
             return WorkspaceRowSubject(
                 key=f"plugin:{value}",
@@ -254,7 +254,7 @@ def workspace_row_subject(row: Any, root: Path) -> WorkspaceRowSubject | None:
                 target_dir=plugin_dir / "target",
                 detail_path=plugin_dir,
             )
-        codec_dir = root / "Plugins" / "AssetManager" / "codecs" / value
+        codec_dir = plugins_root(root) / "AssetManager" / "codecs" / value
         if codec_dir.exists():
             return WorkspaceRowSubject(
                 key=f"codec:{value}",

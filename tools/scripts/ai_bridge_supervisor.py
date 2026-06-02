@@ -30,6 +30,7 @@ from northstar_bridge.terminal_style import (
     bracket as _bracket,
     color,
     enable_windows_ansi as _enable_windows_ansi,
+    disable_windows_quick_edit as _disable_windows_quick_edit,
     level_color as _level_color,
     strip_ansi as _strip_ansi,
     style,
@@ -218,6 +219,7 @@ def emit(level: str, message: str, **fields: object) -> None:
 
 
 _enable_windows_ansi()
+_disable_windows_quick_edit()
 
 
 @dataclass
@@ -509,13 +511,56 @@ def start_process(name: str, cmd: list[str], cwd: Path, env: dict[str, str], q: 
     return proc
 
 
-def spawn_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> subprocess.Popen[str]:
+def preflight_origin(root: Path, *, sudo: bool = False) -> None:
     bridge = root / "tools" / "scripts" / "northstar_ai_bridge.py"
     if not bridge.exists():
         raise SupervisorError(f"missing bridge entrypoint: {bridge}")
     env = os.environ.copy()
     env.update({
         "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "NORTHSTAR_SUITE_STDIO_ENCODING": "utf-8",
+        "NORTHSTAR_SUITE_STDIO_ERRORS": "replace",
+    })
+    if sudo:
+        env["NORTHSTAR_SUITE_SUDO"] = "1"
+        env.setdefault("NORTHSTAR_SUITE_SUDO_REASON", "serverBridge-preflight")
+    cmd = [sys.executable, str(bridge), "--root", str(root), "--hello"]
+    emit("CHECK", "validating virtual MCP origin before start", command="northstar_ai_bridge.py --hello")
+    proc = subprocess.run(
+        cmd,
+        cwd=str(root),
+        env=env,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=False,
+        timeout=30,
+    )
+    if proc.returncode != 0:
+        out = (proc.stdout or "")[-4000:]
+        err = (proc.stderr or "")[-4000:]
+        emit("ERROR", "virtual MCP origin preflight failed", exit_code=proc.returncode)
+        if out.strip():
+            emit("ERROR", "virtual origin stdout", text=out.strip())
+        if err.strip():
+            emit("ERROR", "virtual origin stderr", text=err.strip())
+        raise SupervisorError(f"virtual MCP origin preflight failed, exit_code={proc.returncode}")
+    emit("OK", "virtual MCP origin preflight passed")
+
+
+def spawn_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> subprocess.Popen[str]:
+    bridge = root / "tools" / "scripts" / "northstar_ai_bridge.py"
+    if not bridge.exists():
+        raise SupervisorError(f"missing bridge entrypoint: {bridge}")
+    preflight_origin(root, sudo=sudo)
+    env = os.environ.copy()
+    env.update({
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
         "PYTHONIOENCODING": "utf-8",
         "NORTHSTAR_SUITE_STDIO_ENCODING": "utf-8",
         "NORTHSTAR_SUITE_STDIO_ERRORS": "replace",

@@ -17,10 +17,10 @@ def import_ui_fonts_command(root: Path, ns: argparse.Namespace) -> int:
     Aurelia provider already accepts this runtime file directly and also accepts
     a binary NEF8 .yft when AssetManager/listfile tooling packs the same body.
     """
-    manifest_path = Path(ns.manifest) if ns.manifest else root / "NewEngine" / "neocore2" / "assets" / "ui" / "fonts" / "editor.yft.import.json"
+    manifest_path = Path(ns.manifest) if ns.manifest else engine_core_root(root) / "assets" / "ui" / "fonts" / "editor.yft.import.json"
     if not manifest_path.is_absolute():
         manifest_path = root / manifest_path
-    out_path = Path(ns.output) if ns.output else root / "NewEngine" / "neocore2" / "assets" / "ui" / "fonts" / "editor.yft"
+    out_path = Path(ns.output) if ns.output else engine_core_root(root) / "assets" / "ui" / "fonts" / "editor.yft"
     if not out_path.is_absolute():
         out_path = root / out_path
 
@@ -39,7 +39,7 @@ def import_ui_fonts_command(root: Path, ns: argparse.Namespace) -> int:
             target = optional_missing if optional else missing
             target.append(f"{face.get('id', '<unnamed>')}: missing source")
             continue
-        source_path = root / "NewEngine" / "neocore2" / source
+        source_path = engine_core_root(root) / source
         if not source_path.exists():
             target = optional_missing if optional else missing
             target.append(str(source_path.relative_to(root)))

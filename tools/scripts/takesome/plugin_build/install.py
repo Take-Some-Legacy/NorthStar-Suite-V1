@@ -8,7 +8,7 @@ from ..paths import rel
 
 
 def cleanup_deprecated_artifacts(root: Path, log: TeeLog) -> None:
-    plugin_dir = root / "NewEngine" / "neocore2" / "plugins"
+    plugin_dir = engine_core_root(root) / "plugins"
     stamp_root = build_state_root(root) / "stamps"
     patterns = [
         "game_ready_map*.dll", "newengine_modules_game_ready_map*.dll",
@@ -51,7 +51,7 @@ def cleanup_deprecated_artifacts(root: Path, log: TeeLog) -> None:
 
 def cleanup_winit_platform_alias(root: Path, log: TeeLog) -> None:
     """winit-platform-plugin is installed only into plugins/, not plugins/platforms/."""
-    platform_dir = root / "NewEngine" / "neocore2" / "plugins" / "platforms"
+    platform_dir = engine_core_root(root) / "plugins" / "platforms"
     if not platform_dir.exists():
         return
     for pattern in ["platform-winit*.dll", "winit-platform-plugin*.dll", "*winit*.dll", "*.stamp.json"]:

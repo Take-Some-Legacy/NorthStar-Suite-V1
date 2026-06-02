@@ -59,7 +59,7 @@ def _resolve_build_targets(raw: str | None, *, plugins: list[str], codec_workers
             name = plugins_by_lower[low]
         elif low in codec_workers_by_lower:
             name = codec_workers_by_lower[low]
-        elif (root / "Plugins" / "AssetManager" / "codecs" / token / "Cargo.toml").exists():
+        elif (plugins_root(root) / "AssetManager" / "codecs" / token / "Cargo.toml").exists():
             name = token
         else:
             name = token
@@ -140,7 +140,7 @@ def build_plugins(root: Path, args: list[str], *, pause: bool = True) -> int:
             log.emit(f"[INFO] BuildLog root: {rel(root, build_root)}")
             log.emit(f"[INFO] Root last build log: {rel(root, root_last_log)}")
 
-            engine_root = root / "NewEngine" / "neocore2"
+            engine_root = engine_core_root(root)
             if not (engine_root / "Cargo.toml").exists():
                 log.emit(f"[ERROR] NewEngine root not found: {engine_root}")
                 code = 1
@@ -166,7 +166,7 @@ def build_plugins(root: Path, args: list[str], *, pause: bool = True) -> int:
 
                     def sync_codec(name: str) -> int:
                         nonlocal failed_build_name
-                        workspace = root / "Plugins" / "AssetManager" / "codecs" / name
+                        workspace = plugins_root(root) / "AssetManager" / "codecs" / name
                         if not (workspace / "Cargo.toml").exists():
                             log.emit(f"[WARN] AssetManager codec worker source not found, keeping existing binaries: {name}")
                             return 0
@@ -191,7 +191,7 @@ def build_plugins(root: Path, args: list[str], *, pause: bool = True) -> int:
 
                     def sync_plugin(name: str) -> int:
                         nonlocal failed_build_name
-                        workspace = root / "Plugins" / name
+                        workspace = plugins_root(root) / name
                         if not (workspace / "Cargo.toml").exists():
                             log.emit(f"[ERROR] Plugin workspace not found: {rel(root, workspace)}")
                             failed_build_name = name
@@ -214,7 +214,7 @@ def build_plugins(root: Path, args: list[str], *, pause: bool = True) -> int:
                     def sync_named_target(name: str) -> int:
                         selected_worker = codec_workers_by_lower.get(name.lower(), name)
                         selected_plugin = plugins_by_lower.get(name.lower(), name)
-                        if name.lower() in codec_workers_by_lower or (root / "Plugins" / "AssetManager" / "codecs" / name / "Cargo.toml").exists():
+                        if name.lower() in codec_workers_by_lower or (plugins_root(root) / "AssetManager" / "codecs" / name / "Cargo.toml").exists():
                             return sync_codec(selected_worker)
                         if name.lower() not in plugins_by_lower:
                             log.emit(f"[WARN] Selected plugin is not listed in Plugins/build_manifest.json; trying workspace path anyway: {name}")
@@ -393,7 +393,7 @@ def build_codecs(root: Path, args: list[str]) -> int:
                 progress_configure(total=max(1, len(workers)), current=0, unit="codec", phase="codec build plan resolved")
                 for index, worker in enumerate(workers, start=1):
                     progress_update(current=index - 1, phase=f"building codec {worker}")
-                    workspace = root / "Plugins" / "AssetManager" / "codecs" / worker
+                    workspace = plugins_root(root) / "AssetManager" / "codecs" / worker
                     if not (workspace / "Cargo.toml").exists():
                         log.emit(f"[WARN] AssetManager codec worker source not found, keeping existing binaries: {worker}")
                         continue

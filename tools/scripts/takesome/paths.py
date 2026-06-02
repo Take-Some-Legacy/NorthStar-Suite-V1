@@ -4,56 +4,113 @@ import datetime as _dt
 import os
 from pathlib import Path
 
+ENGINE_REPO_ENV = "NORTHSTAR_ENGINE_REPO"
+LEGACY_REPO_ENV = "NEWENGINE_REPO_ROOT"
+SUITE_ROOT_ENVS = ("NORTHSTAR_SUITE_ROOT", "NEWENGINE_SUITE_ROOT", "TAKESOME_SUITE_ROOT")
+
+
 def repo_root_from_script() -> Path:
     return Path(__file__).resolve().parents[3]
+
+
 def repo_root() -> Path:
-    env = os.environ.get("NEWENGINE_REPO_ROOT")
+    env = os.environ.get(LEGACY_REPO_ENV)
     if env:
-        return Path(env).resolve()
+        return Path(env).expanduser().resolve()
     return repo_root_from_script()
 
 
-def project_root_from_suite(suite: Path) -> Path:
-    """Return the source repository root associated with a suite directory.
+def engine_repo_root(project_root: Path | None = None) -> Path:
+    """Authoritative EngineRepo root.
 
-    `EngineRepository` and `.takesome` are independent roots.  In the old local
-    layout the suite lived at `repo/.takesome`, but relocation mode may place the
-    suite/work state on another disk.  When that happens, `NEWENGINE_REPO_ROOT`
-    is the only authoritative source root and the suite parent must not be used
-    as duplicate authority.
+    `NORTHSTAR_ENGINE_REPO` is the future-proof source repository location for
+    engine code and providers. During migration it may point either at
+    `<workspace>/EngineRepo` or at the current repository root. A nested
+    `EngineRepo/` is accepted only after it contains real source markers; an
+    empty scaffolding directory must never shadow the current working layout.
     """
-    env = os.environ.get("NEWENGINE_REPO_ROOT")
+    root = (project_root or repo_root()).resolve()
+    env = os.environ.get(ENGINE_REPO_ENV)
+    if env:
+        candidate = Path(env).expanduser().resolve()
+        if _is_engine_repo(candidate):
+            return candidate
+        fallback = _legacy_engine_repo_root(root)
+        if fallback != candidate:
+            return fallback
+        return candidate
+    nested = root / "EngineRepo"
+    if _is_engine_repo(nested):
+        return nested.resolve()
+    return _legacy_engine_repo_root(root)
+
+
+def _legacy_engine_repo_root(root: Path) -> Path:
+    return root.resolve()
+
+
+def _is_engine_repo(path: Path) -> bool:
+    return (path / "NewEngine" / "neocore2" / "Cargo.toml").exists() and (path / "Plugins" / "build_manifest.json").exists()
+
+
+def engine_core_root(project_root: Path | None = None) -> Path:
+    return engine_repo_root(project_root) / "NewEngine" / "neocore2"
+
+
+def plugins_root(project_root: Path | None = None) -> Path:
+    return engine_repo_root(project_root) / "Plugins"
+
+
+def importers_root(project_root: Path | None = None) -> Path:
+    return engine_repo_root(project_root) / "Importers"
+
+
+def engine_repo_path(project_root: Path | None, *parts: str) -> Path:
+    return engine_repo_root(project_root).joinpath(*parts)
+
+
+def project_root_from_suite(suite: Path) -> Path:
+    """Return the Suite host/workspace root associated with a suite directory."""
+    env = os.environ.get(LEGACY_REPO_ENV)
     if env:
         return Path(env).expanduser().resolve()
     return suite.resolve().parent
 
 
 def suite_root(project_root: Path) -> Path:
-    """Canonical Take Some script-suite working root.
+    """Canonical NorthStarSuite working root.
 
-    `NEWENGINE_SUITE_ROOT` / `TAKESOME_SUITE_ROOT` may point to a directory
-    outside the source repository.  This lets the dataset, logs, incidents and
-    status caches live on a separate disk while `EngineRepository` remains a
-    clean source tree.
+    `NORTHSTAR_SUITE_ROOT` / `NEWENGINE_SUITE_ROOT` / `TAKESOME_SUITE_ROOT` may
+    point to a directory outside the engine source repository.  This lets the
+    dataset, logs, incidents and status caches live on a separate disk while
+    `EngineRepo` remains a clean source tree.
     """
-    env = os.environ.get("NEWENGINE_SUITE_ROOT") or os.environ.get("TAKESOME_SUITE_ROOT")
-    if env:
-        return Path(env).expanduser().resolve()
+    for name in SUITE_ROOT_ENVS:
+        env = os.environ.get(name)
+        if env:
+            return Path(env).expanduser().resolve()
     return project_root.resolve() / ".takesome"
 
 
 def suite_path(project_root: Path, *parts: str) -> Path:
     return suite_root(project_root).joinpath(*parts)
 
+
 def now_stamp() -> str:
     return _dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+
 def utc_iso() -> str:
     return _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
 def rel(root: Path, path: Path) -> str:
     try:
         return path.resolve().relative_to(root.resolve()).as_posix()
     except Exception:
         return str(path)
+
+
 def safe_repo_path(root: Path, raw: str) -> Path | None:
     cleaned = raw.strip().strip('"').strip("'").replace("\\", "/")
     if not cleaned or cleaned.startswith("#"):

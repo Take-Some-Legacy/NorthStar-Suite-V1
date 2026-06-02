@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Dict
+
+from .formatting import json_block, stream_markdown_section
 
 
 def render_suite_output_markdown(envelope: Dict[str, Any]) -> str:
@@ -22,6 +25,42 @@ def render_suite_output_markdown(envelope: Dict[str, Any]) -> str:
         str(summary.get("human", "")),
         "",
     ]
+
+    result_for_call = envelope.get("result") if isinstance(envelope.get("result"), dict) else {}
+    call_note = result_for_call.get("call_note") if isinstance(result_for_call, dict) else None
+    call_result = result_for_call.get("call_result") if isinstance(result_for_call, dict) else None
+    if isinstance(call_note, dict) or isinstance(call_result, dict):
+        lines.extend(["## Suite call observability", ""])
+        if isinstance(call_note, dict):
+            lines.extend([
+                "### Before call",
+                "",
+                f"- command: `{call_note.get('command_id')}`",
+                f"- purpose: {call_note.get('purpose')}",
+                f"- risk_level: `{call_note.get('risk_level')}`",
+                f"- target_domain: `{call_note.get('target_domain')}`",
+                f"- expected_result: {call_note.get('expected_result')}",
+                "",
+            ])
+        if isinstance(call_result, dict):
+            lines.extend([
+                "### After call",
+                "",
+                f"- command: `{call_result.get('command_id')}`",
+                f"- status: `{call_result.get('status')}`",
+                f"- exit_code: `{call_result.get('exit_code')}`",
+                f"- duration_ms: `{call_result.get('duration_ms')}`",
+                f"- stdout_bytes: `{call_result.get('stdout_bytes')}`",
+                f"- stderr_bytes: `{call_result.get('stderr_bytes')}`",
+                f"- summary: {call_result.get('summary')}",
+                "",
+            ])
+            stdout_tail = str(call_result.get("stdout_tail") or "")
+            stderr_tail = str(call_result.get("stderr_tail") or "")
+            if stdout_tail:
+                lines.extend(stream_markdown_section("stdout tail", stdout_tail))
+            if stderr_tail:
+                lines.extend(stream_markdown_section("stderr tail", stderr_tail))
 
     diagnostics = envelope.get("diagnostics") or []
     if diagnostics:
@@ -47,21 +86,51 @@ def render_suite_output_markdown(envelope: Dict[str, Any]) -> str:
 
     result = envelope.get("result")
     if isinstance(result, dict):
-        lines.extend(["## Result preview", ""])
-        for key in ("exit_code", "action", "process_contract"):
+        lines.extend(["## Result", ""])
+        for key in ("exit_code", "process_contract", "declared_output_schema"):
             if key in result:
                 lines.append(f"- `{key}`: `{result.get(key)}`")
+        action = result.get("action")
+        if isinstance(action, dict):
+            lines.extend(["", "### action", "", json_block(action), ""])
         stdout = str(result.get("stdout", ""))
         if stdout:
-            shown = stdout[:4000]
-            if len(stdout) > len(shown):
-                shown += "\n... <truncated in markdown view>"
-            lines.extend(["", "### stdout", "", "```text", shown, "```", ""])
+            lines.extend(stream_markdown_section(
+                "stdout",
+                stdout,
+                byte_count=_int_or_none(result.get("stdout_bytes")),
+                truncated=bool(result.get("stdout_truncated", False)),
+            ))
         stderr = str(result.get("stderr", ""))
         if stderr:
-            shown = stderr[:4000]
-            if len(stderr) > len(shown):
-                shown += "\n... <truncated in markdown view>"
-            lines.extend(["", "### stderr", "", "```text", shown, "```", ""])
+            lines.extend(stream_markdown_section(
+                "stderr",
+                stderr,
+                byte_count=_int_or_none(result.get("stderr_bytes")),
+                truncated=bool(result.get("stderr_truncated", False)),
+            ))
+        exception = result.get("exception")
+        if exception:
+            lines.extend(["### exception", "", json_block(exception), ""])
+    elif result is not None:
+        lines.extend(["## Result", "", json_block(result), ""])
+
+    next_actions = envelope.get("next_actions") or []
+    if next_actions:
+        lines.extend(["## Next actions", ""])
+        for item in next_actions:
+            lines.append(f"- `{item}`")
+        lines.append("")
+
+    model_hints = envelope.get("model_hints")
+    if isinstance(model_hints, dict):
+        lines.extend(["## Model hints", "", json_block(model_hints), ""])
 
     return "\n".join(lines).rstrip() + "\n"
+
+
+def _int_or_none(value: Any) -> int | None:
+    try:
+        return int(value)
+    except Exception:
+        return None

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -130,6 +131,50 @@ def _kill_origin(port: int, dry_run: bool = False) -> Dict[str, Any]:
     return {"ok": True, "killed": killed, "listeners": [x.__dict__ for x in listeners]}
 
 
+def cmd_preflight(args: argparse.Namespace) -> int:
+    root = Path(args.root).resolve()
+    bridge = root / "tools" / "scripts" / "northstar_ai_bridge.py"
+    if not bridge.exists():
+        print(json.dumps({"ok": False, "error": "missing_bridge_entrypoint", "path": str(bridge)}, ensure_ascii=False, indent=2))
+        return 1
+    env = os.environ.copy()
+    env.update({
+        "PYTHONUTF8": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "NORTHSTAR_SUITE_STDIO_ENCODING": "utf-8",
+        "NORTHSTAR_SUITE_STDIO_ERRORS": "replace",
+    })
+    cmd = [sys.executable, str(bridge), "--root", str(root), "--hello"]
+    started = time.time()
+    proc = subprocess.run(
+        cmd,
+        cwd=str(root),
+        env=env,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=False,
+        timeout=max(5.0, float(args.wait_sec)),
+    )
+    payload = {
+        "ok": proc.returncode == 0,
+        "schema": "northstar.bridge.origin_preflight.v1",
+        "host": args.host,
+        "port": args.port,
+        "command": "preflight",
+        "virtual_origin": "northstar_ai_bridge.py --hello",
+        "exit_code": proc.returncode,
+        "elapsed_ms": int((time.time() - started) * 1000),
+        "stdout_tail": proc.stdout[-8192:],
+        "stderr_tail": proc.stderr[-8192:],
+        "policy": "validate new bridge code before stopping the live origin",
+    }
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return 0 if payload["ok"] else 1
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     listeners = _listeners(args.port)
     payload = {
@@ -174,7 +219,7 @@ def cmd_wait_up(args: argparse.Namespace) -> int:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Safe local-origin restart helper for North Star AI Bridge")
-    parser.add_argument("command", choices=["status", "stop-origin", "wait-down", "wait-up"])
+    parser.add_argument("command", choices=["preflight", "status", "stop-origin", "wait-down", "wait-up"])
     parser.add_argument("--root", default=".")
     parser.add_argument("--host", default=DEFAULT_HOST)
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
@@ -185,6 +230,8 @@ def main(argv: list[str]) -> int:
     # Keep root validation simple; this helper intentionally operates on the
     # local port/process table, not on repository files.
     Path(args.root).resolve()
+    if args.command == "preflight":
+        return cmd_preflight(args)
     if args.command == "status":
         return cmd_status(args)
     if args.command == "stop-origin":

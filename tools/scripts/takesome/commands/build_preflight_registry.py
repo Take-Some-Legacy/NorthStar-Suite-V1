@@ -6,6 +6,7 @@ import json
 import subprocess
 import sys
 
+from ..paths import engine_core_root
 from ..registry.registry_report import build_registry_report
 from ..registry.suite_bridge_menu import write_bridge_menu_json
 
@@ -22,7 +23,7 @@ def run_registry_build_preflight(repo_root: Path, output_dir: Path | None = None
       - registry WARN remains visible but non-blocking.
     """
 
-    output_dir = output_dir or repo_root / "NewEngine" / "neocore2" / "buildInfo" / "tools"
+    output_dir = output_dir or engine_core_root(repo_root) / "buildInfo" / "tools"
     report = build_registry_report(repo_root)
     report.write_all(output_dir)
     bridge_menu_path = write_bridge_menu_json(repo_root, output_path=output_dir / "SUITE_ACTIONS_BRIDGE_MENU.json")
