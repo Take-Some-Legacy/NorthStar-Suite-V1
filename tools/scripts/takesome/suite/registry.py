@@ -19,6 +19,7 @@ from ..tools import tools_command, validate_build_tools, run_p0_invariant_scan, 
 from ..workspace_registry import workspace_registry_command
 from .actions import SuiteAction, SuiteCategory
 from .operator_toolbelt import write_operator_toolbelt
+from ..endless.recipes import fix_direct_provider_scan, full_cycle, loop
 from .context import context_build_args, context_profile_args, select_suite_context
 from .settings import select_suite_visual_settings
 from .build_center import build_center
@@ -314,6 +315,9 @@ def build_builtin_registry() -> SuiteRegistry:
         SuiteAction("tools.build.safe", "Build safe native tools", "build safe descriptors only", _tools_action("build", tool_id="", release=False, safe=True, validate_after_build=False), "BUILD", "devtools", "tools", "writes_tools"),
         SuiteAction("tools.build.safe.validate", "Build safe tools + validate", "build safe descriptors and run validation_args", _tools_action("build", tool_id="", release=False, safe=True, validate_after_build=True), "BUILD", "devtools", "tools", "writes_tools"),
         SuiteAction("tools.validate.build", "Validate build pipeline", "validate registered build tools before plugin sync", validate_build_tools, "DIAG", "devtools", "build pipeline", "diagnostics"),
+        SuiteAction("endless.fix.direct-provider-scan", "Fix direct provider scanner precision", "ignore legal provider ids in capability/conformance/test descriptors", fix_direct_provider_scan, "FIX", "devtools", "endless stream", "writes_source", output_schema="northstar.endless.recipe.v1"),
+        SuiteAction("endless.full-cycle", "Run Endless Stream full cycle", "run local Endless Stream cycle through registered Suite action", full_cycle, "RUN", "devtools", "endless stream", "writes_reports", output_schema="northstar.endless.full_cycle.v1"),
+        SuiteAction("endless.loop", "Run Endless Stream loop", "run unbounded local Endless Stream cycles until STOP signal, interrupt or failure", loop, "RUN", "devtools", "endless stream", "writes_reports", output_schema="northstar.endless.loop.v1"),
         SuiteAction("tools.operator.toolbelt", "Pin operator toolbelt", "write the simple bounded toolbelt for chat/Suite work", write_operator_toolbelt, "DIAG", "devtools", "operator tooling", "writes_reports", output_schema="northstar.suite.operator_toolbelt.v1"),
         SuiteAction("source.pack", "Pack source snapshot", "create clean source archive", _pack_source, "PACK", "devtools", "source", "writes_zip"),
     )

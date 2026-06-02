@@ -45,12 +45,12 @@ def _require_write(ctx: BridgeContext, action: str) -> None:
 def _run(root: Path, cmd: list[str], *, timeout: int = 120) -> dict[str, Any]:
     started = time.time()
     try:
-        proc = subprocess.run(cmd, cwd=str(root), text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=None if timeout <= 0 else timeout, shell=False)
+        proc = subprocess.run(cmd, cwd=str(root), text=True, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=None, shell=False)
         stdout = proc.stdout or ''
         stderr = proc.stderr or ''
-        return {'ok': proc.returncode == 0, 'exit_code': proc.returncode, 'elapsed_ms': int((time.time() - started) * 1000), 'cmd': [Path(cmd[0]).name, *cmd[1:]], 'stdout': stdout[-40000:], 'stderr': stderr[-12000:], 'truncated': len(stdout) > 40000 or len(stderr) > 12000}
+        return {'ok': proc.returncode == 0, 'exit_code': proc.returncode, 'elapsed_ms': int((time.time() - started) * 1000), 'cmd': [Path(cmd[0]).name, *cmd[1:]], 'stdout': stdout[-40000:], 'stderr': stderr[-12000:], 'truncated': len(stdout) > 40000 or len(stderr) > 12000, 'wait_policy': 'wait_until_completion', 'requested_timeout_sec': timeout}
     except subprocess.TimeoutExpired as exc:
-        return {'ok': False, 'exit_code': 124, 'elapsed_ms': int((time.time() - started) * 1000), 'cmd': [Path(cmd[0]).name, *cmd[1:]], 'stdout': (exc.stdout or '')[-40000:] if isinstance(exc.stdout, str) else '', 'stderr': (exc.stderr or '')[-12000:] if isinstance(exc.stderr, str) else '', 'truncated': True, 'error': 'timeout'}
+        return {'ok': False, 'exit_code': 124, 'elapsed_ms': int((time.time() - started) * 1000), 'cmd': [Path(cmd[0]).name, *cmd[1:]], 'stdout': (exc.stdout or '')[-40000:] if isinstance(exc.stdout, str) else '', 'stderr': (exc.stderr or '')[-12000:] if isinstance(exc.stderr, str) else '', 'truncated': True, 'error': 'wait_interrupted', 'wait_policy': 'wait_until_completion', 'requested_timeout_sec': timeout}
 
 
 def _artifact_dir(root: Path) -> Path:

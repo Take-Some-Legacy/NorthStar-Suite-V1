@@ -209,7 +209,7 @@ def run_takesome(ctx: BridgeContext, args: List[str], timeout_sec: int = 120, en
 
             stderr=subprocess.PIPE,
 
-            timeout=(timeout_sec if timeout_sec > 0 else None),
+            timeout=None,
 
             shell=False,
 
@@ -223,7 +223,7 @@ def run_takesome(ctx: BridgeContext, args: List[str], timeout_sec: int = 120, en
 
         err, et, err_bytes = truncate_tail(exc.stderr if isinstance(exc.stderr, str) else "", MAX_EXEC_STDERR_BYTES)
 
-        raise BridgeError("Suite command timed out", "command_timeout", {"args": resolved_args, "timeout_sec": timeout_sec, "stdout": out, "stdout_tail": out, "stdout_bytes": out_bytes, "stderr": err, "stderr_tail": err, "stderr_bytes": err_bytes, "truncated": ot or et})
+        raise BridgeError("Suite command wait was interrupted", "command_wait_interrupted", {"args": resolved_args, "requested_timeout_sec": timeout_sec, "stdout": out, "stdout_tail": out, "stdout_bytes": out_bytes, "stderr": err, "stderr_tail": err, "stderr_bytes": err_bytes, "truncated": ot or et, "wait_policy": "wait_until_completion"})
 
     out, ot, out_bytes = truncate_tail(proc.stdout, MAX_EXEC_STDOUT_BYTES)
 
@@ -241,6 +241,8 @@ def run_takesome(ctx: BridgeContext, args: List[str], timeout_sec: int = 120, en
         "stderr_tail": err,
         "stderr_bytes": err_bytes,
         "truncated": ot or et,
+        "wait_policy": "wait_until_completion",
+        "requested_timeout_sec": timeout_sec,
         "output_policy": {
             "stdout": "tail",
             "stderr": "tail",

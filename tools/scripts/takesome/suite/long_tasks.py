@@ -493,6 +493,7 @@ def _run_suite_stage(root: Path, action_id: str, timeout_sec: int) -> dict[str, 
     stdout_parts: list[str] = []
     stderr = ""
     timed_out = False
+    heartbeat_interval = max(10.0, min(float(timeout_sec), 60.0)) if timeout_sec > 0 else 10.0
     exit_code = 0
     last_heartbeat = 0.0
     heartbeat_path = root / ".takesome" / "dataSet" / "index" / "ingest-pipeline" / "heartbeat.json"
@@ -508,7 +509,6 @@ def _run_suite_stage(root: Path, action_id: str, timeout_sec: int) -> dict[str, 
             bufsize=1,
         )
         assert proc.stdout is not None
-        deadline = None if timeout_sec <= 0 else time.monotonic() + timeout_sec
         while True:
             line = proc.stdout.readline()
             if line:
@@ -521,20 +521,25 @@ def _run_suite_stage(root: Path, action_id: str, timeout_sec: int) -> dict[str, 
                 break
             else:
                 now = time.monotonic()
-                if action_id == "diag.dataset.ingest" and now - last_heartbeat >= 10.0 and heartbeat_path.exists():
-                    try:
-                        heartbeat = json.loads(heartbeat_path.read_text(encoding="utf-8"))
+                if now - last_heartbeat >= heartbeat_interval:
+                    if action_id == "diag.dataset.ingest" and heartbeat_path.exists():
+                        try:
+                            heartbeat = json.loads(heartbeat_path.read_text(encoding="utf-8"))
+                            print(
+                                f"[ALIVE] dataSet ingest heartbeat stage={heartbeat.get('stage')} elapsed={heartbeat.get('elapsed_sec')}s",
+                                flush=True,
+                            )
+                        except Exception:
+                            print(
+                                f"[ALIVE] suite stage action={action_id} elapsed={int(now - started)}s waiting_for_completion",
+                                flush=True,
+                            )
+                    else:
                         print(
-                            f"[ALIVE] dataSet ingest heartbeat stage={heartbeat.get('stage')} elapsed={heartbeat.get('elapsed_sec')}s",
+                            f"[ALIVE] suite stage action={action_id} elapsed={int(now - started)}s waiting_for_completion",
                             flush=True,
                         )
-                    except Exception:
-                        pass
                     last_heartbeat = now
-                if deadline is not None and now > deadline:
-                    timed_out = True
-                    proc.kill()
-                    break
                 time.sleep(0.1)
         if not timed_out:
             exit_code = int(proc.wait())
@@ -571,6 +576,9 @@ def _run_suite_stage(root: Path, action_id: str, timeout_sec: int) -> dict[str, 
         "duration_ms": duration_ms,
         "exit_code": exit_code,
         "timed_out": timed_out,
+        "wait_policy": "wait_until_completion",
+        "requested_timeout_sec": timeout_sec,
+        "heartbeat_interval_sec": heartbeat_interval,
         "stdout_tail": stdout[-2500:],
         "stderr_tail": stderr[-2500:],
         "artifacts": artifacts,

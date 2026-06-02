@@ -259,14 +259,14 @@ def _run_process(ctx: BridgeContext, tool: ProjectTool, command: list[str], tool
             errors="replace",
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=(timeout_sec if timeout_sec > 0 else None),
+            timeout=None,
             shell=False,
             env=_tool_env(ctx),
         )
     except subprocess.TimeoutExpired as exc:
         stdout, ot, stdout_bytes = truncate_tail(exc.stdout if isinstance(exc.stdout, str) else "", max_out)
         stderr, et, stderr_bytes = truncate_tail(exc.stderr if isinstance(exc.stderr, str) else "", max_err)
-        raise BridgeError("project tool timed out", "tool_timeout", {
+        raise BridgeError("project tool wait was interrupted", "tool_wait_interrupted", {
             "tool": tool.public_name,
             "timeout_sec": timeout_sec,
             "stdout": stdout,
@@ -281,6 +281,8 @@ def _run_process(ctx: BridgeContext, tool: ProjectTool, command: list[str], tool
     return {
         "schema": "northstar.project_tool.run.v1",
         "ok": proc.returncode == 0,
+        "wait_policy": "wait_until_completion",
+        "requested_timeout_sec": timeout_sec,
         "tool": tool.public_name,
         "source": tool.source,
         "kind": tool.kind,
