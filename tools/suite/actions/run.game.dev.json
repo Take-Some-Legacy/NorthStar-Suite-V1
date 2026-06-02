@@ -1,0 +1,15 @@
+{
+  "action_id": "runtime.run.game.dev",
+  "group": "Run",
+  "title": "Run game/runtime demo / dev",
+  "description": "Synchronize dev plugins and run the game-ready-fps runtime demo.",
+  "command": "run-game",
+  "args": ["dev"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env", "cargo"],
+  "outputs": [
+    "NewEngine/neocore2/logs/run/"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

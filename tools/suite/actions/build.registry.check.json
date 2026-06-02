@@ -1,0 +1,16 @@
+{
+  "action_id": "build.registry.check",
+  "group": "Diagnostics",
+  "title": "Registry check for build",
+  "description": "Validate ToolRegistry and SuiteActionRegistry before plugin rebuild. Errors stop the build; warnings are reported only.",
+  "command": "registry-preflight",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [
+    "NewEngine/neocore2/buildInfo/tools/SUITE_TOOLING_REGISTRY.json",
+    "NewEngine/neocore2/buildInfo/tools/TOOL_AUDIT_FINDINGS.md"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

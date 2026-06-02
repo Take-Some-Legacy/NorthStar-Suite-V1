@@ -24,11 +24,11 @@ from .actions import SuiteAction, SuiteCategory
 from .context import SuiteContext, load_suite_context
 from .env import ensure_script_env
 from .progress_frame import SuiteStatusFrame
-from .registry import SuiteRegistry, build_builtin_registry
+from .registry import SuiteRegistry, build_suite_registry
 from .output import emit_actions_json, run_suite_action_structured
 from .settings import apply_suite_settings, ensure_suite_settings, load_suite_settings
 
-SUITE_VERSION = "0.5.2"
+SUITE_VERSION = "0.6.0"
 
 
 def _clear_screen() -> None:
@@ -355,8 +355,12 @@ def _run_action(root: Path, registry: SuiteRegistry, action: SuiteAction) -> int
     return rc
 
 
-def list_actions(registry: SuiteRegistry | None = None) -> int:
-    registry = registry or build_builtin_registry()
+def list_actions(registry: SuiteRegistry | None = None, *, root: Path | None = None) -> int:
+    if registry is None:
+        if root is None:
+            root = Path.cwd()
+        registry = build_suite_registry(root)
+
     for category in registry.command_blocks():
         print(f"[{category.key}] {category.label}")
         for action in registry.category_actions(category.key):
@@ -366,7 +370,7 @@ def list_actions(registry: SuiteRegistry | None = None) -> int:
 
 def run_action_by_key(root: Path, key: str, registry: SuiteRegistry | None = None) -> int:
     ensure_suite_settings(root)
-    registry = registry or build_builtin_registry()
+    registry = registry or build_suite_registry(root)
     action = registry.action(key)
     if action is None:
         console_emit(f"[ERROR] Unknown suite action: {key}")
@@ -378,9 +382,9 @@ def run_action_by_key(root: Path, key: str, registry: SuiteRegistry | None = Non
 
 
 def _suite_command_unstructured(root: Path, args: argparse.Namespace) -> int:
-    registry = build_builtin_registry()
+    registry = build_suite_registry(root)
     if getattr(args, "list_actions", False):
-        return list_actions(registry)
+        return list_actions(root=root)
     rc = ensure_script_env(root, suite_version=SUITE_VERSION)
     if rc != 0:
         return rc
@@ -428,7 +432,7 @@ def suite_command(root: Path, args: argparse.Namespace) -> int:
             return emit_actions_json(
                 root,
                 SUITE_VERSION,
-                build_builtin_registry,
+                lambda: build_suite_registry(root),
                 output_dir=str(getattr(args, "output_dir", "") or ""),
             )
         if str(getattr(args, "run", "") or "").strip():
@@ -436,7 +440,7 @@ def suite_command(root: Path, args: argparse.Namespace) -> int:
                 root,
                 args,
                 SUITE_VERSION,
-                build_builtin_registry,
+                lambda: build_suite_registry(root),
                 ensure_env=None,
                 apply_delete=apply_delete_list,
             )

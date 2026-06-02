@@ -1,0 +1,13 @@
+{
+  "action_id": "source.pack",
+  "group": "Source",
+  "title": "Pack source snapshot",
+  "description": "Create a clean source archive using the canonical source packaging policy.",
+  "command": "pack-source",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": ["SOURCE_ARCHIVE_MANIFEST.json"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

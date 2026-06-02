@@ -1,0 +1,13 @@
+{
+  "action_id": "tools.doctor",
+  "group": "Tools",
+  "title": "Run ToolRegistry doctor",
+  "description": "Run registry-aware tool diagnostics. ERROR blocks; WARN is visible and non-blocking.",
+  "command": "tools-doctor",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": ["NewEngine/neocore2/buildInfo/tools/TOOL_AUDIT_FINDINGS.md"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

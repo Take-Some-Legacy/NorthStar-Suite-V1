@@ -1,0 +1,13 @@
+{
+  "action_id": "importers.build.dev",
+  "group": "Importers",
+  "title": "Build importers / dev",
+  "description": "Build importer toolchain in dev profile.",
+  "command": "build-importers",
+  "args": ["dev"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env", "cargo"],
+  "outputs": ["NewEngine/neocore2/logs/build/"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

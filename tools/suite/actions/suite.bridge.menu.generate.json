@@ -1,0 +1,13 @@
+{
+  "action_id": "suite.bridge.menu.generate",
+  "group": "Diagnostics",
+  "title": "Generate Suite bridge menu JSON",
+  "description": "Generate bridge/UI menu action JSON from SuiteActionRegistry descriptors.",
+  "command": "suite-bridge-menu-generate",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": ["NewEngine/neocore2/buildInfo/tools/SUITE_ACTIONS_BRIDGE_MENU.json"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

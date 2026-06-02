@@ -1,0 +1,13 @@
+{
+  "action_id": "importers.build.release",
+  "group": "Importers",
+  "title": "Build importers / release",
+  "description": "Build importer toolchain in release profile.",
+  "command": "build-importers",
+  "args": ["release"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env", "cargo"],
+  "outputs": ["NewEngine/neocore2/logs/build/"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

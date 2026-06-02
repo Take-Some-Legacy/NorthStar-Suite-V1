@@ -1,0 +1,13 @@
+{
+  "action_id": "tools.list",
+  "group": "Tools",
+  "title": "List registered tools",
+  "description": "List descriptor-registered tools from ToolRegistry.",
+  "command": "tools-list",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": ["NewEngine/neocore2/buildInfo/tools/TOOL_REGISTRY.json"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

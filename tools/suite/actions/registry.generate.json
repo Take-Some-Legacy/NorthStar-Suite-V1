@@ -1,0 +1,17 @@
+{
+  "action_id": "registry.generate",
+  "group": "Diagnostics",
+  "title": "Generate Suite/tooling registry",
+  "description": "Generate TOOL_REGISTRY, SUITE_ACTIONS and TOOL_AUDIT_FINDINGS reports from descriptors.",
+  "command": "registry-report",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [
+    "NewEngine/neocore2/buildInfo/tools/TOOL_REGISTRY.json",
+    "NewEngine/neocore2/buildInfo/tools/SUITE_ACTIONS.json",
+    "NewEngine/neocore2/buildInfo/tools/TOOL_AUDIT_FINDINGS.md"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

@@ -1,0 +1,13 @@
+{
+  "action_id": "tools.validate",
+  "group": "Tools",
+  "title": "Validate ToolRegistry",
+  "description": "Validate descriptor-registered tools and write registry reports.",
+  "command": "tools-validate",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": ["NewEngine/neocore2/buildInfo/tools/TOOL_REGISTRY.md", "NewEngine/neocore2/buildInfo/tools/TOOL_AUDIT_FINDINGS.md"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

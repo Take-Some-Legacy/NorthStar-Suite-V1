@@ -13,6 +13,8 @@ from .migration import apply_delete_list, apply_patch_files, sync_workspace_stat
 from .paths import repo_root
 from .plugin_build import build_codecs, build_plugin_entry, build_plugins
 from .plugin_status import plugin_status_command
+from .plugin_cleanup import plugin_cleanup_command
+from .commands.cli_hooks import REGISTRY_COMMAND_IDS, try_handle_registry_command
 from .tools import tools_command, validate_build_tools
 from .ui_fonts import import_ui_fonts_command
 from .workspace_registry import workspace_registry_command
@@ -64,6 +66,11 @@ def main(argv: list[str]) -> int:
     p.add_argument("--verbose", action="store_true")
 
     sub.add_parser("workspace-health", help="Generate Build Health Report with plugin, dataset, diagnostics, hygiene and optimization warnings.")
+    p = sub.add_parser("plugin-cleanup", help="Scan or remove whitelisted temporary plugin cleanup artifacts.")
+    p.add_argument("--apply", action="store_true", help="Delete only whitelisted temporary plugin artifacts: _split_stage/ and split_staging.rs.")
+
+    for command_id in REGISTRY_COMMAND_IDS:
+        sub.add_parser(command_id, help=f"Registry-driven command: {command_id}.")
 
     p = sub.add_parser("run-game")
     p.add_argument("--sync-plugins", action="store_true", help="Run plugin sync even when status is clean.")
@@ -213,6 +220,11 @@ def main(argv: list[str]) -> int:
         return workspace_registry_command(root, ns)
     if ns.command == "workspace-health":
         return workspace_health_command(root, ns)
+    if ns.command == "plugin-cleanup":
+        return plugin_cleanup_command(root, ns)
+    registry_result = try_handle_registry_command([ns.command], root)
+    if registry_result is not None:
+        return registry_result
     if ns.command == "git-batch-push":
         return git_batch_push_command(root, ns)
     if ns.command == "tools":

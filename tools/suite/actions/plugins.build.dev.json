@@ -1,0 +1,13 @@
+{
+  "action_id": "plugins.build.dev",
+  "group": "Build",
+  "title": "Build runtime plugins / dev",
+  "description": "Build and install all runtime plugin providers in dev profile.",
+  "command": "build-plugins",
+  "args": ["dev"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env", "cargo"],
+  "outputs": ["NewEngine/neocore2/logs/build/plugin-sync-latest.log", "lastbuild.log"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

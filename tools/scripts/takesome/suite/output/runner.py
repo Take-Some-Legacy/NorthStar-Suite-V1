@@ -11,6 +11,8 @@ from typing import Any, Callable
 from .envelope import Timer, make_envelope, make_run_id, status_from_exit_code
 from .schemas import ensure_builtin_output_schemas, validate_suite_output_envelope
 from .writer import write_suite_output
+from ...registry.suite_action_registry import discover_suite_actions
+from ...registry.suite_bridge_menu import render_bridge_menu_actions
 
 
 def _action_metadata(action: Any) -> dict[str, Any]:
@@ -51,8 +53,8 @@ def _write_and_attach(root: Path, envelope: dict[str, Any], output_dir: str | Pa
 
 def emit_actions_json(root: Path, suite_version: str, build_registry: Callable[[], Any], *, output_dir: str = "") -> int:
     timer = Timer()
-    registry = build_registry()
-    actions = [_action_metadata(action) for action in registry.actions()]
+    registry = discover_suite_actions(root)
+    actions = render_bridge_menu_actions(registry)
     finished_at, duration_ms = timer.finish()
     run_id = make_run_id("suite.list_actions", timer.started_at)
     envelope = make_envelope(
@@ -62,17 +64,24 @@ def emit_actions_json(root: Path, suite_version: str, build_registry: Callable[[
         started_at=timer.started_at,
         finished_at=finished_at,
         duration_ms=duration_ms,
-        status="ok",
+        status="ok" if registry.ok else "failed",
         result_schema="northstar.suite.action_list.v1",
-        result={"actions": actions, "action_count": len(actions)},
+        result={
+            "actions": actions,
+            "action_count": len(actions),
+            "descriptor_action_count": len(registry.actions),
+            "registry_schema": "northstar.suite_action_registry.v1",
+            "registry_ok": registry.ok,
+            "validation": [item.as_dict() for item in registry.validation],
+        },
         summary_title="Suite action list exported",
-        summary_human=f"Exported {len(actions)} Suite action descriptors with output schema metadata.",
+        summary_human=f"Exported {len(actions)} descriptor-backed Suite actions with output schema metadata.",
     )
     ensure_builtin_output_schemas(root)
     envelope["diagnostics"].extend(validate_suite_output_envelope(envelope))
     envelope = _write_and_attach(root, envelope, output_dir)
     _emit_json(envelope)
-    return 0
+    return 0 if registry.ok else 2
 
 
 def run_suite_action_structured(

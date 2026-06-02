@@ -1,0 +1,13 @@
+{
+  "action_id": "suite.actions.list",
+  "group": "Diagnostics",
+  "title": "List descriptor Suite actions",
+  "description": "List Suite actions from SuiteActionRegistry descriptors.",
+  "command": "suite-actions-list",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": ["NewEngine/neocore2/buildInfo/tools/SUITE_ACTIONS.json"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

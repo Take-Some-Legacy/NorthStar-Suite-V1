@@ -1,0 +1,15 @@
+{
+  "action_id": "workspace.clean.full",
+  "group": "Workspace",
+  "title": "Clean workspace",
+  "description": "Run the canonical workspace cleanup through the Python script plane.",
+  "command": "clean-workspace",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [
+    "NewEngine/neocore2/logs/"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "destructive"
+}
