@@ -16,6 +16,7 @@ from .plugin_status import plugin_status_command
 from .tools import tools_command, validate_build_tools
 from .ui_fonts import import_ui_fonts_command
 from .workspace_registry import workspace_registry_command
+from .workspace_health import workspace_health_command
 from .suite_shell import suite_command
 from .suite.approval import apply_sudo_from_args
 from .endless.cli import endless_stream_command
@@ -61,6 +62,8 @@ def main(argv: list[str]) -> int:
     p.add_argument("--exclude-ext", action="append")
     p.add_argument("--exclude-file", action="append")
     p.add_argument("--verbose", action="store_true")
+
+    sub.add_parser("workspace-health", help="Generate Build Health Report with plugin, dataset, diagnostics, hygiene and optimization warnings.")
 
     p = sub.add_parser("run-game")
     p.add_argument("--sync-plugins", action="store_true", help="Run plugin sync even when status is clean.")
@@ -208,6 +211,8 @@ def main(argv: list[str]) -> int:
         return plugin_status_command(root, status_args)
     if ns.command == "workspace-registry":
         return workspace_registry_command(root, ns)
+    if ns.command == "workspace-health":
+        return workspace_health_command(root, ns)
     if ns.command == "git-batch-push":
         return git_batch_push_command(root, ns)
     if ns.command == "tools":

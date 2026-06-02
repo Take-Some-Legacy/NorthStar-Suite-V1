@@ -14,21 +14,31 @@ def repo_root() -> Path:
 
 
 def project_root_from_suite(suite: Path) -> Path:
-    """Return the project root that owns a Take Some suite directory.
+    """Return the source repository root associated with a suite directory.
 
-    The project root and the suite root are intentionally different:
-    `project_root/.takesome` is the script-suite working area, while
-    `project_root` remains the source/workspace root.
+    `EngineRepository` and `.takesome` are independent roots.  In the old local
+    layout the suite lived at `repo/.takesome`, but relocation mode may place the
+    suite/work state on another disk.  When that happens, `NEWENGINE_REPO_ROOT`
+    is the only authoritative source root and the suite parent must not be used
+    as duplicate authority.
     """
+    env = os.environ.get("NEWENGINE_REPO_ROOT")
+    if env:
+        return Path(env).expanduser().resolve()
     return suite.resolve().parent
 
 
 def suite_root(project_root: Path) -> Path:
     """Canonical Take Some script-suite working root.
 
-    All generated script-plane state must be rooted here, never beside the
-    project root through ad-hoc `.takesome` concatenation.
+    `NEWENGINE_SUITE_ROOT` / `TAKESOME_SUITE_ROOT` may point to a directory
+    outside the source repository.  This lets the dataset, logs, incidents and
+    status caches live on a separate disk while `EngineRepository` remains a
+    clean source tree.
     """
+    env = os.environ.get("NEWENGINE_SUITE_ROOT") or os.environ.get("TAKESOME_SUITE_ROOT")
+    if env:
+        return Path(env).expanduser().resolve()
     return project_root.resolve() / ".takesome"
 
 

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import os
+import queue
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from contextlib import contextmanager
 from typing import Iterator
@@ -108,7 +110,24 @@ def pause_on_error(code: int, *, context: str = "script") -> None:
         input()
     except EOFError:
         pass
+def _heartbeat_interval_seconds(env: dict[str, str] | None) -> float:
+    raw = (env or os.environ).get("NEWENGINE_PROCESS_HEARTBEAT_SEC", "10")
+    try:
+        return max(1.0, float(raw))
+    except ValueError:
+        return 10.0
+
+
 def run_process(args: Sequence[str], *, cwd: Path, log: TeeLog, env: dict[str, str] | None = None) -> int:
+    """Run a child process with liveness heartbeats, not a hard timeout.
+
+    Plugin builds can legitimately take a long time on a cold Cargo cache.  The
+    build plane must therefore not kill Cargo because an arbitrary duration was
+    exceeded.  Instead, stdout is drained on a reader thread and the main thread
+    emits periodic `[ALIVE] process heartbeat` lines while the child is still
+    running, even if Cargo is temporarily silent.
+    """
+
     display = " ".join(quote_for_log(a) for a in args)
     log.emit(f"[CMD] {display}")
     try:
@@ -127,13 +146,52 @@ def run_process(args: Sequence[str], *, cwd: Path, log: TeeLog, env: dict[str, s
         log.emit(f"[ERROR] Command not found: {args[0]}")
         return 127
     assert process.stdout is not None
-    last_tick = time.monotonic()
-    for line in process.stdout:
-        log.write_raw(line)
+
+    line_queue: queue.Queue[str | None] = queue.Queue()
+
+    def reader() -> None:
+        try:
+            for line in process.stdout:
+                line_queue.put(line)
+        finally:
+            line_queue.put(None)
+
+    thread = threading.Thread(target=reader, name="takesome-process-output", daemon=True)
+    thread.start()
+
+    started = time.monotonic()
+    last_tick = started
+    last_heartbeat = started
+    heartbeat_interval = _heartbeat_interval_seconds(env)
+    output_closed = False
+
+    while True:
+        try:
+            item = line_queue.get(timeout=0.25)
+        except queue.Empty:
+            item = ""
+
+        if item is None:
+            output_closed = True
+        elif item:
+            log.write_raw(item)
+
         now = time.monotonic()
         if now - last_tick >= 1.0:
             progress_tick()
             last_tick = now
+
+        rc = process.poll()
+        if rc is not None and output_closed:
+            break
+
+        if rc is None and now - last_heartbeat >= heartbeat_interval:
+            elapsed = int(now - started)
+            log.emit(f"[ALIVE] process heartbeat pid={process.pid} elapsed={elapsed}s cwd={cwd}")
+            progress_tick(phase=f"process alive elapsed={elapsed}s")
+            last_heartbeat = now
+
+    thread.join(timeout=1.0)
     rc = process.wait()
     progress_tick(phase=f"process finished rc={rc}")
     return rc

@@ -1,175 +1,104 @@
-# North Star Engine — Operator Workspace
+# North Star Workspace Contract — EngineRepository Ready
 
-> Purpose: keep the root workspace predictable for human work and AI-assisted maintenance.
+> [!IMPORTANT] DECISION BLOCK — EngineRepository + external Suite root
+> **Decision:** North Star source tree and Take Some/Suite operational state are independent roots. The source root is `NEWENGINE_REPO_ROOT`; the suite/work-state root is `NEWENGINE_SUITE_ROOT` or `TAKESOME_SUITE_ROOT`.
 >
-> Rule: source belongs to the project; generated state belongs to `.takesome`; command logic belongs to Python/Suite; launchers only launch.
+> **Why:** The current repo root mixes engine sources, plugins, importers, tools, launchers, logs, incidents, generated state and dataset material. This creates operational noise and duplicate authority.
+>
+> **Applies to:** launchers, `init_script_env.py`, `takesome.paths`, build-state, logs, reports, dataset, incidents, status cache and future physical relocation.
 
-## Root surface
-
-The root should stay short and operational:
+## Doctrine
 
 ```text
-suite.bat          primary human Suite shell
-aiBridge.bat       AI/MCP bridge launcher
-aiBridgeServer.bat stdio MCP compatibility launcher
-README.md
-WORKSPACE.md
-lastbuild-all.log / lastbuild.log if generated
-last-incident.md / last-incident.json if generated
+Engine as Host.
+Dataset as Truth Host.
+Workspace as Contract.
+Document as Contract.
+Snapshot as Evidence.
+Research as Context.
+Roadmap as Action.
+Diagnostics as Truth.
+No legacy. No hidden fallback. No duplicate authority.
 ```
 
-Avoid leaving temporary patches, run bundles, random logs, copied DLLs or helper scripts in root. Put reusable references in `.takesome/dataSet` and generated diagnostics under `.takesome`.
+## Roots
 
-## AI bridge commands
+| Root | ENV | Purpose | May live on another disk |
+|---|---|---|---:|
+| `EngineRepository` | `NEWENGINE_REPO_ROOT` | Source tree: `NewEngine`, `Plugins`, `Importers`, `tools`, docs. | yes |
+| `Take Some / Suite root` | `NEWENGINE_SUITE_ROOT` / `TAKESOME_SUITE_ROOT` | Operational state: dataset, logs, build-state, incidents, reports, status cache. | yes |
+
+Current source root:
+
+```text
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine
+```
+
+Current suite root:
+
+```text
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\.takesome
+```
+
+## Target source layout
+
+```text
+EngineRepository/
+  NewEngine/              # core engine source
+  Plugins/                # provider implementations
+  Importers/              # importer implementations
+  tools/                  # script-plane and operator tooling source
+  docs/                   # durable documentation
+  config/                 # stable source-controlled config
+  WORKSPACE.md            # workspace contract
+```
+
+## Target Suite/work-state layout
+
+```text
+<TAKESOME_SUITE_ROOT>/
+  dataSet/                # Dataset as Truth Host
+  build-state/            # plugin status, stamps, build registry
+  buildLog/               # build logs with heartbeat
+  incidents/              # incident bundles
+  reports/                # human-readable reports
+  suite/runs/             # Suite action results
+  status-cache/           # generated status snapshots
+  patch-backups/          # patch safety backups
+  workspace/              # workspace metadata
+  tools/                  # generated tool registry cache
+  script-env.cmd          # generated environment contract
+```
+
+## Non-destructive relocation policy
+
+This patch intentionally does **not** move live directories while the operator is running from inside the current repository. Physical relocation must be done only after all processes using `tools/` are stopped.
+
+Safe first step:
 
 ```bat
-aiBridge.bat              local status and usage
-aiBridge.bat read         HTTP MCP bridge, read-only
-aiBridge.bat write        HTTP MCP bridge, write-enabled
-aiBridge.bat http         HTTP MCP bridge, preserves current env
-aiBridge.bat stdio        silent stdio MCP server
-aiBridge.bat tunnel       Cloudflare tunnel helper for 127.0.0.1:8765
-serverBridge.bat          starts local MCP origin + stable Cloudflare named tunnel
-aiBridge.bat --openai-login
-aiBridge.bat --openai-forget
+py -3 tools\scripts\init_script_env.py --repo-root C:\Path\To\EngineRepository --suite-root D:\NorthStarSuite --emit-cmd D:\NorthStarSuite\script-env.cmd
 ```
 
-Recommended safe connection flow:
+Then launchers must call that generated env file before invoking Suite or build commands.
+
+## Hard rules
+
+- No script should assume `.takesome` is under the source root.
+- No generated build state should be written beside `NewEngine`, `Plugins`, `Importers` or `tools`.
+- `repo_root()` is source authority.
+- `suite_root(repo_root)` is operational-state authority and may be external.
+- If a path is derived from both repo and suite roots, the code must say which authority owns it.
+- Stale logs in root are WARNs and should be moved into Suite reports/incidents.
+
+## Acceptance checklist
 
 ```text
-1. serverBridge.bat
-2. connect ChatGPT app to https://suite.kaylas-systems.ru/mcp
-3. verify northstar.status, northstar.operator_snapshot, northstar.dataset_status
-4. keep serverBridge.bat running while external clients are connected
+[ ] `init_script_env.py` accepts `--suite-root`.
+[ ] `takesome.paths.suite_root()` respects `NEWENGINE_SUITE_ROOT` / `TAKESOME_SUITE_ROOT`.
+[ ] `script-env.cmd` exports both source and suite roots.
+[ ] Build reports write under suite root.
+[ ] Dataset reports write under suite root.
+[ ] Root no longer accumulates random buildERR/lastbuild files after migration.
+[ ] Physical move is done only after bridge/tools are stopped.
 ```
-
-Fallback/dev flow:
-
-```text
-1. aiBridge.bat read
-2. aiBridge.bat tunnel
-3. connect ChatGPT app to https://<trycloudflare-domain>/mcp
-4. restart with aiBridge.bat write only when patch/build work is intended
-```
-
-## Stable Cloudflare tunnel
-
-`serverBridge.bat` owns the one-window operator flow: it starts the local MCP origin on `127.0.0.1:8765`, then starts the declared named Cloudflare tunnel from `config/suite/ai_bridge.v1.json`.
-
-Default source-level binding:
-
-```text
-tunnel: northstar-suite
-hostname: suite.kaylas-systems.ru
-public MCP endpoint: https://suite.kaylas-systems.ru/mcp
-local origin: http://127.0.0.1:8765
-transport policy: http2 primary, quic/auto fallback
-```
-
-Generated local state may still override this through `.takesome/ai-bridge/state/stable-tunnel.json`, and environment variables have highest priority:
-
-```text
-NORTHSTAR_CLOUDFLARE_TUNNEL
-NORTHSTAR_PUBLIC_MCP_ENDPOINT
-NORTHSTAR_CLOUDFLARED_PROTOCOL
-NORTHSTAR_CLOUDFLARED_FALLBACK_PROTOCOLS
-```
-
-The default policy keeps restrictive-network stability first (`http2`) but does not remove QUIC: if HTTP/2 startup fails, supervisor retries with `quic`, then `auto`. Setting `NORTHSTAR_CLOUDFLARED_PROTOCOL=auto` delegates transport choice to cloudflared.
-
-Origin self-healing rule: if `serverBridge.bat` finds an already-running local origin at startup, it may adopt it, but it keeps probing `/health`. If that adopted process disappears and Cloudflare would otherwise log `dial tcp 127.0.0.1:8765: connectex`, the supervisor starts an owned origin process and keeps the named tunnel alive.
-
-## Dataset directory
-
-Configured path:
-
-```text
-.takesome/dataSet
-```
-
-Put source snapshots, reference zips, run bundles and subsystem archives there. The bridge scans zip archives through explicit dataset tools, not by guessing random root files.
-
-Suggested naming:
-
-```text
-NorthStar-Engine-source-YYYYMMDD-HHMMSS.zip
-run-bundle-YYYYMMDD-HHMMSS.zip
-framework.zip
-scene.zip
-streaming.zip
-SaveLoad.zip
-renderer.zip
-text.zip
-ai.zip
-network.zip
-```
-
-When changing code, inspect the dataset first for ownership and architecture patterns. Use it as reference signal, not as copied implementation.
-
-## Patch discipline
-
-AI-assisted changes should follow this loop:
-
-```text
-observe -> analyze -> propose -> write/apply patch -> verify -> build/run if requested
-```
-
-Direct write tools and changed-files patch apply create backups under:
-
-```text
-.takesome/ai-bridge/patch-backups
-```
-
-Because this workspace may not be a git checkout, do not rely on git for rollback unless `northstar.git_status` confirms it.
-
-## Logs and diagnostics
-
-First places to inspect:
-
-```text
-.takesome/buildLog/plugin-sync-latest.log
-.takesome/incidents/*/summary.md
-last-incident.md
-last-incident.json
-.takesome/ai-bridge/logs/*.jsonl
-```
-
-A good diagnostic handoff includes:
-
-```text
-incident summary
-latest plugin sync log
-plugin status
-workspace registry
-operator snapshot
-```
-
-## Invariants
-
-```text
-One command plane: Suite.
-One AI entry: aiBridge.bat.
-One generated-state root: .takesome.
-No arbitrary shell exposed to AI.
-No absolute/parent-traversal file operations.
-No root dumping ground.
-Dataset is consulted before non-trivial engine code changes.
-```
-
-
-## Suite public bridge origin
-
-Production Suite bridge URL is stable and must prefer the named Cloudflare Tunnel:
-
-```text
-https://suite.kaylas-systems.ru/mcp
-```
-
-Resolution order:
-
-1. named Cloudflare Tunnel from `config/suite/bridge_public_origin.v1.json`;
-2. configured public origin;
-3. quick TryCloudflare tunnel only when `quick_tunnel_fallback=true`.
-
-Quick Tunnel is fallback/dev-emergency mode only. It must not replace configured
-`public_origin` in production status blocks.

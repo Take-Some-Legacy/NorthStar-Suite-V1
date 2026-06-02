@@ -41,11 +41,11 @@ def _write_env_cmd(
     engine_root: Path,
     plugin_dir: Path,
     script_root: Path,
+    suite_dir: Path,
     python_cmd: str,
     suite_version: str,
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    suite_dir = suite_root(repo_root)
     codec_dir = plugin_dir / "codecs"
     lines = [
         "@echo off",
@@ -57,13 +57,14 @@ def _write_env_cmd(
         f"set \"NEWENGINE_REPO_ROOT={_cmd_path(repo_root)}\"",
         f"set \"NEWENGINE_PROJECT_ROOT={_cmd_path(repo_root)}\"",
         f"set \"NEWENGINE_SUITE_ROOT={_cmd_path(suite_dir)}\"",
+        f"set \"TAKESOME_SUITE_ROOT={_cmd_path(suite_dir)}\"",
         f"set \"NEWENGINE_SUITE_VERSION={_cmd_value(suite_version)}\"",
         f"set \"NEWENGINE_ROOT={_cmd_path(engine_root)}\"",
         f"set \"NEWENGINE_PLUGIN_DIR={_cmd_path(plugin_dir)}\"",
         f"set \"NEWENGINE_CODEC_PLUGIN_DIR={_cmd_path(codec_dir)}\"",
         f"set \"NEWENGINE_SCRIPT_ROOT={_cmd_path(script_root)}\"",
-        f"set \"NEWENGINE_TOOL_CACHE_DIR={_cmd_path(suite_path(repo_root, 'tools'))}\"",
-        f"set \"NEWENGINE_TOOL_REGISTRY_CACHE={_cmd_path(suite_path(repo_root, 'tools', 'tool-registry.json'))}\"",
+        f"set \"NEWENGINE_TOOL_CACHE_DIR={_cmd_path(suite_dir / 'tools')}\"",
+        f"set \"NEWENGINE_TOOL_REGISTRY_CACHE={_cmd_path(suite_dir / 'tools' / 'tool-registry.json')}\"",
         f"set \"NEWENGINE_SCRIPT_ENV_FILE={_cmd_path(path)}\"",
         f"set \"NEWENGINE_PYTHON_CMD={_cmd_value(python_cmd)}\"",
         "set \"CARGO_TERM_COLOR=never\"",
@@ -90,6 +91,7 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Generate Take Some / North Star Engine script env CMD file.")
     parser.add_argument("--repo-root", required=True, help="Repository root path.")
     parser.add_argument("--emit-cmd", required=True, help="Generated CMD env file path.")
+    parser.add_argument("--suite-root", default="", help="Optional external Take Some suite/work-state root. Defaults to repo/.takesome.")
     parser.add_argument("--python-cmd", default="python", help="Python command string used by launchers.")
     parser.add_argument("--suite-version", default="", help="Suite version expected by the caller; written into script-env.cmd.")
     args = parser.parse_args(argv)
@@ -101,6 +103,7 @@ def main(argv: list[str]) -> int:
     plugin_dir = engine_root / "plugins"
     script_root = repo_root / "tools" / "scripts"
     emit_cmd = Path(args.emit_cmd).resolve()
+    suite_dir = Path(args.suite_root).expanduser().resolve() if str(args.suite_root or "").strip() else suite_root(repo_root)
 
     if apply_delete_list is not None:
         rc = apply_delete_list(repo_root)
@@ -128,6 +131,7 @@ def main(argv: list[str]) -> int:
     try:
         plugin_dir.mkdir(parents=True, exist_ok=True)
         (plugin_dir / "codecs").mkdir(parents=True, exist_ok=True)
+        suite_dir.mkdir(parents=True, exist_ok=True)
         if scan_and_cache_tools is not None:
             scan_and_cache_tools(repo_root)
         _write_env_cmd(
@@ -136,6 +140,7 @@ def main(argv: list[str]) -> int:
             engine_root=engine_root,
             plugin_dir=plugin_dir,
             script_root=script_root,
+            suite_dir=suite_dir,
             python_cmd=args.python_cmd,
             suite_version=suite_version,
         )
@@ -149,8 +154,8 @@ def main(argv: list[str]) -> int:
     print(f"[OK] REPO    = {repo_root}")
     print(f"[OK] ENGINE  = {engine_root}")
     print(f"[OK] PLUGINS = {plugin_dir}")
-    print(f"[OK] SUITE   = {suite_root(repo_root)}")
-    print(f"[OK] TOOLS   = {suite_path(repo_root, 'tools', 'tool-registry.json')}")
+    print(f"[OK] SUITE   = {suite_dir}")
+    print(f"[OK] TOOLS   = {suite_dir / 'tools' / 'tool-registry.json'}")
     return 0
 
 

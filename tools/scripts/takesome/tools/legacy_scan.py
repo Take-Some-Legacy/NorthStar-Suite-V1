@@ -40,7 +40,13 @@ def validate_source_for_legacy_tool_identities(repo_root: Path, *, log: TeeLog) 
             continue
         text = path.read_text(encoding="utf-8", errors="replace").lower()
         for identity in LEGACY_TOOL_IDENTITIES:
-            if identity in text:
+            # `nepak` is a legacy tool identity, but `.nepak` is the current
+            # canonical VFS package extension.  The path-based scan above still
+            # rejects resurrected `tools/NePak` / `tools/nepak` directories; the
+            # source-text scan must not reject safety lists or package policies
+            # that mention the valid `.nepak` extension.
+            haystack = text.replace(".nepak", "") if identity == "nepak" else text
+            if identity in haystack:
                 log.emit(f"[ERROR] Legacy tool identity `{identity}` appears in live script/launcher: {rel(repo_root, path)}")
                 code = 1
     if code == 0:

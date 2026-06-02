@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
+
+from ..paths import suite_root
 
 from ..logs import TeeLog
 from .cache import scan_and_cache_tools
@@ -70,11 +73,30 @@ def validate_build_tools(repo_root: Path, *, log: TeeLog | None = None) -> int:
 
     from .doctor import run_workspace_doctor
 
-    doctor_code = run_workspace_doctor(repo_root, full=True, log=own_log)
+    # Build preflight runs under Suite/bridge/headless contexts where the shell
+    # environment may not have called script-env.cmd.  Do not fail the build for
+    # a missing already-loaded env contract when it can be derived from the
+    # authoritative roots in-process.
+    os.environ.setdefault("NEWENGINE_SCRIPT_ENV", "1")
+    os.environ.setdefault("NEWENGINE_REPO_ROOT", str(repo_root.resolve()))
+    os.environ.setdefault("NEWENGINE_PROJECT_ROOT", str(repo_root.resolve()))
+    os.environ.setdefault("NEWENGINE_ROOT", str((repo_root / "NewEngine" / "neocore2").resolve()))
+    os.environ.setdefault("NEWENGINE_SCRIPT_ROOT", str((repo_root / "tools" / "scripts").resolve()))
+    os.environ.setdefault("NEWENGINE_SUITE_ROOT", str(suite_root(repo_root).resolve()))
+    os.environ.setdefault("TAKESOME_SUITE_ROOT", os.environ["NEWENGINE_SUITE_ROOT"])
 
-    if tool_code or legacy_code or doctor_code:
+    doctor_code = run_workspace_doctor(repo_root, full=True, log=own_log)
+    # Workspace Doctor uses exit code 1 for WARN-only findings. Build preflight
+    # must not treat those as blockers; only tool/legacy failures or Doctor
+    # ERROR/blocking codes >= 2 stop plugin rebuilds.
+    doctor_blocking = doctor_code if doctor_code >= 2 else 0
+
+    if doctor_code == 1:
+        own_log.emit("[WARN] Workspace Doctor reported non-blocking warnings; plugin rebuild may continue.")
+
+    if tool_code or legacy_code or doctor_blocking:
         own_log.emit("[ERROR] Build preflight found blocking diagnostics.")
         own_log.emit("[NEXT] Run tools.doctor.full, fix checks marked ERROR/blocking, then run workspace.clean.full and build.plugins.force.dev.")
     else:
         own_log.emit("[OK] Build preflight passed; non-blocking Doctor warnings do not stop plugin rebuild.")
-    return tool_code or legacy_code or doctor_code
+    return tool_code or legacy_code or doctor_blocking

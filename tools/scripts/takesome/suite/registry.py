@@ -17,6 +17,7 @@ from ..plugin_build import build_codecs, build_plugins
 from ..plugin_status import plugin_status_command
 from ..tools import tools_command, validate_build_tools, run_p0_invariant_scan, run_p1_capability_conformance_scan, run_p2_schema_property_scan, run_p21_schema_runtime_scan, run_p3_editor_shell_scan, run_p4_import_pipeline_scan, run_p5_world_scene_save_load_scan, run_p6_gameplay_foundation_scan, run_p7_rendering_maturity_scan, run_p8_reference_module_completeness_scan
 from ..workspace_registry import workspace_registry_command
+from ..workspace_health import workspace_health_command
 from .actions import SuiteAction, SuiteCategory
 from .operator_toolbelt import write_operator_toolbelt
 from ..endless.recipes import fix_direct_provider_scan, full_cycle, loop
@@ -262,6 +263,7 @@ def build_builtin_registry() -> SuiteRegistry:
         SuiteAction("status.plugin_matrix", "Plugin health matrix", "inspect plugin/codec readiness and optionally rebuild selected targets", plugin_health_matrix, "STATUS", "maintenance", "plugins", "diagnostics", "active"),
         SuiteAction("build.plugins.stale", "Rebuild stale plugins", "build only stale plugin/codec targets for active profile/platform", rebuild_stale_plugins, "BUILD", "maintenance", "plugins", "writes_runtime_plugins", "active"),
         SuiteAction("diag.plugin_state", "Explain plugin state", "print plugin/codec status reasons, artifacts and stamps", explain_plugin_state, "DIAG", "maintenance", "plugins", "diagnostics", "active"),
+        SuiteAction("workspace.health", "Workspace health report", "generate build-health report with plugin, dataset, diagnostics, hygiene and optimization WARNs", workspace_health_command, "HEALTH", "maintenance", "workspace", "writes_reports", output_schema="northstar.workspace.health.v1"),
     )
 
     building = (

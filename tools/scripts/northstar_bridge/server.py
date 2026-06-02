@@ -118,13 +118,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
             data = str(payload).encode("utf-8")
         else:
             data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        self.send_response(status_code)
-        self.send_header("Content-Type", content_type)
-        self.send_header("Content-Length", str(len(data)))
-        self._send_common_headers()
-        self.end_headers()
-        if data:
-            self.wfile.write(data)
+        path = _request_path(self.path)
+        try:
+            self.send_response(status_code)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(data)))
+            self._send_common_headers()
+            self.end_headers()
+            if data:
+                self.wfile.write(data)
+        except OSError as exc:
+            if _is_client_disconnect(exc):
+                _emit_client_disconnect("POST", path, request_id, started, exc, trace=trace)
+                return
+            raise
 
         if started is not None:
             elapsed_ms = int((time.time() - started) * 1000)
@@ -325,6 +332,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             else:
                 self._send({"ok": False, "error": "not_found", "path": path}, 404, request_id=request_id, started=started, trace=trace)
         except Exception as exc:
+            if _is_client_disconnect(exc):
+                _emit_client_disconnect("POST", path, request_id, started, exc, trace=trace)
+                return
             self._send({"ok": False, "error": "http_exception", "message": str(exc)}, 500, request_id=request_id, started=started, trace={**trace, "error_details": str(exc)})
 
 
@@ -386,6 +396,25 @@ def _safe_extra(extra: Dict[str, Any]) -> Dict[str, Any]:
     # positional argument and inside **extra. This directly fixes the previous
     # `_emit_response() got multiple values for argument 'path'` crash.
     return {str(k): v for k, v in extra.items() if str(k) not in _RESERVED_LOG_FIELDS}
+
+
+def _is_client_disconnect(exc: BaseException) -> bool:
+    if isinstance(exc, (BrokenPipeError, ConnectionAbortedError, ConnectionResetError)):
+        return True
+    if not isinstance(exc, OSError):
+        return False
+    # Windows: WSAECONNABORTED/WSAECONNRESET. POSIX: EPIPE/ECONNRESET.
+    return getattr(exc, "winerror", None) in {10053, 10054} or getattr(exc, "errno", None) in {32, 104, 10053, 10054}
+
+
+def _emit_client_disconnect(method: str, path: str, request_id: Optional[int], started: Optional[float], exc: BaseException, *, trace: Optional[Dict[str, Any]] = None) -> None:
+    elapsed_ms = int((time.time() - started) * 1000) if started is not None else 0
+    extra = dict(trace or {})
+    extra.update({"response_status": "client_disconnected", "error_details": str(exc)})
+    # 499 is not sent to the client here; it is an operator-log status meaning
+    # the client/tunnel closed the request before the bridge could deliver the
+    # response. This must not be reported as a bridge crash.
+    _emit_response(method, path, request_id, 499, elapsed_ms, 0, **extra)
 
 
 def _emit_request(method: str, path: str, request_id: Optional[int], **extra: Any) -> None:
