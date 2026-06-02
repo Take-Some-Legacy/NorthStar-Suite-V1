@@ -5,6 +5,7 @@ from typing import Any, Dict
 
 from .contracts import BridgeContext, BridgeError, now_utc
 from .paths import rel
+from .memory_schema import MAX_FLOW_BYTES
 from .memory_store import *
 from .memory_queries import _mtime_key, _iso_mtime, collect_current_state
 
