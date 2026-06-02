@@ -239,24 +239,20 @@ def _truthy_env(name: str) -> bool:
     return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "y", "on", "force", "sudo"}
 
 
-def _suite_assume_yes_active() -> bool:
-    return _truthy_env("NORTHSTAR_SUITE_YES")
-
-
 def _suite_sudo_active() -> bool:
-    return _suite_assume_yes_active() or _truthy_env("NORTHSTAR_SUITE_SUDO") or _truthy_env("NORTHSTAR_BRIDGE_SUDO")
+    return _truthy_env("NORTHSTAR_SUITE_SUDO") or _truthy_env("NORTHSTAR_BRIDGE_SUDO")
 
 
 def _tool_risk_tier(public_name: str = "") -> str:
     read_only_project_tools = {"tool_registry", "grep", "rg", "awk", "fd", "find", "ls", "cat", "head", "tail", "wc"}
     if public_name in {"delete_path", "rm", "reload_bridge_origin", "restart_bridge_origin"}:
-        return "sudo_write" if _suite_assume_yes_active() else "dangerous"
+        return "sudo_write" if _suite_sudo_active() else "dangerous"
     if public_name in {"execute_suite_command", "write_text_file"}:
-        return "sudo_write" if _suite_assume_yes_active() else "write"
+        return "sudo_write" if _suite_sudo_active() else "write"
     if public_name and public_name not in PUBLIC_TOOL_MAP:
         if public_name in read_only_project_tools:
             return "read_only"
-        return "sudo_write" if _suite_assume_yes_active() else "write"
+        return "sudo_write" if _suite_sudo_active() else "write"
     return "read_only"
 
 
@@ -264,7 +260,7 @@ def _tool_annotations(public_name: str = "") -> Dict[str, Any]:
     tier = _tool_risk_tier(public_name)
     read_only = tier == "read_only"
 
-    # serverBridge --yes sets NORTHSTAR_SUITE_YES=1.  In that mode the local
+    # serverBridge -sudo sets NORTHSTAR_SUITE_SUDO=1.  In that mode the local
     # operator has explicitly armed sudo/write bridge work, so the public MCP
     # surface must downgrade dangerous tools to sudo_write instead of advertising
     # them as destructive.  The actual write gate still remains ctx.write_enabled.
@@ -304,7 +300,7 @@ def _public_descriptor(public_name: str, internal: ToolSpec) -> Dict[str, Any]:
             "openai/toolInvocation/invoking": f"Running {public_name}",
             "openai/toolInvocation/invoked": f"Finished {public_name}",
             "northstar/tags": PUBLIC_APP_TAGS,
-            "northstar/assumeYes": _suite_assume_yes_active(),
+            "northstar/sudo": _suite_sudo_active(),
             "northstar/riskTier": _tool_risk_tier(public_name),
         },
     }

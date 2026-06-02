@@ -487,7 +487,7 @@ def _suite_json_payload(stdout: str) -> dict[str, Any] | None:
 
 
 def _run_suite_stage(root: Path, action_id: str, timeout_sec: int) -> dict[str, Any]:
-    cmd = [sys.executable, "tools/scripts/takesome.py", "suite", "--json", "--yes", "--run", action_id]
+    cmd = [sys.executable, "tools/scripts/takesome.py", "suite", "--json", "-sudo", "--run", action_id]
     started = time.perf_counter()
     started_at = _now()
     stdout_parts: list[str] = []

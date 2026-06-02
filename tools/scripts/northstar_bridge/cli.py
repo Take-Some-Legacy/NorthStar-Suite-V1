@@ -16,7 +16,7 @@ from .registry import build_tools
 from .rpc import handle_rpc
 from .server import Handler, run_http
 
-TRUSTED_WRITE_MODES = {"write", "trusted_write", "operator_trusted_write", "autonomous", "trusted"}
+TRUSTED_WRITE_MODES = {"write", "trusted_write", "operator_trusted_write", "autonomous", "trusted", "sudo"}
 READ_ONLY_MODES = {"read", "readonly", "read_only", "safe_read"}
 
 
@@ -32,15 +32,41 @@ def _load_bridge_config(root: Path) -> Dict[str, Any]:
         return {"_config_error": str(exc)}
 
 
+def _truthy_value(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "yes", "y", "on", "force", "sudo"}
+
+
+def _config_policy(config: Dict[str, Any]) -> Dict[str, Any]:
+    policy = config.get("operator_policy")
+    if isinstance(policy, dict):
+        return policy
+    autonomy = config.get("operator_autonomy")
+    if isinstance(autonomy, dict):
+        return autonomy
+    return {}
+
+
+def _config_requests_sudo(config: Dict[str, Any]) -> bool:
+    if _truthy_value(config.get("sudo")):
+        return True
+    mode = str(config.get("default_mode", "")).strip().lower()
+    policy = _config_policy(config)
+    policy_mode = str(policy.get("mode", "")).strip().lower()
+    return mode == "sudo" or policy_mode == "sudo" or _truthy_value(policy.get("sudo"))
+
+
 def _config_requests_write(config: Dict[str, Any]) -> bool:
     force_write = config.get("forceWrite")
     if isinstance(force_write, bool):
         return force_write
 
     mode = str(config.get("default_mode", "read_only")).strip().lower()
-    autonomy = config.get("operator_autonomy") or {}
-    autonomy_mode = str(autonomy.get("mode", "")).strip().lower() if isinstance(autonomy, dict) else ""
-    return mode in TRUSTED_WRITE_MODES or autonomy_mode in TRUSTED_WRITE_MODES
+    policy = _config_policy(config)
+    policy_mode = str(policy.get("mode", "")).strip().lower()
+    policy_write = _truthy_value(policy.get("write"))
+    return mode in TRUSTED_WRITE_MODES or policy_mode in TRUSTED_WRITE_MODES or policy_write
 
 
 def run_stdio(ctx: BridgeContext) -> int:
@@ -103,7 +129,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="North Star AI Bridge split-package CLI")
     parser.add_argument("--root", default=".")
     parser.add_argument("--write", action="store_true")
-    parser.add_argument("-y", "--yes", "--assume-yes", action="store_true", help="Run in sudo mode: enable bridge writes and assume yes for Suite-owned confirmations.")
+    parser.add_argument("-sudo", action="store_true", help="Run in sudo mode: enable bridge writes and Suite-owned confirmations.")
     parser.add_argument("--read-only", action="store_true")
     parser.add_argument("--stdio", action="store_true")
     parser.add_argument("--http", action="store_true")
@@ -128,9 +154,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         "hello": "hello",
         "write": "write",
         "trusted": "write",
-        "yes": "yes",
-        "assume-yes": "yes",
-        "sudo": "yes",
+        "sudo": "sudo",
         "read": "read_only",
         "readonly": "read_only",
         "read-only": "read_only",
@@ -152,17 +176,20 @@ def make_context(ns: argparse.Namespace) -> BridgeContext:
     config = _load_bridge_config(root)
     env_write = os.environ.get("NORTHSTAR_AI_BRIDGE_WRITE") == "1"
     env_read = os.environ.get("NORTHSTAR_AI_BRIDGE_READ_ONLY") == "1"
-    env_yes = os.environ.get("NORTHSTAR_SUITE_YES", "").strip().lower() in {"1", "true", "yes", "y", "on", "force"}
-    assume_yes = bool(getattr(ns, "yes", False) or env_yes)
-    if assume_yes:
-        os.environ["NORTHSTAR_SUITE_YES"] = "1"
-        os.environ.setdefault("NORTHSTAR_SUITE_YES_REASON", "bridge")
+    env_sudo = os.environ.get("NORTHSTAR_SUITE_SUDO", "").strip().lower() in {"1", "true", "yes", "y", "on", "force", "sudo"}
+    env_bridge_sudo = os.environ.get("NORTHSTAR_BRIDGE_SUDO", "").strip().lower() in {"1", "true", "yes", "y", "on", "force", "sudo"}
+    config_sudo = _config_requests_sudo(config)
+    sudo = bool(getattr(ns, "sudo", False) or env_sudo or env_bridge_sudo or config_sudo)
+    if sudo:
+        os.environ["NORTHSTAR_SUITE_SUDO"] = "1"
+        os.environ.setdefault("NORTHSTAR_SUITE_SUDO_REASON", "bridge")
+        os.environ.setdefault("NORTHSTAR_BRIDGE_SUDO", "1")
     trusted_by_config = _config_requests_write(config)
-    write_enabled = bool(ns.write or assume_yes or env_write or trusted_by_config)
+    write_enabled = bool(ns.write or sudo or env_write or trusted_by_config)
     if bool(ns.read_only or env_read):
         write_enabled = False
     interactive = (not ns.stdio) and sys.stdin.isatty()
-    return BridgeContext(root=root, write_enabled=write_enabled, python_cmd=[sys.executable], interactive=interactive, assume_yes=assume_yes)
+    return BridgeContext(root=root, write_enabled=write_enabled, python_cmd=[sys.executable], interactive=interactive, sudo=sudo)
 
 
 def main(argv: List[str]) -> int:

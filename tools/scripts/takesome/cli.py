@@ -18,6 +18,7 @@ from .ui_fonts import import_ui_fonts_command
 from .workspace_registry import workspace_registry_command
 from .suite_shell import suite_command
 from .suite.approval import apply_sudo_from_args
+from .endless.cli import endless_stream_command
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(prog="takesome.py")
@@ -141,6 +142,13 @@ def main(argv: list[str]) -> int:
     p.add_argument("-sudo", dest="sudo", action="store_true", help="Run Suite-owned write confirmations in explicit operator mode.")
 
 
+    p = sub.add_parser("endless-stream", help="Run one transparent Endless Stream operator cycle.")
+    p.add_argument("--mode", default="foundation", help="Stream mode. Default: foundation.")
+    p.add_argument("--message", "-m", action="append", default=[], help="Operator instruction. May be passed more than once.")
+    p.add_argument("--message-file", default="", help="Read one operator instruction from a UTF-8 text file.")
+    p.add_argument("--stdin", action="store_true", help="Read one operator instruction from standard input.")
+
+
     p = sub.add_parser("import-ui-fonts")
     p.add_argument("--manifest", default="", help="Path to editor.yft.import.json. Defaults to NewEngine/neocore2/assets/ui/fonts/editor.yft.import.json")
     p.add_argument("--output", "-o", default="", help="Output runtime .yft. Defaults to NewEngine/neocore2/assets/ui/fonts/editor.yft")
@@ -207,6 +215,8 @@ def main(argv: list[str]) -> int:
     if ns.command == "suite":
         apply_sudo_from_args(ns)
         return suite_command(root, ns)
+    if ns.command == "endless-stream":
+        return endless_stream_command(root, ns)
     if ns.command == "import-ui-assets":
         return import_pipeline_command(root, ns)
     if ns.command == "import-ui-fonts":

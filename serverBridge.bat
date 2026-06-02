@@ -33,7 +33,7 @@ if not exist "%SUPERVISOR%" (
   exit /b 2
 )
 
-%PYTHON_EXE% %PYTHON_ARGS% "%SUPERVISOR%" --root "%ROOT%" --write --prefer-named --setup-named --yes
+%PYTHON_EXE% %PYTHON_ARGS% "%SUPERVISOR%" --root "%ROOT%" --write --prefer-named --setup-named -sudo
 set "RC=%errorlevel%"
 echo.
 if not "%RC%"=="0" echo [ERROR] serverBridge stopped with exit code %RC%.

@@ -15,6 +15,7 @@ from ...console_menu import ConsoleChoice, ConsoleMenuOption, interactive_menu_e
 from ...filesystem import best_effort_remove_path
 from ...migration import apply_delete_list
 from ...paths import now_stamp, rel, safe_repo_path, suite_root, utc_iso
+from ..approval import suite_sudo_enabled
 
 PATCH_SCHEMA = "takesome.patchWorkflow.v1"
 BACKUP_SCHEMA = "takesome.patchBackup.v1"
@@ -306,8 +307,8 @@ def inspect_patch_zip(root: Path) -> int:
 
 
 def _confirm_apply(root: Path, inspection: PatchInspection) -> bool:
-    if suite_yes_enabled() and not inspection.unsafe_entries:
-        print("[OK] Auto-approved changed-files patch via NORTHSTAR_SUITE_YES=1.")
+    if suite_sudo_enabled() and not inspection.unsafe_entries:
+        print("[OK] Auto-approved changed-files patch via NORTHSTAR_SUITE_SUDO=1.")
         return True
     body = [
         f"zip: {rel(root, inspection.zip_path)}",
@@ -518,8 +519,8 @@ def rollback_last_patch(root: Path) -> int:
         "rollback restores backed-up paths and removes files created by the patch",
     ]
     if interactive_menu_enabled():
-        if suite_yes_enabled():
-            print("[OK] Auto-approved patch rollback via NORTHSTAR_SUITE_YES=1.")
+        if suite_sudo_enabled():
+            print("[OK] Auto-approved patch rollback via NORTHSTAR_SUITE_SUDO=1.")
             return _restore_backup(root, backup)
         confirm = run_confirm_button(title="Rollback last changed-files patch", body_lines=body, confirm_label="ROLLBACK PATCH")
         if not confirm.confirmed or confirm.cancelled:

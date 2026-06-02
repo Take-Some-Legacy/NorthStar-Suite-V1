@@ -162,13 +162,13 @@ def _automation_env(ctx: BridgeContext, env_overrides: Optional[Dict[str, str]])
 
 
 
-def _with_assume_yes(ctx: BridgeContext, args: List[str]) -> List[str]:
+def _with_sudo(ctx: BridgeContext, args: List[str]) -> List[str]:
 
     resolved = list(args)
 
-    if ctx.assume_yes and resolved and resolved[0] == "suite" and "--yes" not in resolved and "--assume-yes" not in resolved:
+    if ctx.sudo and resolved and resolved[0] == "suite" and "-sudo" not in resolved:
 
-        resolved.insert(1, "--yes")
+        resolved.insert(1, "-sudo")
 
     return resolved
 
@@ -182,12 +182,12 @@ def run_takesome(ctx: BridgeContext, args: List[str], timeout_sec: int = 120, en
 
         raise BridgeError("tools/scripts/takesome.py is missing", "takesome_missing")
 
-    resolved_args = _with_assume_yes(ctx, args)
+    resolved_args = _with_sudo(ctx, args)
 
     env = _automation_env(ctx, env_overrides)
-    if ctx.assume_yes:
-        env["NORTHSTAR_SUITE_YES"] = "1"
-        env.setdefault("NORTHSTAR_SUITE_YES_REASON", "bridge")
+    if ctx.sudo:
+        env["NORTHSTAR_SUITE_SUDO"] = "1"
+        env.setdefault("NORTHSTAR_SUITE_SUDO_REASON", "bridge")
 
     started = time.time()
 
@@ -366,7 +366,7 @@ def suite_command(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str, Any]:
 
         return result
 
-    if (bool(args.get("allow_unlisted", False)) or ctx.assume_yes) and ctx.write_enabled:
+    if (bool(args.get("allow_unlisted", False)) or ctx.sudo) and ctx.write_enabled:
 
         result = run_takesome(ctx, ["suite", "--run", command_id, "--json"], timeout_sec, env)
 

@@ -68,7 +68,7 @@ class BridgeContext:
     write_enabled: bool
     python_cmd: List[str]
     interactive: bool = False
-    assume_yes: bool = False
+    sudo: bool = False
 
     @property
     def takesome_py(self) -> Path:

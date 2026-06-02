@@ -185,8 +185,8 @@ def bridge_inspect_tool_descriptors(ctx: BridgeContext, args: Dict[str, Any]) ->
             continue
         meta = desc.get('_meta', {})
         ann = desc.get('annotations', {})
-        rows.append({'name': desc.get('name'), 'title': desc.get('title'), 'readOnlyHint': ann.get('readOnlyHint'), 'destructiveHint': ann.get('destructiveHint'), 'idempotentHint': ann.get('idempotentHint'), 'riskTier': meta.get('northstar/riskTier'), 'assumeYes': meta.get('northstar/assumeYes'), 'schema_keys': sorted((desc.get('inputSchema', {}).get('properties') or {}).keys())})
-    return {'schema': 'northstar.bridge.inspect_tool_descriptors.v1', 'ok': True, 'write_enabled': ctx.write_enabled, 'assume_yes': getattr(ctx, 'assume_yes', False), 'count': len(rows), 'tools': rows}
+        rows.append({'name': desc.get('name'), 'title': desc.get('title'), 'readOnlyHint': ann.get('readOnlyHint'), 'destructiveHint': ann.get('destructiveHint'), 'idempotentHint': ann.get('idempotentHint'), 'riskTier': meta.get('northstar/riskTier'), 'sudo': meta.get('northstar/sudo'), 'schema_keys': sorted((desc.get('inputSchema', {}).get('properties') or {}).keys())})
+    return {'schema': 'northstar.bridge.inspect_tool_descriptors.v1', 'ok': True, 'write_enabled': ctx.write_enabled, 'sudo': getattr(ctx, 'sudo', False), 'count': len(rows), 'tools': rows}
 
 
 def repo_search_text(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str, Any]:

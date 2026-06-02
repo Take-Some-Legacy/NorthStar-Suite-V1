@@ -255,7 +255,7 @@ def _env_truthy(name: str) -> bool:
 
 
 def _sudo_active() -> bool:
-    return _env_truthy("NORTHSTAR_SUITE_YES") or _env_truthy("NORTHSTAR_SUITE_SUDO") or _env_truthy("NORTHSTAR_BRIDGE_SUDO")
+    return _env_truthy("NORTHSTAR_SUITE_SUDO") or _env_truthy("NORTHSTAR_BRIDGE_SUDO")
 
 
 def read_json(path: Path) -> dict:
@@ -509,7 +509,7 @@ def start_process(name: str, cmd: list[str], cwd: Path, env: dict[str, str], q: 
     return proc
 
 
-def spawn_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, assume_yes: bool = False) -> subprocess.Popen[str]:
+def spawn_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> subprocess.Popen[str]:
     bridge = root / "tools" / "scripts" / "northstar_ai_bridge.py"
     if not bridge.exists():
         raise SupervisorError(f"missing bridge entrypoint: {bridge}")
@@ -520,17 +520,17 @@ def spawn_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, 
         "NORTHSTAR_SUITE_STDIO_ENCODING": "utf-8",
         "NORTHSTAR_SUITE_STDIO_ERRORS": "replace",
     })
-    if assume_yes:
-        env["NORTHSTAR_SUITE_YES"] = "1"
-        env.setdefault("NORTHSTAR_SUITE_YES_REASON", "serverBridge")
+    if sudo:
+        env["NORTHSTAR_SUITE_SUDO"] = "1"
+        env.setdefault("NORTHSTAR_SUITE_SUDO_REASON", "serverBridge")
     if write:
         env["NORTHSTAR_AI_BRIDGE_WRITE"] = "1"
     else:
         env.setdefault("NORTHSTAR_AI_BRIDGE_WRITE", "0")
     cmd = [sys.executable, str(bridge), "--root", str(root), "--http"]
-    if assume_yes:
-        cmd.append("--yes")
-    emit("INFO", "starting local MCP origin", endpoint=LOCAL_MCP, write=write, yes=assume_yes)
+    if sudo:
+        cmd.append("-sudo")
+    emit("INFO", "starting local MCP origin", endpoint=LOCAL_MCP, write=write, sudo=sudo)
     proc = start_process("origin", cmd, root, env, q)
     deadline = time.time() + 30
     while time.time() < deadline:
@@ -545,18 +545,18 @@ def spawn_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, 
     raise SupervisorError(f"local origin did not become ready at {LOCAL_HEALTH}")
 
 
-def start_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, assume_yes: bool = False) -> Optional[subprocess.Popen[str]]:
+def start_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> Optional[subprocess.Popen[str]]:
     if probe(LOCAL_HEALTH, timeout=1.0):
         emit("OK", "local origin already responds", url=LOCAL_HEALTH)
         emit("STATE", "external local origin adopted; supervisor will restart it if health is lost", url=LOCAL_HEALTH)
         return None
-    return spawn_origin(root, write, q, assume_yes=assume_yes)
+    return spawn_origin(root, write, q, sudo=sudo)
 
 
-def ensure_origin_alive(root: Path, write: bool, origin: Optional[subprocess.Popen[str]], q: "queue.Queue[tuple[str, str]]", *, assume_yes: bool = False) -> Optional[subprocess.Popen[str]]:
+def ensure_origin_alive(root: Path, write: bool, origin: Optional[subprocess.Popen[str]], q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> Optional[subprocess.Popen[str]]:
     if origin is not None and origin.poll() is not None:
         emit("WARN", "owned local origin exited; restarting", exit_code=origin.returncode)
-        return spawn_origin(root, write, q, assume_yes=assume_yes)
+        return spawn_origin(root, write, q, sudo=sudo)
 
     if probe(LOCAL_HEALTH, timeout=1.0):
         return origin
@@ -566,7 +566,7 @@ def ensure_origin_alive(root: Path, write: bool, origin: Optional[subprocess.Pop
         stop_processes([origin])
     else:
         emit("WARN", "adopted local origin stopped responding; starting owned origin", url=LOCAL_HEALTH)
-    return spawn_origin(root, write, q, assume_yes=assume_yes)
+    return spawn_origin(root, write, q, sudo=sudo)
 
 
 def load_stable_tunnel(root: Path) -> StableTunnelConfig:
@@ -1077,7 +1077,7 @@ def drain_logs(q: "queue.Queue[tuple[str, str]]", nonblocking: bool = False) -> 
     drain_logs_collect(q, nonblocking=nonblocking)
 
 
-def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subprocess.Popen[str], public_url: str, quick: bool, q: "queue.Queue[tuple[str, str]]", write: bool, suspended_configs: Optional[list[SuspendedCloudflaredConfig]] = None, *, assume_yes: bool = False) -> int:
+def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subprocess.Popen[str], public_url: str, quick: bool, q: "queue.Queue[tuple[str, str]]", write: bool, suspended_configs: Optional[list[SuspendedCloudflaredConfig]] = None, *, sudo: bool = False) -> int:
     endpoint = public_url.rstrip("/") + "/mcp" if public_url else ""
     _footer_bind(root, endpoint=endpoint, write=write)
     health = public_url.rstrip("/") + "/health" if public_url else ""
@@ -1101,7 +1101,7 @@ def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subproc
                 next_origin_check = now + 2.0
                 try:
                     before = origin
-                    origin = ensure_origin_alive(root, write, origin, q, assume_yes=assume_yes)
+                    origin = ensure_origin_alive(root, write, origin, q, sudo=sudo)
                     if origin is not before:
                         restart_times = [t for t in restart_times if now - t < 120]
                         restart_times.append(now)
@@ -1155,26 +1155,26 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--prefer-named", action="store_true")
     parser.add_argument("--setup-named", action="store_true", help="Interactively create a Cloudflare named tunnel when stable config is missing.")
     parser.add_argument("--quick-protocol", default="auto", choices=["http2", "quic", "auto"])
-    parser.add_argument("-y", "--yes", "--assume-yes", action="store_true", help="Run unattended: assume yes for Suite-owned confirmations and skip interactive tunnel setup prompts.")
+    parser.add_argument("-sudo", action="store_true", help="Run operator sudo mode for Suite-owned confirmations and skip interactive tunnel setup prompts.")
     args = parser.parse_args(argv)
 
     root = Path(args.root).resolve()
-    if args.yes:
-        os.environ["NORTHSTAR_SUITE_YES"] = "1"
-        os.environ["NORTHSTAR_SUITE_YES_REASON"] = "serverBridge"
+    if args.sudo:
+        os.environ["NORTHSTAR_SUITE_SUDO"] = "1"
+        os.environ["NORTHSTAR_SUITE_SUDO_REASON"] = "serverBridge"
         os.environ.setdefault("NORTHSTAR_BRIDGE_SUDO", "1")
         os.environ["NORTHSTAR_BRIDGE_DENSE_LOGS"] = "1"
-    bridge_write = bool(args.write or args.yes)
+    bridge_write = bool(args.write or args.sudo)
     q: "queue.Queue[tuple[str, str]]" = queue.Queue()
     _footer_bind(root, write=bridge_write)
     origin: Optional[subprocess.Popen[str]] = None
     tunnel: Optional[subprocess.Popen[str]] = None
     suspended_configs: list[SuspendedCloudflaredConfig] = []
     try:
-        origin = start_origin(root, bridge_write, q, assume_yes=args.yes)
+        origin = start_origin(root, bridge_write, q, sudo=args.sudo)
         cloudflared = find_cloudflared()
         cfg = load_stable_tunnel(root)
-        if args.prefer_named and cfg.route_mode == "named" and not (cfg.tunnel_name and cfg.public_endpoint) and args.setup_named and not args.yes:
+        if args.prefer_named and cfg.route_mode == "named" and not (cfg.tunnel_name and cfg.public_endpoint) and args.setup_named and not args.sudo:
             created = setup_named_tunnel_interactive(root, cloudflared)
             if created is not None:
                 cfg = created
@@ -1183,7 +1183,7 @@ def main(argv: list[str]) -> int:
                 tunnel, active_protocol = start_named_tunnel(root, cloudflared, cfg, q)
                 public_url = cfg.public_url
                 emit("STATE", "named tunnel selected", endpoint=cfg.public_endpoint, protocol=active_protocol)
-                return monitor(root, origin, tunnel, public_url, quick=False, q=q, write=bridge_write, assume_yes=args.yes)
+                return monitor(root, origin, tunnel, public_url, quick=False, q=q, write=bridge_write, sudo=args.sudo)
             except SupervisorError as exc:
                 emit("WARN", "Named Cloudflare Tunnel failed.", error=str(exc))
                 if not cfg.quick_tunnel_fallback:
@@ -1198,7 +1198,7 @@ def main(argv: list[str]) -> int:
             emit("WARN", "stable named tunnel is not configured; falling back to quick Cloudflare route", config=".takesome/ai-bridge/state/stable-tunnel.json")
         protocol = args.quick_protocol if args.quick_protocol != "auto" else cfg.quick_protocol
         tunnel, public_url, active_protocol, suspended_configs = start_quick_tunnel(root, cloudflared, q, primary=protocol, fallbacks=cfg.quick_fallback_protocols)
-        return monitor(root, origin, tunnel, public_url, quick=True, q=q, write=bridge_write, suspended_configs=suspended_configs, assume_yes=args.yes)
+        return monitor(root, origin, tunnel, public_url, quick=True, q=q, write=bridge_write, suspended_configs=suspended_configs, sudo=args.sudo)
     except KeyboardInterrupt:
         emit("INFO", "stopping serverBridge")
         stop_processes([tunnel, origin])

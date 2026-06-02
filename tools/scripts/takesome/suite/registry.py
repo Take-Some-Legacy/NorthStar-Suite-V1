@@ -18,6 +18,7 @@ from ..plugin_status import plugin_status_command
 from ..tools import tools_command, validate_build_tools, run_p0_invariant_scan, run_p1_capability_conformance_scan, run_p2_schema_property_scan, run_p21_schema_runtime_scan, run_p3_editor_shell_scan, run_p4_import_pipeline_scan, run_p5_world_scene_save_load_scan, run_p6_gameplay_foundation_scan, run_p7_rendering_maturity_scan, run_p8_reference_module_completeness_scan
 from ..workspace_registry import workspace_registry_command
 from .actions import SuiteAction, SuiteCategory
+from .operator_toolbelt import write_operator_toolbelt
 from .context import context_build_args, context_profile_args, select_suite_context
 from .settings import select_suite_visual_settings
 from .build_center import build_center
@@ -313,6 +314,7 @@ def build_builtin_registry() -> SuiteRegistry:
         SuiteAction("tools.build.safe", "Build safe native tools", "build safe descriptors only", _tools_action("build", tool_id="", release=False, safe=True, validate_after_build=False), "BUILD", "devtools", "tools", "writes_tools"),
         SuiteAction("tools.build.safe.validate", "Build safe tools + validate", "build safe descriptors and run validation_args", _tools_action("build", tool_id="", release=False, safe=True, validate_after_build=True), "BUILD", "devtools", "tools", "writes_tools"),
         SuiteAction("tools.validate.build", "Validate build pipeline", "validate registered build tools before plugin sync", validate_build_tools, "DIAG", "devtools", "build pipeline", "diagnostics"),
+        SuiteAction("tools.operator.toolbelt", "Pin operator toolbelt", "write the simple bounded toolbelt for chat/Suite work", write_operator_toolbelt, "DIAG", "devtools", "operator tooling", "writes_reports", output_schema="northstar.suite.operator_toolbelt.v1"),
         SuiteAction("source.pack", "Pack source snapshot", "create clean source archive", _pack_source, "PACK", "devtools", "source", "writes_zip"),
     )
 
