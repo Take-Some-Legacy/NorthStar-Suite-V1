@@ -1,0 +1,17 @@
+{
+  "action_id": "ui.inspect",
+  "group": "UI",
+  "title": "Inspect UI NEUI asset",
+  "description": "Inspect first discovered .neui asset and print readable NEF8/XMLcentral diagnostics.",
+  "command": "inspect-ui",
+  "args": [],
+  "requires_tools": [
+    "northstar.neui_packer"
+  ],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

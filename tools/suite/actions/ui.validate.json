@@ -1,0 +1,17 @@
+{
+  "action_id": "ui.validate",
+  "group": "UI",
+  "title": "Validate UI NEUI assets",
+  "description": "Validate .neui.xml authoring files and runtime .neui NEF8 assets.",
+  "command": "validate-ui",
+  "args": [],
+  "requires_tools": [
+    "northstar.neui_packer"
+  ],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

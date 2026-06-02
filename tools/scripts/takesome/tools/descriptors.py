@@ -27,6 +27,7 @@ class ToolDescriptor:
     legacy_replaces: list[str]
     maturity: str
     safe_for_build: bool
+    install_path: Path | None
 
     def as_record(self, repo_root: Path) -> dict[str, Any]:
         return {
@@ -44,6 +45,7 @@ class ToolDescriptor:
             "cargo_package": cargo_bin_name(self) if self.kind == "rust-cli" else "",
             "target_debug": rel(repo_root, target_exe(self, False)) if self.kind == "rust-cli" else "",
             "target_release": rel(repo_root, target_exe(self, True)) if self.kind == "rust-cli" else "",
+            "install_path": rel(repo_root, self.install_path) if self.install_path else "",
             "default_args": self.default_args,
             "validation_args": self.validation_args,
             "capabilities": self.capabilities,
@@ -104,6 +106,7 @@ def read_descriptor(repo_root: Path, path: Path) -> ToolDescriptor:
         legacy_replaces=string_list(data.get("legacy_replaces", [])),
         maturity=str(data.get("maturity", "dev")).strip() or "dev",
         safe_for_build=bool(data.get("safe_for_build", False)),
+        install_path=(repo_root / str(data.get("install_path", "")).strip()).resolve() if str(data.get("install_path", "")).strip() else None,
     )
 
 

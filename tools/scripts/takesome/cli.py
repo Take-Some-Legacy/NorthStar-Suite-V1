@@ -17,6 +17,13 @@ from .plugin_cleanup import plugin_cleanup_command
 from .commands.cli_hooks import REGISTRY_COMMAND_IDS, try_handle_registry_command
 from .tools import tools_command, validate_build_tools
 from .ui_fonts import import_ui_fonts_command
+from .ui_build import ui_build_command
+from .ui_inspect import ui_inspect_command
+from .ui_validate import ui_validate_command
+from .ytd_build import ytd_build_command
+from .ytd_inspect import ytd_inspect_command
+from .ytd_validate import ytd_validate_command
+from .ytd_extract import ytd_extract_command
 from .workspace_registry import workspace_registry_command
 from .workspace_health import workspace_health_command
 from .suite_shell import suite_command
@@ -160,6 +167,36 @@ def main(argv: list[str]) -> int:
     p.add_argument("--stdin", action="store_true", help="Read one operator instruction from standard input.")
 
 
+    p = sub.add_parser("build-ui", help="Compile XML-first .neui.xml sources into NEF8 .neui runtime assets.")
+    p.add_argument("--input", "-i", default="", help="Single .neui.xml source. Defaults to --all.")
+    p.add_argument("--output", "-o", default="", help="Output .neui path for a single input.")
+    p.add_argument("--check", action="store_true", help="Validate and print planned outputs without writing .neui files.")
+
+    p = sub.add_parser("inspect-ui", help="Inspect a NEF8 .neui file and print a readable JSON summary.")
+    p.add_argument("--input", "-i", default="", help="Input .neui file. Defaults to first discovered UI asset.")
+
+    p = sub.add_parser("validate-ui", help="Validate .neui.xml and .neui assets through the native NEUI packer.")
+    p.add_argument("--input", "-i", default="", help="Single .neui.xml or .neui file. Defaults to all UI assets.")
+
+    p = sub.add_parser("build-ytd", help="Build XML-free NEF8 .ytd texture dictionaries from source images.")
+    p.add_argument("--input-dir", default="", help="Directory with png/jpg/tga/bmp/webp source textures.")
+    p.add_argument("--texture", action="append", default=[], help="Texture source as name=path or path. Can be repeated.")
+    p.add_argument("--output", "-o", default="", help="Output .ytd path.")
+    p.add_argument("--linear", action="store_true", help="Mark packed textures as linear RGBA8 instead of sRGB.")
+    p.add_argument("--no-mips", action="store_true", help="Pack only base mip.")
+    p.add_argument("--raw-data", action="store_true", help="Store NETD data region raw instead of compressed storage.")
+
+    p = sub.add_parser("inspect-ytd", help="Inspect a NEF8 .ytd / NETD texture dictionary.")
+    p.add_argument("--input", "-i", default="", help="Input .ytd file. Defaults to a discovered asset.")
+
+    p = sub.add_parser("validate-ytd", help="Validate a NEF8 .ytd / NETD texture dictionary.")
+    p.add_argument("--input", "-i", default="", help="Input .ytd file. Defaults to a discovered asset.")
+
+    p = sub.add_parser("extract-ytd", help="Extract .ytd texture entries as DDS files.")
+    p.add_argument("--input", "-i", default="", help="Input .ytd file. Defaults to a discovered asset.")
+    p.add_argument("--output", "-o", default="", help="Output directory. Defaults to .takesome/extract/ytd.")
+    p.add_argument("--entry", default="", help="Optional texture entry name to extract.")
+
     p = sub.add_parser("import-ui-fonts")
     p.add_argument("--manifest", default="", help="Path to editor.yft.import.json. Defaults to NewEngine/neocore2/assets/ui/fonts/editor.yft.import.json")
     p.add_argument("--output", "-o", default="", help="Output runtime .yft. Defaults to NewEngine/neocore2/assets/ui/fonts/editor.yft")
@@ -235,6 +272,22 @@ def main(argv: list[str]) -> int:
         return suite_command(root, ns)
     if ns.command == "endless-stream":
         return endless_stream_command(root, ns)
+    if ns.command == "build-ui":
+        return ui_build_command(root, ns)
+    if ns.command == "inspect-ui":
+        return ui_inspect_command(root, ns)
+    if ns.command == "validate-ui":
+        return ui_validate_command(root, ns)
+
+    if ns.command == "build-ytd":
+        return ytd_build_command(root, ns)
+    if ns.command == "inspect-ytd":
+        return ytd_inspect_command(root, ns)
+    if ns.command == "validate-ytd":
+        return ytd_validate_command(root, ns)
+    if ns.command == "extract-ytd":
+        return ytd_extract_command(root, ns)
+
     if ns.command == "import-ui-assets":
         return import_pipeline_command(root, ns)
     if ns.command == "import-ui-fonts":

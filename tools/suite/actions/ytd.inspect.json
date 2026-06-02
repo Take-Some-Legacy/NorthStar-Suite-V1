@@ -1,0 +1,17 @@
+{
+  "action_id": "ytd.inspect",
+  "group": "Textures",
+  "title": "Inspect YTD texture dictionary",
+  "description": "Inspect a NEF8 .ytd / NETD texture dictionary and print readable JSON.",
+  "command": "inspect-ytd",
+  "args": [],
+  "requires_tools": [
+    "northstar.ytd_packer"
+  ],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

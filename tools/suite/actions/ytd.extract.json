@@ -1,0 +1,19 @@
+{
+  "action_id": "ytd.extract",
+  "group": "Textures",
+  "title": "Extract YTD texture dictionary",
+  "description": "Extract .ytd texture entries to DDS files for inspection/debugging.",
+  "command": "extract-ytd",
+  "args": [],
+  "requires_tools": [
+    "northstar.ytd_packer"
+  ],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [
+    ".takesome/extract/ytd/**/*.dds"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

@@ -1,0 +1,19 @@
+{
+  "action_id": "ytd.build",
+  "group": "Textures",
+  "title": "Build YTD texture dictionary",
+  "description": "Build XML-free NEF8 .ytd texture dictionaries from source image files.",
+  "command": "build-ytd",
+  "args": [],
+  "requires_tools": [
+    "northstar.ytd_packer"
+  ],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [
+    "**/*.ytd"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

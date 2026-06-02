@@ -1,0 +1,17 @@
+{
+  "action_id": "ytd.validate",
+  "group": "Textures",
+  "title": "Validate YTD texture dictionary",
+  "description": "Validate NEF8 header, NETD payload, texture directory, mip chains and payload sizes.",
+  "command": "validate-ytd",
+  "args": [],
+  "requires_tools": [
+    "northstar.ytd_packer"
+  ],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

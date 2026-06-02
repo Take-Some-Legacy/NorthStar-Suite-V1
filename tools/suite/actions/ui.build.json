@@ -1,0 +1,19 @@
+{
+  "action_id": "ui.build",
+  "group": "UI",
+  "title": "Build UI NEUI assets",
+  "description": "Compile XML-first .neui.xml sources into NEF8 .neui runtime assets.",
+  "command": "build-ui",
+  "args": [],
+  "requires_tools": [
+    "northstar.neui_packer"
+  ],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [
+    "EngineRepo/NewEngine/neocore2/assets/ui/**/*.neui"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

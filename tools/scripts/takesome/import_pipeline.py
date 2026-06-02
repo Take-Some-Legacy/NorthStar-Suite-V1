@@ -147,8 +147,12 @@ def load_manifest_contexts(root: Path) -> list[ImportManifestContext]:
 
 def neui_packer_exe(root: Path) -> Path | None:
     name = "northstar-neui-packer.exe" if os.name == "nt" else "northstar-neui-packer"
-    for profile in ("debug", "release"):
-        candidate = root / "tools" / "northstar" / "neui_packer" / "target" / profile / name
+    candidates = [
+        root / "tools" / "exe" / name,
+        root / "tools" / "northstar" / "neui_packer" / "target" / "debug" / name,
+        root / "tools" / "northstar" / "neui_packer" / "target" / "release" / name,
+    ]
+    for candidate in candidates:
         if candidate.exists():
             return candidate
     return None
