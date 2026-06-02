@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "northstar.suite.process_result.v1",
+  "title": "North Star Suite Process Result",
+  "type": "object",
+  "required": [
+    "exit_code",
+    "stdout",
+    "stderr",
+    "action",
+    "process_contract"
+  ],
+  "properties": {
+    "exit_code": {
+      "type": "integer"
+    },
+    "stdout": {
+      "type": "string"
+    },
+    "stderr": {
+      "type": "string"
+    },
+    "action": {
+      "type": "object"
+    },
+    "process_contract": {
+      "type": "string"
+    },
+    "declared_output_schema": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "exception": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "northstar.operator.current_state.v1",
+  "title": "North Star Operator Current State",
+  "type": "object",
+  "required": ["schema", "updated_at", "bridge", "suite", "workspace", "dataset", "operator_memory"],
+  "properties": {
+    "schema": { "const": "northstar.operatorCurrentState.v1" },
+    "updated_at": { "type": "string" },
+    "bridge": {
+      "type": "object",
+      "required": ["version", "write_enabled"],
+      "properties": {
+        "version": { "type": "string" },
+        "write_enabled": { "type": "boolean" },
+        "config_version": {},
+        "config_path": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "suite": { "type": "object", "additionalProperties": true },
+    "workspace": { "type": "object", "additionalProperties": true },
+    "dataset": { "type": "object", "additionalProperties": true },
+    "operator_memory": { "type": "object", "additionalProperties": true },
+    "latest_artifacts": { "type": "array", "items": { "type": "object" } }
+  },
+  "additionalProperties": true
+}

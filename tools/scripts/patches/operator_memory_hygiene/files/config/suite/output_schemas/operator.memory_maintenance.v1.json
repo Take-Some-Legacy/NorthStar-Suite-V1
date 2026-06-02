@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "northstar.operator.memory_maintenance.v1",
+  "title": "North Star Operator Memory Maintenance Result",
+  "type": "object",
+  "required": ["schema", "ok", "dry_run", "updated_at", "retention", "cleanup", "current_state"],
+  "properties": {
+    "schema": { "const": "northstar.operatorMemoryMaintenance.v1" },
+    "ok": { "type": "boolean" },
+    "dry_run": { "type": "boolean" },
+    "updated_at": { "type": "string" },
+    "retention": {
+      "type": "object",
+      "properties": {
+        "max_tasks": { "type": "integer" },
+        "max_knowledge": { "type": "integer" },
+        "max_notes": { "type": "integer" },
+        "max_cache_items_per_namespace": { "type": "integer" },
+        "max_scratch_items": { "type": "integer" }
+      },
+      "additionalProperties": true
+    },
+    "cleanup": {
+      "type": "object",
+      "properties": {
+        "tasks": { "type": "object" },
+        "knowledge": { "type": "object" },
+        "notes": { "type": "object" },
+        "current_flow": { "type": "object" },
+        "cache": { "type": "object" },
+        "scratch": { "type": "object" },
+        "removed": { "type": "array", "items": { "type": "object" } }
+      },
+      "additionalProperties": true
+    },
+    "current_state": { "$ref": "operator.current_state.v1.json" }
+  },
+  "additionalProperties": true
+}

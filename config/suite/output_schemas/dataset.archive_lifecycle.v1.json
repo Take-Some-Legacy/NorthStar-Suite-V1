@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "northstar.dataset.archive_lifecycle.v1",
+  "title": "North Star Dataset Archive Lifecycle Report",
+  "type": "object",
+  "required": [
+    "schema",
+    "updated_at",
+    "policy",
+    "records"
+  ],
+  "properties": {
+    "schema": {
+      "const": "northstar.dataset.archive_lifecycle.v1"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "policy": {
+      "type": "object"
+    },
+    "archive_count_seen": {
+      "type": "integer"
+    },
+    "archive_count_deleted": {
+      "type": "integer"
+    },
+    "archive_count_kept": {
+      "type": "integer"
+    },
+    "records": {
+      "type": "array"
+    }
+  },
+  "additionalProperties": true
+}

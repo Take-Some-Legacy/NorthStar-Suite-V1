@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "northstar.suite.execute_command.v1",
+  "title": "North Star Public Suite Execute Command Result",
+  "type": "object",
+  "required": [
+    "schema",
+    "ok",
+    "command_id",
+    "allowed_surface",
+    "exit_code",
+    "elapsed_ms",
+    "stdout",
+    "stderr",
+    "truncated"
+  ],
+  "properties": {
+    "schema": {
+      "const": "northstar.suite.execute_command.v1"
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "command_id": {
+      "type": "string"
+    },
+    "allowed_surface": {
+      "enum": [
+        "read_only",
+        "write_allowlist",
+        "unknown"
+      ]
+    },
+    "exit_code": {
+      "type": "integer"
+    },
+    "elapsed_ms": {
+      "type": "integer"
+    },
+    "args": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "stdout": {
+      "type": "string"
+    },
+    "stderr": {
+      "type": "string"
+    },
+    "truncated": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true
+}

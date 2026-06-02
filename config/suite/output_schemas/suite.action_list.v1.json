@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "northstar.suite.action_list.v1",
+  "title": "North Star Suite Action List",
+  "type": "object",
+  "required": [
+    "actions",
+    "action_count"
+  ],
+  "properties": {
+    "action_count": {
+      "type": "integer"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "category",
+          "target_domain",
+          "risk_level",
+          "output_schema",
+          "output_mode"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "primary_tag": {
+            "type": "string"
+          },
+          "target_domain": {
+            "type": "string"
+          },
+          "risk_level": {
+            "type": "string"
+          },
+          "profile": {
+            "type": "string"
+          },
+          "chips": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "progress_total": {
+            "type": "integer"
+          },
+          "progress_unit": {
+            "type": "string"
+          },
+          "output_schema": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "output_mode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

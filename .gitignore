@@ -1,0 +1,53 @@
+# North Star / Take Some local generated state
+.takesome/
+.northstar/
+NewEngine/
+Plugins/
+docs/
+
+# Logs and generated reports
+lastbuild.log
+lastgit.log
+*.log
+
+# Build outputs and caches
+target/
+**/target/
+cache/
+**/cache/
+stamps/
+**/stamps/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# Runtime/plugin binaries and native build artifacts
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.obj
+*.o
+*.lib
+*.exp
+*.so
+*.dylib
+
+# Packed snapshots and temporary archives
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.xz
+*.zst
+
+# Generic temp/editor state
+*.tmp
+*.temp
+*.bak
+*.old
+.DS_Store
+Thumbs.db
+.vs/
+.idea/

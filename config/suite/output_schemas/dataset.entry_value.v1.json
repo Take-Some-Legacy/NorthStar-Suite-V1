@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "northstar.dataset.entry_value.v1",
+  "title": "North Star Dataset Entry Value Report",
+  "type": "object",
+  "required": [
+    "schema",
+    "entry_id",
+    "entry_path",
+    "analyzed_at",
+    "architectural_value_score",
+    "value_level",
+    "topic_tags",
+    "mapped_engine_domains",
+    "how_it_can_help",
+    "recommended_actions",
+    "maturity_questions",
+    "risk_flags",
+    "forbidden_direct_copy_notes",
+    "evidence"
+  ],
+  "properties": {
+    "schema": {
+      "const": "northstar.dataset.entry_value.v1"
+    },
+    "entry_id": {
+      "type": "string"
+    },
+    "entry_path": {
+      "type": "string"
+    },
+    "analyzed_at": {
+      "type": "string"
+    },
+    "file_count_sampled": {
+      "type": "integer"
+    },
+    "extension_summary": {
+      "type": "object"
+    },
+    "architectural_value_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "value_level": {
+      "enum": [
+        "high",
+        "medium",
+        "low",
+        "unknown"
+      ]
+    },
+    "topic_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mapped_engine_domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "capability_candidates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "provider_candidates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "conformance_candidates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "how_it_can_help": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "priority",
+          "action_id",
+          "reason"
+        ],
+        "properties": {
+          "priority": {
+            "enum": [
+              "P0",
+              "P1",
+              "P2",
+              "P3",
+              "info"
+            ]
+          },
+          "action_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "maturity_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risk_flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "forbidden_direct_copy_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "additionalProperties": true
+}

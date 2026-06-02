@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "northstar.operatorAgentStatus.v1",
+  "title": "North Star Operator Agent Status",
+  "type": "object",
+  "required": ["schema", "status"],
+  "properties": {
+    "schema": {"const": "northstar.operatorAgentStatus.v1"},
+    "supervisor_version": {"type": "string"},
+    "updated_at": {"type": "string"},
+    "status": {"enum": ["STARTING", "CONNECTED", "WORKING", "IDLE", "WARN", "ERROR", "unknown"]},
+    "raw_status": {"type": "string"},
+    "endpoint": {"type": "string"},
+    "origin": {"type": "string"},
+    "tunnel": {"type": "string"},
+    "write_enabled": {"type": "boolean"},
+    "tools": {"type": "integer"},
+    "request_id": {"type": "integer"},
+    "request_count": {"type": "integer"},
+    "health_count": {"type": "integer"},
+    "error_count": {"type": "integer"},
+    "last_event": {"type": "string"},
+    "working": {"type": "boolean"},
+    "state_file": {"type": "string"},
+    "exists": {"type": "boolean"},
+    "path": {"type": "string"}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "takesome.tool.v1",
+  "id": "northstar.neui_packer",
+  "name": "North Star NEUI Packer",
+  "description": "Compiles .neui.import.json descriptors into runtime binary NEF8 .neui assets with deterministic hashes and no raw JSON metadata payload.",
+  "kind": "rust-cli",
+  "root": ".",
+  "cargo_manifest": "Cargo.toml",
+  "default_args": [
+    "--root",
+    "$repo_root",
+    "--all"
+  ],
+  "validation_args": [
+    "--root",
+    "$repo_root",
+    "--check"
+  ],
+  "capabilities": [
+    "assets.ui.neui_pack",
+    "assets.import_pipeline.worker",
+    "validation.nef8_hash"
+  ],
+  "build_validation": true,
+  "safe_for_build": true,
+  "maturity": "native-dev",
+  "legacy_replaces": [
+    "tools/neui_pack.py"
+  ]
+}

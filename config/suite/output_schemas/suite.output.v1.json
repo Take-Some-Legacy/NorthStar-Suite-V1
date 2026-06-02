@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "northstar.suite.output.v1",
+  "title": "North Star Suite Output Envelope",
+  "type": "object",
+  "required": [
+    "schema",
+    "suite_version",
+    "action_id",
+    "run_id",
+    "status",
+    "started_at",
+    "finished_at",
+    "duration_ms",
+    "profile",
+    "summary",
+    "result_schema",
+    "result",
+    "diagnostics",
+    "artifacts",
+    "next_actions",
+    "model_hints"
+  ],
+  "properties": {
+    "schema": {
+      "const": "northstar.suite.output.v1"
+    },
+    "suite_version": {
+      "type": "string"
+    },
+    "action_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "failed",
+        "error",
+        "skipped"
+      ]
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "finished_at": {
+      "type": "string"
+    },
+    "duration_ms": {
+      "type": "integer"
+    },
+    "profile": {
+      "type": "object"
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "title",
+        "severity",
+        "human"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warn",
+            "error"
+          ]
+        },
+        "human": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "result_schema": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "result": {
+      "type": "object"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "severity",
+          "check",
+          "message"
+        ],
+        "properties": {
+          "severity": {
+            "enum": [
+              "info",
+              "warn",
+              "error"
+            ]
+          },
+          "check": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "path"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "schema": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "next_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "priority",
+          "action_id",
+          "reason"
+        ],
+        "properties": {
+          "priority": {
+            "enum": [
+              "P0",
+              "P1",
+              "P2",
+              "P3",
+              "info"
+            ]
+          },
+          "action_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "model_hints": {
+      "type": "object",
+      "required": [
+        "read_order",
+        "truth_source",
+        "stdout_policy",
+        "status_policy"
+      ],
+      "properties": {
+        "read_order": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "truth_source": {
+          "type": "string"
+        },
+        "stdout_policy": {
+          "type": "string"
+        },
+        "status_policy": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

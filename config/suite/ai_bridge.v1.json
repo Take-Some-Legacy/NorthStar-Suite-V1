@@ -1,0 +1,10 @@
+{
+  "schema": "northstar.ai_bridge.config.v1",
+  "sudo": true,
+  "operator_policy": {
+    "mode": "sudo",
+    "write": true,
+    "assume_yes": true,
+    "allow_unlisted_suite_actions": true
+  }
+}

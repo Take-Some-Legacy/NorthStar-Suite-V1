@@ -1,0 +1,29 @@
+{
+  "schema": "northstar.bridge.public_origin.v1",
+  "mode": "cloudflare_named_tunnel",
+  "public_origin": "https://suite.kaylas-systems.ru",
+  "tunnel_id": "60362efb-6a3b-4459-a4b0-21c9206c2c95",
+  "tunnel_name": "northstar-suite",
+  "local_origin": "http://127.0.0.1:8797",
+  "protocol": "quic",
+  "fallback_protocols": [
+    "auto",
+    "http2"
+  ],
+  "quick_protocol": "auto",
+  "quick_fallback_protocols": [
+    "auto",
+    "http2"
+  ],
+  "quick_tunnel_fallback": true,
+  "quick_tunnel_is_production": false,
+  "ingress": [
+    {
+      "hostname": "suite.kaylas-systems.ru",
+      "service": "http://127.0.0.1:8797"
+    },
+    {
+      "service": "http_status:404"
+    }
+  ]
+}
