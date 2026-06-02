@@ -1,0 +1,22 @@
+{
+  "schema": "takesome.tool.v1",
+  "id": "northstar.ytd_packer",
+  "version": "0.2.0",
+  "name": "North Star YTD Packer",
+  "description": "Creates, parses, validates and extracts XML-free NEF8/YTD texture dictionaries backed by binary NETD payloads.",
+  "kind": "rust-cli",
+  "root": ".",
+  "cargo_manifest": "Cargo.toml",
+  "install_path": "tools/exe/northstar-ytd-packer.exe",
+  "default_args": ["inspect", "--input", "$repo_root/EngineRepo/NewEngine/neocore2/assets/ui/icons/builtin_icons.ytd"],
+  "validation_args": ["validate", "--input", "$repo_root/EngineRepo/NewEngine/neocore2/assets/ui/icons/builtin_icons.ytd"],
+  "capabilities": [
+    "assets.textures.ytd_pack",
+    "assets.textures.ytd_extract",
+    "assets.textures.ytd_inspect",
+    "validation.nef8_hash"
+  ],
+  "build_validation": true,
+  "safe_for_build": true,
+  "maturity": "native-dev"
+}

@@ -1,7 +1,8 @@
 mod args;
 mod commands;
-mod discovery;
 mod help;
+mod nef8;
+mod texture_io;
 
 fn main() {
     if let Err(err) = commands::dispatch(std::env::args().skip(1).collect()) {

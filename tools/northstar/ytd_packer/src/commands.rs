@@ -1,0 +1,148 @@
+use newengine_texture_container::{parse, parse_manifest_only, pack_with_options, write_dds_runtime_mip_chain, TextureBuildOptions};
+use serde_json::json;
+use std::fs;
+
+use crate::{args::{parse_args, required_input, required_output}, help, nef8, texture_io};
+
+pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
+    if raw_args.is_empty() {
+        help::print_help();
+        help::wait_for_enter();
+        return Ok(());
+    }
+    if raw_args.iter().skip(1).any(|it| it == "--help" || it == "-h") {
+        help::print_help();
+        help::wait_for_enter();
+        return Ok(());
+    }
+    match raw_args[0].as_str() {
+        "pack" | "build" | "create" => run_pack(&raw_args[1..]),
+        "inspect" | "parse" => run_inspect(&raw_args[1..]),
+        "validate" => run_validate(&raw_args[1..]),
+        "extract" => run_extract(&raw_args[1..]),
+        "manifest" => run_inspect(&raw_args[1..]),
+        "dump-netd" => run_dump_netd(&raw_args[1..]),
+        "help" | "--help" | "-h" => {
+            help::print_help();
+            help::wait_for_enter();
+            Ok(())
+        }
+        other => Err(format!("unknown command '{other}'. Use --help to list supported commands.")),
+    }
+}
+
+fn run_pack(args: &[String]) -> Result<(), String> {
+    let cfg = parse_args(args)?;
+    let output = required_output(&cfg, "pack", "file.ytd")?;
+    let sources = texture_io::collect_sources(cfg.input_dir.as_deref(), &cfg.textures)?;
+    if sources.is_empty() {
+        return Err("pack requires --texture name=path or --input-dir".to_owned());
+    }
+    println!("[INFO] YTD build started textures={}", sources.len());
+    let mut entries = Vec::with_capacity(sources.len());
+    for (name, path) in sources {
+        entries.push(texture_io::load_texture_entry(name, path, cfg.srgb, cfg.no_mips)?);
+    }
+    let options = if cfg.raw_data { TextureBuildOptions::raw_runtime() } else { TextureBuildOptions::default() };
+    let netd = pack_with_options(entries, options).map_err(|e| format!("NETD pack failed: {e}"))?;
+    let logical = texture_io::normalize_logical_path(&output.to_string_lossy());
+    let ytd = nef8::pack_ytd(&netd, &logical, 1)?;
+    if let Some(parent) = output.parent() {
+        fs::create_dir_all(parent).map_err(|e| format!("create parent '{}' failed: {e}", parent.display()))?;
+    }
+    fs::write(&output, ytd).map_err(|e| format!("write '{}' failed: {e}", output.display()))?;
+    println!("[OK] built YTD: {}", output.display());
+    Ok(())
+}
+
+fn run_inspect(args: &[String]) -> Result<(), String> {
+    let cfg = parse_args(args)?;
+    let input = required_input(&cfg, "inspect")?;
+    let bytes = fs::read(&input).map_err(|e| format!("read '{}' failed: {e}", input.display()))?;
+    let header = nef8::parse_header(&bytes)?;
+    let netd = nef8::decode_ytd_body(&bytes, &header)?;
+    let manifest = parse_manifest_only(&netd).map_err(|e| format!("NETD parse failed: {e}"))?;
+    let entries = manifest.entries.iter().map(|e| json!({
+        "name": e.name,
+        "entry_ref": format!("{}@{}", texture_io::normalize_logical_path(&input.to_string_lossy()), e.name),
+        "width": e.width,
+        "height": e.height,
+        "format": e.format,
+        "color_space": e.color_space,
+        "mip_count": e.mip_count,
+        "byte_len": e.byte_len,
+    })).collect::<Vec<_>>();
+    let value = json!({
+        "schema": "northstar.ytd.inspect.v1",
+        "ok": true,
+        "file": input.to_string_lossy(),
+        "container": "newengine.listfile.nef8.ytd",
+        "payload": "NETD",
+        "header": {
+            "magic": "NEF8",
+            "content_kind": header.content_kind,
+            "entry_count": header.entry_count,
+            "body_len": header.body_len,
+            "body_uncompressed_len": header.body_uncompressed_len,
+        },
+        "texture_dictionary": {
+            "version": manifest.version,
+            "default_format": manifest.default_format,
+            "entry_count": manifest.entries.len(),
+            "entries": entries,
+        }
+    });
+    println!("{}", serde_json::to_string_pretty(&value).map_err(|e| e.to_string())?);
+    Ok(())
+}
+
+fn run_validate(args: &[String]) -> Result<(), String> {
+    let cfg = parse_args(args)?;
+    let input = required_input(&cfg, "validate")?;
+    let netd = read_netd(&input)?;
+    let dictionary = parse(&netd).map_err(|e| format!("NETD validate failed: {e}"))?;
+    println!("[OK] validated YTD: {} entries={}", input.display(), dictionary.entries().len());
+    Ok(())
+}
+
+fn run_dump_netd(args: &[String]) -> Result<(), String> {
+    let cfg = parse_args(args)?;
+    let input = required_input(&cfg, "dump-netd")?;
+    let output = required_output(&cfg, "dump-netd", "file.netd")?;
+    fs::write(&output, read_netd(&input)?).map_err(|e| format!("write '{}' failed: {e}", output.display()))?;
+    println!("[OK] dumped NETD: {}", output.display());
+    Ok(())
+}
+
+fn run_extract(args: &[String]) -> Result<(), String> {
+    let cfg = parse_args(args)?;
+    let input = required_input(&cfg, "extract")?;
+    let output = required_output(&cfg, "extract", "directory")?;
+    fs::create_dir_all(&output).map_err(|e| format!("create output '{}' failed: {e}", output.display()))?;
+    let netd = read_netd(&input)?;
+    let dictionary = parse(&netd).map_err(|e| format!("NETD parse failed: {e}"))?;
+    let mut count = 0usize;
+    for meta in dictionary.entries() {
+        if cfg.entry.as_deref().is_some_and(|filter| !meta.name.eq_ignore_ascii_case(filter)) {
+            continue;
+        }
+        let entry = dictionary.entry(&meta.name).map_err(|e| e.to_string())?;
+        let mips = meta.mips.iter().map(|m| {
+            let bytes = entry.mip_bytes(m.level).ok_or_else(|| format!("missing mip {} for {}", m.level, meta.name))?;
+            Ok(newengine_texture_container::TextureEncodedMipData { level: m.level, width: m.width, height: m.height, bytes: bytes.to_vec() })
+        }).collect::<Result<Vec<_>, String>>()?;
+        let dds = write_dds_runtime_mip_chain(meta.width, meta.height, &meta.format, &mips).map_err(|e| format!("DDS export '{}' failed: {e}", meta.name))?;
+        let path = output.join(format!("{}.dds", texture_io::sanitize_file_name(&meta.name)));
+        fs::write(&path, dds).map_err(|e| format!("write '{}' failed: {e}", path.display()))?;
+        println!("[OK] extracted: {}", path.display());
+        count += 1;
+    }
+    println!("[OK] extract completed textures={count}");
+    Ok(())
+}
+
+fn read_netd(input: &std::path::Path) -> Result<Vec<u8>, String> {
+    let bytes = fs::read(input).map_err(|e| format!("read '{}' failed: {e}", input.display()))?;
+    let header = nef8::parse_header(&bytes)?;
+    nef8::decode_ytd_body(&bytes, &header)
+}
