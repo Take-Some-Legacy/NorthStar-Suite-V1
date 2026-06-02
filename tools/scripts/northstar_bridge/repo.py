@@ -171,7 +171,7 @@ def latest_incident(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str, Any]:
 def git_status(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str, Any]:
     if not (ctx.root / ".git").exists():
         return {"ok": False, "reason": "not_a_git_checkout"}
-    proc = subprocess.run(["git", "status", "--short"], cwd=str(ctx.root), text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
+    proc = subprocess.run(["git", "status", "--short"], cwd=str(ctx.root), text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=None)
     return {"ok": proc.returncode == 0, "exit_code": proc.returncode, "stdout": proc.stdout, "stderr": proc.stderr}
 
 def patch_preview(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str, Any]:

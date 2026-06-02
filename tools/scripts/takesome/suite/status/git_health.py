@@ -30,7 +30,7 @@ class GitHealthSnapshot:
 
 
 def _run_git(root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(["git", *args], cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+    return subprocess.run(["git", *args], cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=None)
 
 
 def _cache_git_health(root: Path, snapshot: GitHealthSnapshot) -> GitHealthSnapshot:

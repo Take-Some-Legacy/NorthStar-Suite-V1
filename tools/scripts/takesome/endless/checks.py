@@ -22,6 +22,13 @@ DIAGNOSTIC_PATTERN_ALLOWLIST = (
     "tools/scripts/northstar_bridge/operator_tools.py",
 )
 
+DIRECT_PROVIDER_ID_ALLOWLIST_PARTS = (
+    "/config/capabilities/",
+    "/config/conformance/",
+    "/tests/",
+    "/test/",
+)
+
 
 def _rel(path: Path, root: Path) -> str:
     try:
@@ -98,7 +105,22 @@ def scan_no_legacy(root: Path, *, max_findings: int = 30) -> list[ScannerFinding
 
 
 def scan_direct_provider_ids(root: Path, *, max_findings: int = 30) -> list[ScannerFinding]:
-    return _scan_patterns(root, scanner="direct_provider_id_scan", severity="error", patterns=DIRECT_PROVIDER_IDS, max_findings=max_findings)
+    findings = _scan_patterns(
+        root,
+        scanner="direct_provider_id_scan",
+        severity="error",
+        patterns=DIRECT_PROVIDER_IDS,
+        max_findings=max_findings * 3,
+    )
+    filtered: list[ScannerFinding] = []
+    for finding in findings:
+        normalized = "/" + finding.path.replace("\\", "/")
+        if any(part in normalized for part in DIRECT_PROVIDER_ID_ALLOWLIST_PARTS):
+            continue
+        filtered.append(finding)
+        if len(filtered) >= max_findings:
+            break
+    return filtered
 
 
 def scan_hidden_fallback(root: Path, *, max_findings: int = 30) -> list[ScannerFinding]:

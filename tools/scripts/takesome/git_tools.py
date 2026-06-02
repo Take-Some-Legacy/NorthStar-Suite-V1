@@ -29,13 +29,13 @@ def _run_capture(args: Sequence[str], *, cwd: Path, timeout: float = 8.0) -> Git
             text=True,
             encoding="utf-8",
             errors="replace",
-            timeout=timeout,
+            timeout=None,
             check=False,
         )
     except FileNotFoundError:
         return GitCommandResult(127, "", f"command not found: {args[0]}")
     except subprocess.TimeoutExpired as exc:
-        return GitCommandResult(124, exc.stdout or "", exc.stderr or f"command timed out: {' '.join(args)}")
+        return GitCommandResult(130, exc.stdout or "", exc.stderr or f"command wait interrupted: {' '.join(args)}")
     return GitCommandResult(completed.returncode, completed.stdout.strip(), completed.stderr.strip())
 
 
