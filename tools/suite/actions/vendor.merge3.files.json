@@ -1,0 +1,13 @@
+{
+  "action_id": "vendor.merge3.files",
+  "group": "Vendor Tools",
+  "title": "Three-way merge report",
+  "description": "Run the quarantined GNUWin32 three-way comparison wrapper. This action requires CLI arguments and is primarily a registry-visible command descriptor.",
+  "command": "diff3-files",
+  "args": [],
+  "requires_tools": ["vendor.gnuwin32.merge3"],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal"
+}

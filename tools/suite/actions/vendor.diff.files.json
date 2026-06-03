@@ -1,0 +1,13 @@
+{
+  "action_id": "vendor.diff.files",
+  "group": "Vendor Tools",
+  "title": "Diff files",
+  "description": "Run quarantined GNUWin32 diff through the safe Suite wrapper. This action requires CLI arguments and is primarily a registry-visible command descriptor.",
+  "command": "diff-files",
+  "args": [],
+  "requires_tools": ["vendor.gnuwin32.diff"],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal"
+}

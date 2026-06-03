@@ -1,0 +1,13 @@
+{
+  "action_id": "vendor.tail.file",
+  "group": "Vendor Tools",
+  "title": "Tail file",
+  "description": "Run quarantined GNUWin32 tail through the safe bounded Suite wrapper. This action requires CLI arguments and is primarily a registry-visible command descriptor.",
+  "command": "tail-file",
+  "args": [],
+  "requires_tools": ["vendor.gnuwin32.tail"],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal"
+}

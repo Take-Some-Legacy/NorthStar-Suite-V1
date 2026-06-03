@@ -24,6 +24,19 @@ from .ytd_build import ytd_build_command
 from .ytd_inspect import ytd_inspect_command
 from .ytd_validate import ytd_validate_command
 from .ytd_extract import ytd_extract_command
+from .vendor_gnuwin32 import (
+    diff_files_command,
+    diff3_files_command,
+    sdiff_files_command,
+    sed_file_command,
+    touch_file_command,
+    fgrep_files_command,
+    tail_file_command,
+    tar_list_command,
+    tar_extract_command,
+    tar_create_command,
+    vendor_gnuwin32_doctor_command,
+)
 from .workspace_registry import workspace_registry_command
 from .workspace_health import workspace_health_command
 from .suite_shell import suite_command
@@ -197,6 +210,53 @@ def main(argv: list[str]) -> int:
     p.add_argument("--output", "-o", default="", help="Output directory. Defaults to .takesome/extract/ytd.")
     p.add_argument("--entry", default="", help="Optional texture entry name to extract.")
 
+    p = sub.add_parser("vendor-gnuwin32-doctor", help="Validate quarantined GNUWin32 vendor tools and hashes.")
+
+    p = sub.add_parser("diff-files", help="Run vendor GNU diff as a safe unified diff wrapper.")
+    p.add_argument("--left", required=True, help="Left/before file path.")
+    p.add_argument("--right", required=True, help="Right/after file path.")
+
+    p = sub.add_parser("sdiff-files", help="Run vendor GNU sdiff as a safe side-by-side diff wrapper.")
+    p.add_argument("--left", required=True, help="Left file path.")
+    p.add_argument("--right", required=True, help="Right file path.")
+
+    p = sub.add_parser("diff3-files", help="Run vendor GNU diff3 as a safe three-way merge report wrapper.")
+    p.add_argument("--base", required=True, help="Base/common ancestor file path.")
+    p.add_argument("--mine", required=True, help="Mine/current file path.")
+    p.add_argument("--theirs", required=True, help="Theirs/incoming file path.")
+
+    p = sub.add_parser("sed-file", help="Run vendor GNU sed on one file through a bounded wrapper.")
+    p.add_argument("--script", required=True, help="sed -e script, for example s/foo/bar/g.")
+    p.add_argument("--input", required=True, help="Input text file.")
+    p.add_argument("--output", required=True, help="Output text file.")
+    p.add_argument("--check", action="store_true", help="Print transformed output but do not write the output file.")
+
+    p = sub.add_parser("touch-file", help="Run vendor GNU touch as a safe timestamp/create-file wrapper.")
+    p.add_argument("--path", required=True, help="File to touch/create.")
+    p.add_argument("--no-create", action="store_true", help="Do not create the file if it does not exist.")
+    p.add_argument("--reference", default="", help="Copy timestamp from another file, equivalent to touch -r.")
+
+    p = sub.add_parser("fgrep-files", help="Run vendor GNU fgrep as a safe fixed-string search wrapper.")
+    p.add_argument("--pattern", required=True, help="Fixed string to search for.")
+    p.add_argument("--ignore-case", action="store_true", help="Case-insensitive search.")
+    p.add_argument("--word", action="store_true", help="Match whole words only.")
+    p.add_argument("files", nargs="+", help="Files to search.")
+
+    p = sub.add_parser("tail-file", help="Run vendor GNU tail as a bounded last-lines reader.")
+    p.add_argument("--input", required=True, help="Input text file.")
+    p.add_argument("--lines", type=int, default=80, help="Number of lines to read, clamped to 1..1000.")
+
+    p = sub.add_parser("tar-list", help="List archive entries through vendor GNU tar.")
+    p.add_argument("--archive", required=True, help="Archive path.")
+
+    p = sub.add_parser("tar-extract", help="Extract archive through vendor GNU tar into an output directory.")
+    p.add_argument("--archive", required=True, help="Archive path.")
+    p.add_argument("--output", required=True, help="Output directory.")
+
+    p = sub.add_parser("tar-create", help="Create archive through vendor GNU tar from explicit inputs.")
+    p.add_argument("--archive", required=True, help="Output archive path.")
+    p.add_argument("inputs", nargs="+", help="Files/directories to include.")
+
     p = sub.add_parser("import-ui-fonts")
     p.add_argument("--manifest", default="", help="Path to editor.yft.import.json. Defaults to NewEngine/neocore2/assets/ui/fonts/editor.yft.import.json")
     p.add_argument("--output", "-o", default="", help="Output runtime .yft. Defaults to NewEngine/neocore2/assets/ui/fonts/editor.yft")
@@ -287,6 +347,31 @@ def main(argv: list[str]) -> int:
         return ytd_validate_command(root, ns)
     if ns.command == "extract-ytd":
         return ytd_extract_command(root, ns)
+
+    if ns.command == "vendor-gnuwin32-doctor":
+        return vendor_gnuwin32_doctor_command(root, ns)
+    if ns.command == "diff-files":
+        return diff_files_command(root, ns)
+    if ns.command == "sdiff-files":
+        return sdiff_files_command(root, ns)
+    if ns.command == "diff3-files":
+        return diff3_files_command(root, ns)
+    if ns.command == "sed-file":
+        return sed_file_command(root, ns)
+
+    if ns.command == "touch-file":
+        return touch_file_command(root, ns)
+
+    if ns.command == "fgrep-files":
+        return fgrep_files_command(root, ns)
+    if ns.command == "tail-file":
+        return tail_file_command(root, ns)
+    if ns.command == "tar-list":
+        return tar_list_command(root, ns)
+    if ns.command == "tar-extract":
+        return tar_extract_command(root, ns)
+    if ns.command == "tar-create":
+        return tar_create_command(root, ns)
 
     if ns.command == "import-ui-assets":
         return import_pipeline_command(root, ns)

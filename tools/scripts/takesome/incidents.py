@@ -9,6 +9,7 @@ from .build_info import build_log_dir, file_manifest
 from .cargo import build_state_root
 from .console import colorize_script_line
 from .paths import now_stamp, rel, suite_path, utc_iso
+from .vendor_gnuwin32 import vendor_tail_lines
 
 
 def safe_incident_name(value: str | None, *, fallback: str = "incident") -> str:
@@ -30,6 +31,12 @@ def _read_text(path: Path, *, limit_bytes: int = 2 * 1024 * 1024) -> str:
 
 
 def _tail_lines(path: Path, *, max_lines: int = 160) -> list[str]:
+    # Prefer the bounded vendor GNU tail wrapper now that the suite owns a quarantined
+    # GNUWin32 toolset. Keep a pure-Python fallback for early bootstrap or missing vendor payloads.
+    root = suite_path().parent
+    vendor_lines = vendor_tail_lines(root, path, max_lines=max_lines)
+    if vendor_lines:
+        return vendor_lines
     text = _read_text(path)
     if not text:
         return []

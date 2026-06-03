@@ -1,0 +1,13 @@
+{
+  "action_id": "vendor.sdiff.files",
+  "group": "Vendor Tools",
+  "title": "Side-by-side diff files",
+  "description": "Run quarantined GNUWin32 sdiff through the safe Suite wrapper. This action requires CLI arguments and is primarily a registry-visible command descriptor.",
+  "command": "sdiff-files",
+  "args": [],
+  "requires_tools": ["vendor.gnuwin32.sdiff"],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal"
+}

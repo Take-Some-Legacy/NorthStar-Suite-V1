@@ -1,0 +1,17 @@
+{
+  "action_id": "vendor.archive.create",
+  "group": "Vendor Tools",
+  "title": "Create archive",
+  "description": "Run quarantined GNUWin32 archive wrapper to create an archive from explicit inputs. This action requires CLI arguments.",
+  "command": "tar-create",
+  "args": [],
+  "requires_tools": [
+    "vendor.gnuwin32.tar"
+  ],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal"
+}

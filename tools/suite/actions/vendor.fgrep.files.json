@@ -1,0 +1,13 @@
+{
+  "action_id": "vendor.fgrep.files",
+  "group": "Vendor Tools",
+  "title": "Fixed-string search files",
+  "description": "Run quarantined GNUWin32 fgrep through the safe Suite wrapper. This action requires CLI arguments and is primarily a registry-visible command descriptor.",
+  "command": "fgrep-files",
+  "args": [],
+  "requires_tools": ["vendor.gnuwin32.fgrep"],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal"
+}

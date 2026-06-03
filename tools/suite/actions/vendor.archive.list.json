@@ -1,0 +1,17 @@
+{
+  "action_id": "vendor.archive.list",
+  "group": "Vendor Tools",
+  "title": "List archive",
+  "description": "Run quarantined GNUWin32 archive wrapper to list entries. This action requires CLI arguments.",
+  "command": "tar-list",
+  "args": [],
+  "requires_tools": [
+    "vendor.gnuwin32.tar"
+  ],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal"
+}
