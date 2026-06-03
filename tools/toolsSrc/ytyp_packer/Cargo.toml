@@ -1,0 +1,23 @@
+[package]
+name = "northstar-ytyp-packer"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+description = "North Star XML-first YTYP/NEF8 generic metadata dictionary packer"
+license = "MIT"
+
+[dependencies]
+blake3 = "1.5"
+flate2 = "1.0"
+serde_json = "1.0"
+
+[build-dependencies]
+winres = "0.1"
+
+[lib]
+name = "northstar_ytyp_packer"
+path = "src/lib.rs"
+
+[[bin]]
+name = "northstar-ytyp-packer"
+path = "src/main.rs"

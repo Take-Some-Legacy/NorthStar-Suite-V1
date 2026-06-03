@@ -1,0 +1,35 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "northstar.nepak_packer",
+  "version": "0.1.0",
+  "name": "North Star NEPAK Packer",
+  "description": "Generic .nepak VFS container packer/extractor/inspector/validator for opaque byte entries.",
+  "kind": "rust-cli",
+  "source_type": "first_party",
+  "owner": "Take Some",
+  "root": ".",
+  "package_root": "tools/toolbelt/first_party/northstar/nepak_packer",
+  "source_root": "tools/toolsSrc/nepak_packer",
+  "executable": "bin/northstar-nepak-packer.exe",
+  "install_path": "tools/toolbelt/first_party/northstar/nepak_packer/bin/northstar-nepak-packer.exe",
+  "cargo_manifest": "tools/toolsSrc/nepak_packer/Cargo.toml",
+  "safe_for_build": true,
+  "build_validation": true,
+  "commands": [
+    {
+      "id": "help",
+      "args": [
+        "--help"
+      ],
+      "description": "Print tool usage."
+    }
+  ],
+  "capabilities": [
+    "assets.container.nepak",
+    "assets.container.nepak.pack",
+    "assets.container.nepak.extract",
+    "assets.container.nepak.inspect",
+    "assets.container.nepak.validate"
+  ],
+  "sha256": "80226b9857569fadb7882722297e4a8cc264f554e2408c9b26237df944aab3f4"
+}

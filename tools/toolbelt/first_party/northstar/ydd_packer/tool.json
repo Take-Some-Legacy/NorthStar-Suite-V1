@@ -1,0 +1,36 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "northstar.ydd_packer",
+  "version": "0.1.0",
+  "name": "North Star YDD Packer",
+  "description": "Resident NEF8 ListFile .ydd drawable dictionary packer/inspector/validator.",
+  "kind": "rust-cli",
+  "source_type": "first_party",
+  "owner": "Take Some",
+  "root": ".",
+  "package_root": "tools/toolbelt/first_party/northstar/ydd_packer",
+  "source_root": "tools/toolsSrc/ydd_packer",
+  "executable": "bin/northstar-ydd-packer.exe",
+  "install_path": "tools/toolbelt/first_party/northstar/ydd_packer/bin/northstar-ydd-packer.exe",
+  "cargo_manifest": "tools/toolsSrc/ydd_packer/Cargo.toml",
+  "safe_for_build": true,
+  "build_validation": true,
+  "commands": [
+    {
+      "id": "help",
+      "args": [
+        "--help"
+      ],
+      "description": "Print tool usage."
+    }
+  ],
+  "capabilities": [
+    "assets.listfile.nef8",
+    "assets.drawable_dictionary.ydd",
+    "model.import.obj",
+    "model.import.gltf",
+    "model.import.glb",
+    "model.import.fbx.placeholder"
+  ],
+  "sha256": "ed2d36c5e0ce34ae02e19abaa8ff8becc8954deb8a6168eb6fa1ec4e1f540688"
+}

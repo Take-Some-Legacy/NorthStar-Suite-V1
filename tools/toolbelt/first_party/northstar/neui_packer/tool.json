@@ -1,0 +1,29 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "northstar.neui_packer",
+  "version": "0.2.0",
+  "name": "North Star NEUI Packer",
+  "description": "XML-first .neui UI dictionary packer/inspector/validator.",
+  "kind": "rust-cli",
+  "source_type": "first_party",
+  "owner": "Take Some",
+  "root": ".",
+  "package_root": "tools/toolbelt/first_party/northstar/neui_packer",
+  "source_root": "tools/toolsSrc/neui_packer",
+  "executable": "bin/northstar-neui-packer.exe",
+  "install_path": "tools/toolbelt/first_party/northstar/neui_packer/bin/northstar-neui-packer.exe",
+  "cargo_manifest": "tools/toolsSrc/neui_packer/Cargo.toml",
+  "safe_for_build": true,
+  "build_validation": true,
+  "commands": [
+    {
+      "id": "help",
+      "args": [
+        "--help"
+      ],
+      "description": "Print tool usage."
+    }
+  ],
+  "capabilities": [],
+  "sha256": "d3ca1f8bfbd8f04ad51e90adc1259062a70fc1b77faf01131a8bfb34a8342c66"
+}

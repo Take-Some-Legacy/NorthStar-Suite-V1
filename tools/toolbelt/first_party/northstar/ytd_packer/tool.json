@@ -1,0 +1,29 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "northstar.ytd_packer",
+  "version": "0.3.0",
+  "name": "North Star YTD Packer",
+  "description": "Texture dictionary .ytd packer/inspector/validator/extractor.",
+  "kind": "rust-cli",
+  "source_type": "first_party",
+  "owner": "Take Some",
+  "root": ".",
+  "package_root": "tools/toolbelt/first_party/northstar/ytd_packer",
+  "source_root": "tools/toolsSrc/ytd_packer",
+  "executable": "bin/northstar-ytd-packer.exe",
+  "install_path": "tools/toolbelt/first_party/northstar/ytd_packer/bin/northstar-ytd-packer.exe",
+  "cargo_manifest": "tools/toolsSrc/ytd_packer/Cargo.toml",
+  "safe_for_build": true,
+  "build_validation": true,
+  "commands": [
+    {
+      "id": "help",
+      "args": [
+        "--help"
+      ],
+      "description": "Print tool usage."
+    }
+  ],
+  "capabilities": [],
+  "sha256": "04b85dfdbae2ce5a54f8f5289013f2b3e49a868fe13208d337b64de2a98db554"
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "northstar.ytyp_packer",
+  "version": "0.1.0",
+  "name": "North Star YTYP Packer",
+  "description": "Generic XML metadata .ytyp packer/inspector/validator.",
+  "kind": "rust-cli",
+  "source_type": "first_party",
+  "owner": "Take Some",
+  "root": ".",
+  "package_root": "tools/toolbelt/first_party/northstar/ytyp_packer",
+  "source_root": "tools/toolsSrc/ytyp_packer",
+  "executable": "bin/northstar-ytyp-packer.exe",
+  "install_path": "tools/toolbelt/first_party/northstar/ytyp_packer/bin/northstar-ytyp-packer.exe",
+  "cargo_manifest": "tools/toolsSrc/ytyp_packer/Cargo.toml",
+  "safe_for_build": true,
+  "build_validation": true,
+  "commands": [
+    {
+      "id": "help",
+      "args": [
+        "--help"
+      ],
+      "description": "Print tool usage."
+    }
+  ],
+  "capabilities": [],
+  "sha256": "0079747a91ca410f57b0efad22394742653e8dcca2e354523f0c7ce37b72ae54"
+}

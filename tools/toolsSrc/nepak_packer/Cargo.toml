@@ -1,0 +1,19 @@
+[package]
+name = "northstar-nepak-packer"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+description = "North Star .nepak VFS package packer/extractor/inspector/validator"
+license = "MIT"
+
+[dependencies]
+blake3 = "1.5"
+flate2 = "1.0"
+serde_json = "1.0"
+
+[build-dependencies]
+winres = "0.1"
+
+[[bin]]
+name = "northstar-nepak-packer"
+path = "src/main.rs"

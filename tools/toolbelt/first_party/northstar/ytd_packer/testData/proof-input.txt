@@ -1,0 +1,3 @@
+northstar.ytd_packer proof input marker
+Supported source formats: PNG BMP JPG JPEG DDS TGA
+Rejected source formats: XSR EXR

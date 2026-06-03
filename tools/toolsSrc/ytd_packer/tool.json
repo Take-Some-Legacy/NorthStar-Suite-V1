@@ -1,7 +1,7 @@
 {
   "schema": "takesome.tool.v1",
   "id": "northstar.ytd_packer",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "name": "North Star YTD Packer",
   "description": "Creates, parses, validates and extracts XML-free NEF8/YTD texture dictionaries backed by binary NETD payloads.",
   "kind": "rust-cli",

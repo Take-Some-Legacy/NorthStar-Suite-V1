@@ -1,0 +1,30 @@
+{
+  "schema": "northstar.tool.v1",
+  "id": "northstar.ydd_packer",
+  "name": "North Star YDD Packer",
+  "package": "northstar-ydd-packer",
+  "binary": "northstar-ydd-packer",
+  "capabilities": [
+    "assets.listfile.nef8",
+    "assets.drawable_dictionary.ydd",
+    "model.import.obj",
+    "model.import.gltf",
+    "model.import.glb",
+    "model.import.fbx.placeholder"
+  ],
+  "description": "Builds and inspects .ydd as a resident NEF8 ListFile drawable dictionary with file.ydd@model entries.",
+  "build": {
+    "kind": "cargo",
+    "manifest": "tools/toolsSrc/ydd_packer/Cargo.toml"
+  },
+  "validation_args": [
+    "--help"
+  ],
+  "commands": [
+    "pack",
+    "inspect",
+    "list",
+    "validate",
+    "dump-body"
+  ]
+}

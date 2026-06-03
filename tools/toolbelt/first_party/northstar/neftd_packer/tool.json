@@ -1,0 +1,31 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "northstar.neftd_packer",
+  "version": "0.1.0",
+  "name": "North Star NEFTD Packer",
+  "description": "Creates, packs, inspects, lists, validates and extracts .neftd NEF8 font dictionaries.",
+  "kind": "rust-cli",
+  "source_type": "first_party",
+  "owner": "Take Some",
+  "root": ".",
+  "package_root": "tools/toolbelt/first_party/northstar/neftd_packer",
+  "source_root": "tools/toolsSrc/neftd_packer",
+  "executable": "bin/northstar-neftd-packer.exe",
+  "install_path": "tools/toolbelt/first_party/northstar/neftd_packer/bin/northstar-neftd-packer.exe",
+  "cargo_manifest": "tools/toolsSrc/neftd_packer/Cargo.toml",
+  "safe_for_build": true,
+  "build_validation": true,
+  "commands": [
+    {
+      "id": "help",
+      "args": [
+        "--help"
+      ],
+      "description": "Print tool usage."
+    }
+  ],
+  "capabilities": [
+    "assets.listfile.nef8.font_dictionary"
+  ],
+  "sha256": "08b9455e0cbff2ef401aa60af979e999ee791cb562afa1510401b5b7d91011ea"
+}

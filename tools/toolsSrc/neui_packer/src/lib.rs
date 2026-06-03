@@ -134,6 +134,10 @@ pub fn manifest_json_for_xmlcentral(xmlcentral: &str, logical_path: &str) -> Res
             }
         })).collect::<Vec<_>>(),
         "dependencies": deps,
+        "ui_resource_dependencies": {
+            "textures": texture_refs(xmlcentral),
+            "fonts": font_refs(xmlcentral)
+        },
         "summary": xmlcentral_summary_json(xmlcentral),
     }))
 }
@@ -177,6 +181,10 @@ pub fn xmlcentral_summary_json(xmlcentral: &str) -> Value {
         "root": root_name(xmlcentral).unwrap_or_else(|| "<unknown>".to_owned()),
         "entries": entry_names(xmlcentral),
         "dependencies": dependencies(xmlcentral),
+        "ui_resource_dependencies": {
+            "textures": texture_refs(xmlcentral),
+            "fonts": font_refs(xmlcentral)
+        },
         "surface_count": count_open_tags(xmlcentral, "Surface"),
         "layout_count": count_open_tags(xmlcentral, "Layout"),
         "theme_count": count_open_tags(xmlcentral, "Theme"),
@@ -207,6 +215,7 @@ pub fn validate_xmlcentral(xmlcentral: &str, source_ref: &str) -> Result<Vec<Str
     if entry_names(xmlcentral).is_empty() {
         warnings.push("no <Entry> tags found; runtime entry will fall back to surface/theme/default name".to_owned());
     }
+    validate_ui_resource_refs(xmlcentral, source_ref)?;
     Ok(warnings)
 }
 
@@ -232,7 +241,40 @@ pub fn dependencies(xmlcentral: &str) -> Vec<String> {
     out.extend(attr_values(xmlcentral, "ComponentRef", "ref"));
     out.extend(attr_values(xmlcentral, "Import", "ref"));
     out.extend(attr_values(xmlcentral, "Surface", "theme"));
+    out.extend(font_refs(xmlcentral));
+    out.extend(texture_refs(xmlcentral));
     out.retain(|value| !value.trim().is_empty());
+    out.sort();
+    out.dedup();
+    out
+}
+
+pub fn font_refs(xmlcentral: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    out.extend(attr_values(xmlcentral, "FontRef", "ref"));
+    out.extend(attr_values(xmlcentral, "Font", "ref"));
+    out.extend(attr_values(xmlcentral, "TextStyle", "font"));
+    out.extend(attr_values(xmlcentral, "Text", "font"));
+    out.extend(attr_values(xmlcentral, "Label", "font"));
+    out.extend(attr_values_by_attr_name(xmlcentral, "fontRef"));
+    out.retain(|value| is_asset_ref(value) && value.to_ascii_lowercase().contains(".neftd@"));
+    out.sort();
+    out.dedup();
+    out
+}
+
+pub fn texture_refs(xmlcentral: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    out.extend(attr_values(xmlcentral, "TextureRef", "ref"));
+    out.extend(attr_values(xmlcentral, "Image", "texture"));
+    out.extend(attr_values(xmlcentral, "Image", "src"));
+    out.extend(attr_values(xmlcentral, "Icon", "texture"));
+    out.extend(attr_values(xmlcentral, "Icon", "src"));
+    out.extend(attr_values(xmlcentral, "Background", "texture"));
+    out.extend(attr_values(xmlcentral, "Brush", "texture"));
+    out.extend(attr_values_by_attr_name(xmlcentral, "textureRef"));
+    out.extend(attr_values_by_attr_name(xmlcentral, "imageRef"));
+    out.retain(|value| is_asset_ref(value) && value.to_ascii_lowercase().contains(".ytd@"));
     out.sort();
     out.dedup();
     out
@@ -340,6 +382,62 @@ fn attr_values(xml: &str, tag: &str, attr: &str) -> Vec<String> {
     out
 }
 
+fn attr_values_by_attr_name(xml: &str, attr: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut search = 0usize;
+    while let Some(pos_rel) = xml[search..].find('<') {
+        let pos = search + pos_rel;
+        let Some(open_end_rel) = xml[pos..].find('>') else { break; };
+        let open_end = pos + open_end_rel;
+        let open = &xml[pos..=open_end];
+        if !open.starts_with("</") && !open.starts_with("<!--") {
+            if let Some(value) = attr_value(open, attr) {
+                out.push(value);
+            }
+        }
+        search = open_end + 1;
+    }
+    out
+}
+
+fn is_asset_ref(value: &str) -> bool {
+    let clean = value.trim().replace('\\', "/");
+    clean.contains('@') && (clean.starts_with("assets/") || clean.starts_with("./assets/") || clean.starts_with("/assets/"))
+}
+
+fn validate_ui_resource_refs(xmlcentral: &str, source_ref: &str) -> Result<(), String> {
+    let mut refs = Vec::new();
+    refs.extend(attr_values(xmlcentral, "FontRef", "ref"));
+    refs.extend(attr_values(xmlcentral, "Font", "ref"));
+    refs.extend(attr_values(xmlcentral, "TextStyle", "font"));
+    refs.extend(attr_values(xmlcentral, "Text", "font"));
+    refs.extend(attr_values(xmlcentral, "Label", "font"));
+    refs.extend(attr_values_by_attr_name(xmlcentral, "fontRef"));
+    refs.extend(attr_values(xmlcentral, "TextureRef", "ref"));
+    refs.extend(attr_values(xmlcentral, "Image", "texture"));
+    refs.extend(attr_values(xmlcentral, "Image", "src"));
+    refs.extend(attr_values(xmlcentral, "Icon", "texture"));
+    refs.extend(attr_values(xmlcentral, "Icon", "src"));
+    refs.extend(attr_values(xmlcentral, "Background", "texture"));
+    refs.extend(attr_values(xmlcentral, "Brush", "texture"));
+    refs.extend(attr_values_by_attr_name(xmlcentral, "textureRef"));
+    refs.extend(attr_values_by_attr_name(xmlcentral, "imageRef"));
+
+    for value in refs {
+        let lowered = value.to_ascii_lowercase();
+        if lowered.contains(".yft") {
+            return Err(format!("{source_ref}: UI font ref '{value}' uses legacy .yft; fonts must be .neftd@entry"));
+        }
+        if lowered.contains(".neftd") && !lowered.contains(".neftd@") {
+            return Err(format!("{source_ref}: UI font ref '{value}' must select a NEFTD entry with .neftd@entry"));
+        }
+        if lowered.contains(".ytd") && !lowered.contains(".ytd@") {
+            return Err(format!("{source_ref}: UI texture ref '{value}' must select a YTD entry with .ytd@entry"));
+        }
+    }
+    Ok(())
+}
+
 fn attr_value(open: &str, key: &str) -> Option<String> {
     let bytes = open.as_bytes();
     let mut i = 0usize;
@@ -406,7 +504,11 @@ mod tests {
 <NeUiDictionary schema="newengine.neui.xmlcentral.v1">
   <Entries><Entry name="surface" kind="ui_surface" /></Entries>
   <Surface name="engine.ui.test" root="layout.main" theme="assets/ui/themes/northstar_editor.neui@editor_light" />
-  <Layout name="layout.main"><Panel id="root"><Button id="ok" text="OK" action="ui.ok" /></Panel></Layout>
+  <Resources>
+    <TextureRef name="logo" ref="assets/loading/loading_ui.ytd@newengine_logo" />
+    <FontRef name="body" ref="assets/ui/fonts/editor.neftd@tt_lakes_neue_trial_bold" />
+  </Resources>
+  <Layout name="layout.main"><Panel id="root"><Image texture="assets/loading/loading_ui.ytd@newengine_logo" /><Text font="assets/ui/fonts/editor.neftd@tt_lakes_neue_trial_bold" value="OK" /></Panel></Layout>
 </NeUiDictionary>"#
     }
 
@@ -439,5 +541,29 @@ mod tests {
         let manifest = manifest_json_for_xmlcentral(sample_xml(), "assets/ui/test.neui").unwrap();
         assert_eq!(manifest["entries"][0]["entry_ref"], "assets/ui/test.neui@surface");
         assert_eq!(manifest["semantic_gateway"], "engine.assets.ui");
+    }
+
+    #[test]
+    fn neui_dependencies_include_ytd_textures_and_neftd_fonts() {
+        let deps = dependencies(sample_xml());
+        assert!(deps.contains(&"assets/loading/loading_ui.ytd@newengine_logo".to_owned()));
+        assert!(deps.contains(&"assets/ui/fonts/editor.neftd@tt_lakes_neue_trial_bold".to_owned()));
+        let manifest = manifest_json_for_xmlcentral(sample_xml(), "assets/ui/test.neui").unwrap();
+        assert_eq!(manifest["ui_resource_dependencies"]["textures"][0], "assets/loading/loading_ui.ytd@newengine_logo");
+        assert_eq!(manifest["ui_resource_dependencies"]["fonts"][0], "assets/ui/fonts/editor.neftd@tt_lakes_neue_trial_bold");
+    }
+
+    #[test]
+    fn neui_rejects_legacy_yft_font_refs() {
+        let xml = r#"<NeUiDictionary schema="newengine.neui.xmlcentral.v1"><Surface name="s" root="r" /><Text font="assets/ui/fonts/editor.yft@regular" /></NeUiDictionary>"#;
+        let err = validate_xmlcentral(xml, "bad.neui.xml").unwrap_err();
+        assert!(err.contains("legacy .yft"));
+    }
+
+    #[test]
+    fn neui_rejects_texture_refs_without_ytd_entry() {
+        let xml = r#"<NeUiDictionary schema="newengine.neui.xmlcentral.v1"><Surface name="s" root="r" /><Image texture="assets/ui/textures/editor.ytd" /></NeUiDictionary>"#;
+        let err = validate_xmlcentral(xml, "bad.neui.xml").unwrap_err();
+        assert!(err.contains("must select a YTD entry"));
     }
 }

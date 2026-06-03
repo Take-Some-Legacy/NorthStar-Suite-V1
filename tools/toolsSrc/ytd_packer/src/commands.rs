@@ -1,8 +1,8 @@
-use newengine_texture_container::{parse, parse_manifest_only, pack_with_options, write_dds_runtime_mip_chain, TextureBuildOptions};
+use newengine_texture_container::{parse, parse_manifest_only, pack_encoded_with_options, write_dds_runtime_mip_chain, TextureBuildOptions};
 use serde_json::json;
 use std::fs;
 
-use crate::{args::{parse_args, required_input, required_output}, help, nef8, texture_io};
+use crate::{args::{parse_args, required_input, required_output}, fixture_gen, help, nef8, texture_io};
 
 pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
     if raw_args.is_empty() {
@@ -22,6 +22,7 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
         "extract" => run_extract(&raw_args[1..]),
         "manifest" => run_inspect(&raw_args[1..]),
         "dump-netd" => run_dump_netd(&raw_args[1..]),
+        "write-smoke-fixtures" => run_write_smoke_fixtures(&raw_args[1..]),
         "help" | "--help" | "-h" => {
             help::print_help();
             help::wait_for_enter();
@@ -31,12 +32,20 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
     }
 }
 
+fn run_write_smoke_fixtures(args: &[String]) -> Result<(), String> {
+    let cfg = parse_args(args)?;
+    let output = required_output(&cfg, "write-smoke-fixtures", "directory")?;
+    fixture_gen::write_smoke_fixtures(&output)?;
+    println!("[OK] wrote YTD smoke fixtures: {}", output.display());
+    Ok(())
+}
+
 fn run_pack(args: &[String]) -> Result<(), String> {
     let cfg = parse_args(args)?;
     let output = required_output(&cfg, "pack", "file.ytd")?;
     let sources = texture_io::collect_sources(cfg.input_dir.as_deref(), &cfg.textures)?;
     if sources.is_empty() {
-        return Err("pack requires --texture name=path or --input-dir".to_owned());
+        return Err("pack requires --texture name=path or --input-dir with PNG/BMP/JPG/JPEG/DDS/TGA files".to_owned());
     }
     println!("[INFO] YTD build started textures={}", sources.len());
     let mut entries = Vec::with_capacity(sources.len());
@@ -44,7 +53,7 @@ fn run_pack(args: &[String]) -> Result<(), String> {
         entries.push(texture_io::load_texture_entry(name, path, cfg.srgb, cfg.no_mips)?);
     }
     let options = if cfg.raw_data { TextureBuildOptions::raw_runtime() } else { TextureBuildOptions::default() };
-    let netd = pack_with_options(entries, options).map_err(|e| format!("NETD pack failed: {e}"))?;
+    let netd = pack_encoded_with_options(entries, options).map_err(|e| format!("NETD pack failed: {e}"))?;
     let logical = texture_io::normalize_logical_path(&output.to_string_lossy());
     let ytd = nef8::pack_ytd(&netd, &logical, 1)?;
     if let Some(parent) = output.parent() {

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<MetadataDocument schema="newengine.ytyp.metadata.v1">
+  <Entry name="proof_metadata" asset="assets/models/proof.ydd@proof_model" />
+  <Meta name="proof_material_link" material="assets/materials/proof.nemat@proof_panel" texture="assets/textures/proof.ytd@proof_bc" />
+</MetadataDocument>

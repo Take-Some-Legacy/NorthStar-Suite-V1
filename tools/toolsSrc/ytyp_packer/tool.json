@@ -1,0 +1,22 @@
+{
+  "schema": "takesome.tool.v1",
+  "id": "northstar.ytyp_packer",
+  "version": "0.1.0",
+  "name": "North Star YTYP Packer",
+  "description": "XML-first generic .ytyp metadata tool: compiles arbitrary .ytyp.xml metadata into runtime NEF8 .ytyp assets and dumps/parses .ytyp back to readable XML.",
+  "kind": "rust-cli",
+  "root": ".",
+  "cargo_manifest": "Cargo.toml",
+  "install_path": "tools/exe/northstar-ytyp-packer.exe",
+  "default_args": ["compile", "--root", "$repo_root", "--all"],
+  "validation_args": ["validate", "--root", "$repo_root", "--all"],
+  "capabilities": [
+    "assets.metadata.ytyp_pack",
+    "assets.metadata.ytyp_xml_dump",
+    "assets.metadata.ytyp_inspect",
+    "validation.nef8_hash"
+  ],
+  "build_validation": true,
+  "safe_for_build": true,
+  "maturity": "native-dev"
+}

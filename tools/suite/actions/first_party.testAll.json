@@ -1,0 +1,17 @@
+{
+  "action_id": "first_party.testAll",
+  "group": "Tools",
+  "title": "Run first-party smoke tests",
+  "description": "Recursively discover and run all tools/toolbelt/first_party/<tool>/test/test.bat smoke tests through the first-party aggregate runner.",
+  "command": "first-party-test-all",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [
+    "tools/toolbelt/first_party/.testAll/last-run.txt"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}
