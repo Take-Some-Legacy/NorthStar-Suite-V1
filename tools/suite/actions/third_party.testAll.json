@@ -1,0 +1,17 @@
+{
+  "action_id": "third_party.testAll",
+  "group": "Vendor Tools",
+  "title": "Run third-party smoke tests",
+  "description": "Recursively discover and run all tools/toolbelt/third_party/<tool>/test/test.bat smoke tests through the third-party aggregate runner.",
+  "command": "third-party-test-all",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [
+    "tools/toolbelt/third_party/.testAll/last-run.txt"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

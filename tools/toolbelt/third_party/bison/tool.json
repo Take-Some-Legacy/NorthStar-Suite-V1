@@ -1,0 +1,49 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.bison",
+  "version": "2.4.1-gnuwin32",
+  "name": "GNUWin32 bison",
+  "description": "Third-party GNU Bison executable packaged as an individual registry-visible parser-generator tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU Bison",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/bison",
+  "executable": "bin/bison.exe",
+  "install_path": "tools/toolbelt/third_party/bison/bin/bison.exe",
+  "expected_sha256": "f9a7f0c61719ada0590792c3a7afd252888091e1a2e3fa98b096e24102f4cbfb",
+  "expected_size_bytes": 279552,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "parser.generate",
+    "grammar.compile",
+    "suite.vendor.parser_generator"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU Bison version.",
+      "args": [
+        "--version"
+      ]
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/bison.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

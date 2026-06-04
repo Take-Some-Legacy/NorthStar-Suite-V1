@@ -1,0 +1,68 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.diff",
+  "version": "2.8.7-gnuwin32",
+  "name": "GNUWin32 diff",
+  "description": "Third-party GNU diff executable packaged as an individual registry-visible tool for unified file comparison.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU diffutils",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/diff",
+  "executable": "bin/diff.exe",
+  "install_path": "tools/toolbelt/third_party/diff/bin/diff.exe",
+  "expected_sha256": "f449ce40db50dd35c45c3dfa54bc79b6a3a4d9dc5ab0ff4d0fe91a4c9fefa310",
+  "expected_size_bytes": 150528,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "text.diff.unified",
+    "workspace.compare.files",
+    "suite.vendor.diff"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU diff version.",
+      "args": [
+        "--version"
+      ]
+    },
+    {
+      "id": "unified-diff",
+      "description": "Compare two files using unified diff output through the Suite wrapper.",
+      "suite_command": "diff-files",
+      "args_schema": [
+        {
+          "name": "left",
+          "flag": "--left",
+          "required": true,
+          "description": "Left/before file path."
+        },
+        {
+          "name": "right",
+          "flag": "--right",
+          "required": true,
+          "description": "Right/after file path."
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/diff.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

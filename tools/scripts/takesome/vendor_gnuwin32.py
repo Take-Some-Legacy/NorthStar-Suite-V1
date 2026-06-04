@@ -10,48 +10,120 @@ from pathlib import Path
 
 from .paths import rel
 
-VENDOR_ROOT = Path("tools") / "vendor" / "gnuwin32"
-BIN_ROOT = VENDOR_ROOT / "bin"
-HASH_FILE = VENDOR_ROOT / "HASHES.sha256.txt"
+TOOLBELT_THIRD_PARTY_ROOT = Path("tools") / "toolbelt" / "third_party"
+LEGACY_VENDOR_ROOTS = [
+    Path("tools") / "vendor" / "gnuwin32",
+    Path("tools") / "toolbelt" / "third_party" / "gnuwin32",
+]
+
+GNUWIN32_TOOL_SLUGS = {
+    "bison": "bison",
+    "diff": "diff",
+    "diff3": "diff3",
+    "fgrep": "fgrep",
+    "flex": "flex",
+    "flex++": "flexpp",
+    "flex++.exe": "flexpp",
+    "funzip": "funzip",
+    "m4": "m4",
+    "make": "make",
+    "sdiff": "sdiff",
+    "sed": "sed",
+    "tail": "tail",
+    "tar": "tar",
+    "touch": "touch",
+}
+
+
+def _tool_slug(name: str) -> str:
+    key = name.lower()
+    if key.endswith(".exe") and key not in GNUWIN32_TOOL_SLUGS:
+        key = key[:-4]
+    return GNUWIN32_TOOL_SLUGS.get(key, key)
+
+
+def _exe_name(name: str) -> str:
+    if name.lower().endswith(".exe"):
+        return name
+    if name.lower() == "flex++":
+        return "flex++.exe"
+    return f"{name}.exe"
+
+
+def tool_package_dir(root: Path, name: str) -> Path:
+    return root / TOOLBELT_THIRD_PARTY_ROOT / _tool_slug(name)
+
+
+def tool_bin_dir(root: Path, name: str) -> Path:
+    return tool_package_dir(root, name) / "bin"
 
 
 def vendor_bin(root: Path, name: str) -> Path:
-    exe_name = name if name.lower().endswith((".exe", ".dll")) else f"{name}.exe"
-    return root / BIN_ROOT / exe_name
+    return tool_bin_dir(root, name) / _exe_name(name)
 
 
 def require_vendor_tool(root: Path, name: str) -> Path | None:
     path = vendor_bin(root, name)
     if not path.exists():
         print(f"[ERROR] missing vendor tool: {rel(root, path)}")
-        print(f"[INFO] expected directory: {rel(root, root / BIN_ROOT)}")
+        print(f"[INFO] expected self-contained package: {rel(root, tool_package_dir(root, name))}")
+        print("[INFO] migrate payload into tools/toolbelt/third_party/<tool>/bin/ and keep tool.json in sync.")
         return None
     return path
 
 
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def verify_vendor_hashes(root: Path) -> bool:
-    hashes = root / HASH_FILE
-    if not hashes.exists():
-        print(f"[ERROR] missing vendor hash manifest: {rel(root, hashes)}")
-        return False
     ok = True
-    for raw_line in hashes.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#"):
-            continue
-        expected, file_rel = line.split(None, 1)
-        file_path = root / VENDOR_ROOT / file_rel.strip()
-        if not file_path.exists():
-            print(f"[ERROR] missing vendor payload: {rel(root, file_path)}")
+    descriptors = sorted((root / TOOLBELT_THIRD_PARTY_ROOT).glob("*/tool.json"), key=lambda p: p.as_posix().lower())
+    descriptors = [p for p in descriptors if json_tool_id(p).startswith("vendor.gnuwin32.")]
+    if not descriptors:
+        print("[ERROR] no per-tool GNUWin32 descriptors found under tools/toolbelt/third_party/<tool>/tool.json")
+        return False
+    for descriptor in descriptors:
+        try:
+            data = __import__("json").loads(descriptor.read_text(encoding="utf-8"))
+        except Exception as exc:
+            print(f"[ERROR] invalid descriptor: {rel(root, descriptor)}: {exc}")
             ok = False
             continue
-        actual = hashlib.sha256(file_path.read_bytes()).hexdigest()
-        if actual.lower() != expected.lower():
-            print(f"[ERROR] hash mismatch: {rel(root, file_path)} expected={expected} actual={actual}")
+        package_root_raw = str(data.get("package_root", "")).strip()
+        executable_raw = str(data.get("executable", "")).strip()
+        package_root = root / package_root_raw if package_root_raw else descriptor.parent
+        executable = package_root / executable_raw if executable_raw else None
+        expected_hash = str(data.get("expected_sha256", "")).strip().lower()
+        expected_size = int(data.get("expected_size_bytes", 0) or 0)
+        if executable is None or not executable.exists():
+            print(f"[ERROR] missing vendor payload: {rel(root, executable or package_root)}")
             ok = False
-        else:
-            print(f"[OK] hash: {rel(root, file_path)}")
+            continue
+        actual_size = executable.stat().st_size
+        actual_hash = _sha256(executable).lower()
+        if expected_size and actual_size != expected_size:
+            print(f"[ERROR] size mismatch: {rel(root, executable)} expected={expected_size} actual={actual_size}")
+            ok = False
+        if expected_hash and actual_hash != expected_hash:
+            print(f"[ERROR] hash mismatch: {rel(root, executable)} expected={expected_hash} actual={actual_hash}")
+            ok = False
+        if (not expected_size or actual_size == expected_size) and (not expected_hash or actual_hash == expected_hash):
+            print(f"[OK] payload: {rel(root, executable)}")
+    for legacy_root in LEGACY_VENDOR_ROOTS:
+        legacy_path = root / legacy_root
+        if legacy_path.exists():
+            print(f"[ERROR] legacy GNUWin32 vault still exists: {rel(root, legacy_path)}")
+            ok = False
     return ok
+
+
+def json_tool_id(path: Path) -> str:
+    try:
+        import json
+        return str(json.loads(path.read_text(encoding="utf-8")).get("id", ""))
+    except Exception:
+        return ""
 
 
 def windows_short_path(path: Path) -> str:
@@ -69,8 +141,8 @@ def windows_short_path(path: Path) -> str:
 
 
 def vendor_runtime_exe(root: Path, name: str) -> Path:
-    src_dir = root / BIN_ROOT
-    runtime = Path(tempfile.gettempdir()) / "northstar_gnuwin32_bin"
+    src_dir = tool_bin_dir(root, name)
+    runtime = Path(tempfile.gettempdir()) / f"northstar_gnuwin32_{_tool_slug(name)}_bin"
     legacy_bin = Path(tempfile.gettempdir()) / "bin"
     runtime.mkdir(parents=True, exist_ok=True)
     legacy_bin.mkdir(parents=True, exist_ok=True)
@@ -80,7 +152,7 @@ def vendor_runtime_exe(root: Path, name: str) -> Path:
         for dst in (runtime / src.name, legacy_bin / src.name):
             if not dst.exists() or dst.stat().st_size != src.stat().st_size or int(dst.stat().st_mtime) < int(src.stat().st_mtime):
                 shutil.copy2(src, dst)
-    return runtime / (name if name.lower().endswith(".exe") else f"{name}.exe")
+    return runtime / _exe_name(name)
 
 
 def run_vendor_command(command: list[str], *, cwd: Path, capture: bool = False) -> subprocess.CompletedProcess[str]:

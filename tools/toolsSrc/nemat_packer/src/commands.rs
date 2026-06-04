@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
+use crate::diagnostics;
 
 use serde_json::json;
 
@@ -7,6 +8,11 @@ use crate::{
     args::{parse_args, required_input, required_output},
     help, material, nef8,
 };
+
+
+const TOOL_NAME: &str = "northstar-nemat-packer";
+const ACCEPTED_INPUTS: &str = "*.nemat.xml XMLtype material libraries and *.nemat NEF8 material libraries for inspect/validate/dump";
+const PRODUCED_OUTPUTS: &str = "*.nemat runtime NEF8 material library; *.nemat.xml/XML dumps; JSON manifest/graph projections";
 
 pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
     if raw_args.is_empty() {
@@ -27,6 +33,14 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
         "dump-xml" | "dump-xmltype" => run_dump_xml(&raw_args[1..]),
         "manifest" => run_manifest(&raw_args[1..]),
         "graph" | "dependencies" => run_graph(&raw_args[1..]),
+        "accepted-inputs" | "inputs" | "formats" => {
+            diagnostics::print_contract(TOOL_NAME, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+            Ok(())
+        }
+        "version" | "--version" | "-V" => {
+            diagnostics::print_version(TOOL_NAME);
+            Ok(())
+        }
         "help" | "--help" | "-h" => {
             help::print_help();
             help::wait_for_enter();
@@ -52,6 +66,9 @@ fn run_pack(args: &[String]) -> Result<(), String> {
     let cfg = parse_args(args)?;
     let input = required_input(&cfg)?;
     let output = required_output(&cfg, "pack", "file.nemat")?;
+    diagnostics::print_operation(TOOL_NAME, "pack", cfg.debug, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+    diagnostics::print_debug_value(cfg.debug, "input", input.display());
+    diagnostics::print_debug_value(cfg.debug, "output", output.display());
     let xml = read_xml_any(&input)?;
     let library = material::parse_material_xml(&xml)?;
     let logical = cfg.logical_path.unwrap_or_else(|| logical_asset_path(&cfg.root, &output));

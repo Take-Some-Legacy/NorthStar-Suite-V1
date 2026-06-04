@@ -1,0 +1,20 @@
+{
+  "action_id": "gui.editor.doctor",
+  "group": "Editor",
+  "title": "Run NorthStar GUI Editor doctor",
+  "description": "Run runtime discovery diagnostics for the standalone NorthStar GUI Editor host shell.",
+  "command": "tools",
+  "args": [
+    "run",
+    "northstar.gui_editor",
+    "--",
+    "doctor",
+    "--root",
+    "$repo_root/EngineRepo/NewEngine"
+  ],
+  "requires_tools": ["northstar.gui_editor"],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

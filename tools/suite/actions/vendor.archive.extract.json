@@ -2,7 +2,7 @@
   "action_id": "vendor.archive.extract",
   "group": "Vendor Tools",
   "title": "Extract archive",
-  "description": "Run quarantined GNUWin32 archive wrapper to extract into an output directory. This action requires CLI arguments.",
+  "description": "Run self-contained third-party GNUWin32 archive wrapper to extract into an output directory. This action requires CLI arguments.",
   "command": "tar-extract",
   "args": [],
   "requires_tools": [

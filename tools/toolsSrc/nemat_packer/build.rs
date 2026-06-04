@@ -1,10 +1,26 @@
+#[cfg(target_os = "windows")]
 fn main() {
-    #[cfg(windows)]
-    {
-        let mut res = winres::WindowsResource::new();
-        res.set("FileDescription", "North Star NEMAT material library tool");
-        res.set("ProductName", "North Star Engine Tools");
-        res.set("OriginalFilename", "northstar-nemat-packer.exe");
-        let _ = res.compile();
+    let version = env!("CARGO_PKG_VERSION");
+    let icon_path = "../icons/northstar-nemat-packer.ico";
+
+    println!("cargo:rerun-if-changed={icon_path}");
+
+    let mut resource = winres::WindowsResource::new();
+    resource.set_icon(icon_path);
+    resource.set("CompanyName", "Take Some");
+    resource.set("FileDescription", "North Star NEMAT material library tool");
+    resource.set("FileVersion", version);
+    resource.set("InternalName", "northstar-nemat-packer");
+    resource.set("LegalCopyright", "Copyright (c) Take Some");
+    resource.set("OriginalFilename", "northstar-nemat-packer.exe");
+    resource.set("ProductName", "North Star Engine Tools");
+    resource.set("ProductVersion", version);
+    resource.set_language(0x0409);
+
+    if let Err(err) = resource.compile() {
+        panic!("failed to compile Windows resources for northstar-nemat-packer: {err}");
     }
 }
+
+#[cfg(not(target_os = "windows"))]
+fn main() {}

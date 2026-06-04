@@ -1,7 +1,7 @@
 {
   "schema": "takesome.tool.v2",
   "id": "northstar.nemat_packer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "name": "North Star NEMAT Packer",
   "description": "NEF8 .nemat material library packer/inspector/validator and dependency graph tool.",
   "kind": "rust-cli",
@@ -22,6 +22,20 @@
         "--help"
       ],
       "description": "Print tool usage."
+    },
+    {
+      "id": "version",
+      "args": [
+        "version"
+      ],
+      "description": "Print tool version."
+    },
+    {
+      "id": "accepted-inputs",
+      "args": [
+        "accepted-inputs"
+      ],
+      "description": "Print accepted input and output file contract."
     }
   ],
   "capabilities": [
@@ -31,5 +45,5 @@
     "validation.material_texture_refs",
     "validation.nef8_hash"
   ],
-  "sha256": "919a3bde43bc5f12da6c1fd88b0c4e55b8a89ea79a2835eee2316a3a65d2ff79"
+  "sha256": "1fbc4dfdd2ca0c25937ceb6b252a94241db7c216ca86eb12b44567cf20d8e8df"
 }

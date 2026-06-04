@@ -1,7 +1,13 @@
 use std::fs;
 use std::path::{Path, PathBuf};
+use crate::diagnostics;
 
 use crate::{args::{parse_args, required_input, required_output, required_sources}, help, model, nef8};
+
+
+const TOOL_NAME: &str = "northstar-ydd-packer";
+const ACCEPTED_INPUTS: &str = "*.obj, *.gltf, *.glb, ASCII *.fbx model sources; *.ydd for inspect/list/validate/dump-body";
+const PRODUCED_OUTPUTS: &str = "*.ydd runtime NEF8 drawable dictionary; *.yddbody body dumps";
 
 pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
     if raw_args.is_empty() {
@@ -20,6 +26,14 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
         "list" => run_list(&raw_args[1..]),
         "validate" | "doctor" => run_validate(&raw_args[1..]),
         "dump-body" => run_dump_body(&raw_args[1..]),
+        "accepted-inputs" | "inputs" | "formats" => {
+            diagnostics::print_contract(TOOL_NAME, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+            Ok(())
+        }
+        "version" | "--version" | "-V" => {
+            diagnostics::print_version(TOOL_NAME);
+            Ok(())
+        }
         "help" | "--help" | "-h" => {
             help::print_help();
             help::wait_for_enter();
@@ -33,6 +47,10 @@ fn run_pack(args: &[String]) -> Result<(), String> {
     let cfg = parse_args(args)?;
     let sources = required_sources(&cfg, "pack")?;
     let output = required_output(&cfg, "pack", "file.ydd")?;
+    diagnostics::print_operation(TOOL_NAME, "pack", cfg.debug, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+    diagnostics::print_debug_value(cfg.debug, "source_count", sources.len());
+    for source in &sources { diagnostics::print_debug_value(cfg.debug, "source", source.display()); }
+    diagnostics::print_debug_value(cfg.debug, "output", output.display());
     let import_options = model::ImportOptions::from(&cfg);
     let dictionary = model::import_sources(&sources, &import_options)?;
     let logical = nef8::normalize_logical_path(&output.to_string_lossy());

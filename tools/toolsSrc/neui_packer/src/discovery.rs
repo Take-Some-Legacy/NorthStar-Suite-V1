@@ -52,9 +52,19 @@ pub fn discover_neui_assets(root: &Path) -> Result<Vec<PathBuf>, String> {
 pub fn target_path_for_xml(root: &Path, source: &Path) -> PathBuf {
     let name = source.file_name().and_then(|it| it.to_str()).unwrap_or("generated.neui.xml");
     let target_name = name.strip_suffix(".neui.xml").map(|stem| format!("{stem}.neui")).unwrap_or_else(|| "generated.neui".to_owned());
-    source.with_file_name(&target_name).strip_prefix(root).map(|p| root.join(p)).unwrap_or_else(|_| asset_root(root).join(target_name))
+    let replaced = source.with_file_name(&target_name);
+    let asset_root = ui_asset_root(root);
+    if let Ok(rel) = replaced.strip_prefix(&asset_root) {
+        let mut out = PathBuf::new();
+        for part in rel.components() {
+            if part.as_os_str() != "src" {
+                out.push(part.as_os_str());
+            }
+        }
+        return asset_root.join(out);
+    }
+    replaced.strip_prefix(root).map(|p| root.join(p)).unwrap_or_else(|_| asset_root.join(target_name))
 }
-
 pub fn absolutize(root: &Path, path: &Path) -> PathBuf {
     if path.is_absolute() { path.to_path_buf() } else { root.join(path) }
 }
@@ -104,9 +114,4 @@ fn visit(path: &Path, out: &mut Vec<PathBuf>, suffix: &str) -> Result<(), String
 fn ui_asset_root(root: &Path) -> PathBuf {
     let nested = root.join("EngineRepo/NewEngine/neocore2/assets/ui");
     if nested.exists() { nested } else { root.join("NewEngine/neocore2/assets/ui") }
-}
-
-fn asset_root(root: &Path) -> PathBuf {
-    let nested = root.join("EngineRepo/NewEngine/neocore2/assets");
-    if nested.exists() { nested } else { root.join("NewEngine/neocore2/assets") }
 }

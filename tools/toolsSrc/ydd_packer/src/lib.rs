@@ -1,5 +1,6 @@
 pub mod args;
 pub mod commands;
+pub mod diagnostics;
 pub mod drawable;
 pub mod fbx;
 pub mod gltf;

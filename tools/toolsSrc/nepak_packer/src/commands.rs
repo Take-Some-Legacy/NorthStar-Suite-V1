@@ -1,4 +1,5 @@
 use std::fs;
+use crate::diagnostics;
 
 use crate::{
     args::{parse_args, required_input, required_output},
@@ -6,6 +7,11 @@ use crate::{
     help,
     nepak,
 };
+
+
+const TOOL_NAME: &str = "northstar-nepak-packer";
+const ACCEPTED_INPUTS: &str = "directory trees and opaque loose files for pack; *.nepak for inspect/validate/extract";
+const PRODUCED_OUTPUTS: &str = "*.nepak VFS container; extracted directory trees";
 
 pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
     if raw_args.is_empty() {
@@ -23,6 +29,14 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
         "extract" | "unpack" => run_extract(&raw_args[1..]),
         "inspect" | "parse" => run_inspect(&raw_args[1..]),
         "validate" | "doctor" => run_validate(&raw_args[1..]),
+        "accepted-inputs" | "inputs" | "formats" => {
+            diagnostics::print_contract(TOOL_NAME, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+            Ok(())
+        }
+        "version" | "--version" | "-V" => {
+            diagnostics::print_version(TOOL_NAME);
+            Ok(())
+        }
         "help" | "--help" | "-h" => {
             help::print_help();
             help::wait_for_enter();
@@ -37,6 +51,10 @@ fn run_pack(args: &[String]) -> Result<(), String> {
     let input = required_input(&cfg, "pack")?;
     let output = required_output(&cfg, "pack")?;
     let sources = fswalk::collect_sources(&input)?;
+    diagnostics::print_operation(TOOL_NAME, "pack", cfg.debug, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+    diagnostics::print_debug_value(cfg.debug, "input", input.display());
+    diagnostics::print_debug_value(cfg.debug, "output", output.display());
+    diagnostics::print_debug_value(cfg.debug, "source_count", sources.len());
     nepak::pack_sources(&sources, &output, !cfg.no_compress)?;
     println!("[OK] built NEPAK package: {} entries={}", output.display(), sources.len());
     Ok(())

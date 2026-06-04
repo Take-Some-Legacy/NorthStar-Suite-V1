@@ -24,6 +24,9 @@ from .ytd_build import ytd_build_command
 from .ytd_inspect import ytd_inspect_command
 from .ytd_validate import ytd_validate_command
 from .ytd_extract import ytd_extract_command
+from .ytyp_build import ytyp_build_command
+from .ytyp_inspect import ytyp_inspect_command
+from .ytyp_validate import ytyp_validate_command
 from .vendor_gnuwin32 import (
     diff_files_command,
     diff3_files_command,
@@ -40,6 +43,8 @@ from .vendor_gnuwin32 import (
 from .workspace_registry import workspace_registry_command
 from .workspace_health import workspace_health_command
 from .suite_shell import suite_command
+from .third_party_tests import third_party_test_all_command
+from .first_party_tests import first_party_test_all_command
 from .suite.approval import apply_sudo_from_args
 from .endless.cli import endless_stream_command
 
@@ -210,7 +215,20 @@ def main(argv: list[str]) -> int:
     p.add_argument("--output", "-o", default="", help="Output directory. Defaults to .takesome/extract/ytd.")
     p.add_argument("--entry", default="", help="Optional texture entry name to extract.")
 
+    p = sub.add_parser("build-ytyp", help="Compile XML-first .ytyp.xml metadata sources into NEF8 .ytyp runtime assets.")
+    p.add_argument("--input", "-i", default="", help="Single .ytyp.xml source. Defaults to --all.")
+    p.add_argument("--output", "-o", default="", help="Output .ytyp path for a single input.")
+    p.add_argument("--check", action="store_true", help="Validate and print planned outputs without writing .ytyp files.")
+
+    p = sub.add_parser("inspect-ytyp", help="Inspect a NEF8 .ytyp generic XML metadata file and print JSON.")
+    p.add_argument("--input", "-i", default="", help="Input .ytyp file. Defaults to first discovered metadata asset.")
+
+    p = sub.add_parser("validate-ytyp", help="Validate .ytyp.xml and .ytyp generic metadata assets.")
+    p.add_argument("--input", "-i", default="", help="Single .ytyp.xml or .ytyp file. Defaults to discovered metadata assets.")
+
     p = sub.add_parser("vendor-gnuwin32-doctor", help="Validate quarantined GNUWin32 vendor tools and hashes.")
+    p = sub.add_parser("third-party-test-all", help="Run all third-party package smoke tests through tools/toolbelt/third_party/testAll.bat.")
+    p = sub.add_parser("first-party-test-all", help="Run all first-party package smoke tests through tools/toolbelt/first_party/testAll.bat.")
 
     p = sub.add_parser("diff-files", help="Run vendor GNU diff as a safe unified diff wrapper.")
     p.add_argument("--left", required=True, help="Left/before file path.")
@@ -348,8 +366,19 @@ def main(argv: list[str]) -> int:
     if ns.command == "extract-ytd":
         return ytd_extract_command(root, ns)
 
+    if ns.command == "build-ytyp":
+        return ytyp_build_command(root, ns)
+    if ns.command == "inspect-ytyp":
+        return ytyp_inspect_command(root, ns)
+    if ns.command == "validate-ytyp":
+        return ytyp_validate_command(root, ns)
+
     if ns.command == "vendor-gnuwin32-doctor":
         return vendor_gnuwin32_doctor_command(root, ns)
+    if ns.command == "third-party-test-all":
+        return third_party_test_all_command(root, ns)
+    if ns.command == "first-party-test-all":
+        return first_party_test_all_command(root, ns)
     if ns.command == "diff-files":
         return diff_files_command(root, ns)
     if ns.command == "sdiff-files":

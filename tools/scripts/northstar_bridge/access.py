@@ -5,15 +5,17 @@ import os
 import secrets
 import hashlib
 from pathlib import Path
+
+from .contracts import bridge_suite_root
 from typing import Any
 
 from . import oauth
 
-TOKEN_REL = Path(".takesome/authority/bridge_access_token.txt")
+TOKEN_REL = Path("authority/bridge_access_token.txt")
 
 
 def token_path(root: Path) -> Path:
-    return root / TOKEN_REL
+    return bridge_suite_root(root) / TOKEN_REL
 
 
 def ensure_token(root: Path) -> str:

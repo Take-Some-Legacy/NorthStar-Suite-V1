@@ -1,0 +1,58 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.hasher",
+  "version": "1.0.0",
+  "name": "Hasher",
+  "description": "Third-party workspace utility for hashing name lists and optionally matching a supplied hexadecimal hash code.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "third-party",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/hasher",
+  "executable": "bin/hasher.exe",
+  "install_path": "tools/toolbelt/third_party/hasher/bin/hasher.exe",
+  "expected_sha256": "59f8a5ac10fb2c718068b363ea1dd512a22693f5e80ed2579e3d63c52d465b8d",
+  "expected_size_bytes": 59904,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "workspace.hash.names",
+    "workspace.hash.lookup",
+    "content_pipeline.hash_probe"
+  ],
+  "commands": [
+    {
+      "id": "help",
+      "description": "Print tool usage. This tool prints usage when launched without arguments.",
+      "args": []
+    },
+    {
+      "id": "hash-list",
+      "description": "Hash every name in a text file containing one name per line.",
+      "args_schema": [
+        { "name": "stripext", "flag": "-stripext", "required": false, "description": "Strip file extensions before hashing." },
+        { "name": "literal", "flag": "-literal", "required": false, "description": "Treat names literally." },
+        { "name": "filename", "position": 0, "required": true, "description": "Text file containing one name per line." },
+        { "name": "hashcode", "position": 1, "required": false, "description": "Optional hexadecimal hash code to match." }
+      ],
+      "example_args": ["names.txt"]
+    },
+    {
+      "id": "match-hash",
+      "description": "Try to match a supplied hexadecimal hash code against names from a text list.",
+      "args_schema": [
+        { "name": "filename", "position": 0, "required": true, "description": "Text file containing one name per line." },
+        { "name": "hashcode", "position": 1, "required": true, "description": "Hexadecimal hash code to match." }
+      ],
+      "example_args": ["names.txt", "DEADBEEF"]
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": []
+  },
+  "usage_file": "USAGE.txt",
+  "readme": "README.md"
+}

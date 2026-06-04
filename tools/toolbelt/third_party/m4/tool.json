@@ -1,0 +1,49 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.m4",
+  "version": "1.4.13-gnuwin32",
+  "name": "GNUWin32 m4",
+  "description": "Third-party GNUWin32 m4.exe executable packaged as an individual self-contained registry-visible tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU m4",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/m4",
+  "executable": "bin/m4.exe",
+  "install_path": "tools/toolbelt/third_party/m4/bin/m4.exe",
+  "expected_sha256": "f5caf93e4d101722a7d58f30b5e69acada6aea59fb639eee1173f341a3896645",
+  "expected_size_bytes": 179200,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "macro.process",
+    "workspace.text.macro",
+    "suite.vendor.m4"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU m4 version.",
+      "args": [
+        "--version"
+      ]
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/m4.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

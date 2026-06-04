@@ -1,5 +1,6 @@
 mod args;
 mod commands;
+mod diagnostics;
 mod help;
 mod material;
 mod nef8;

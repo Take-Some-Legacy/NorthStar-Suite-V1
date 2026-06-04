@@ -25,8 +25,17 @@ pub fn print_help() {
     println!("  --alpha-cutoff VALUE         Alpha cutoff for masked surfaces");
     println!("  --texture slot=path.ytd@entry  Add texture binding. Can be repeated");
     println!("  --param name:type=value      Add typed param. Types: float,float2,float3,float4,int,bool,color,enum,texture_ref");
+    println!();
+    println!("Common commands:");
+    println!("  pack/build/compile/create/import     Build a runtime asset where supported.");
+    println!("  inspect | validate | doctor          Inspect or validate an existing runtime asset.");
+    println!("  accepted-inputs                      Print accepted input/output contract.");
+    println!("  version                              Print tool version.");
+    println!();
+    println!("Accepted input files: *.nemat.xml XMLtype material libraries and *.nemat NEF8 material libraries for inspect/validate/dump");
+    println!("Produced output files: *.nemat runtime NEF8 material library; *.nemat.xml/XML dumps; JSON manifest/graph projections");
+    println!("Output modes: default production output; add --debug or --verbose for debug diagnostics.");
 }
-
 pub fn wait_for_enter() {
     println!("\nThis tool works through arguments. Press Enter to close...");
     let mut line = String::new();

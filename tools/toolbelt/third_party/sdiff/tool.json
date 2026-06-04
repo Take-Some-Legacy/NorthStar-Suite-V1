@@ -1,0 +1,55 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.sdiff",
+  "version": "2.8.7-gnuwin32",
+  "name": "GNUWin32 sdiff",
+  "description": "Third-party GNUWin32 sdiff.exe executable packaged as an individual self-contained registry-visible tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU diffutils",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/sdiff",
+  "executable": "bin/sdiff.exe",
+  "install_path": "tools/toolbelt/third_party/sdiff/bin/sdiff.exe",
+  "expected_sha256": "e471e4063ac7771ab642483b8566d62a611d64dae53cd61782e10088a196a252",
+  "expected_size_bytes": 61952,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "text.diff.side_by_side",
+    "workspace.compare.side_by_side",
+    "suite.vendor.sdiff"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU sdiff version.",
+      "args": [
+        "--version"
+      ]
+    },
+    {
+      "id": "side-by-side-diff",
+      "description": "Compare two files through the Suite wrapper.",
+      "suite_command": "sdiff-files"
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/sdiff.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll",
+    "bin/diff.exe"
+  ]
+}

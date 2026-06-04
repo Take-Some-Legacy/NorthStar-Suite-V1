@@ -23,8 +23,17 @@ Notes:
   This tool stores validated font source bytes and metadata in a native font dictionary.
   It does not shape text, rasterize glyphs, or depend on a renderer/text backend.
 "#);
+    println!();
+    println!("Common commands:");
+    println!("  pack/build/compile/create/import     Build a runtime asset where supported.");
+    println!("  inspect | validate | doctor          Inspect or validate an existing runtime asset.");
+    println!("  accepted-inputs                      Print accepted input/output contract.");
+    println!("  version                              Print tool version.");
+    println!();
+    println!("Accepted input files: *.ttf, *.otf, *.ttc, *.woff, *.woff2 font sources; *.neftd for inspect/list/validate/extract");
+    println!("Produced output files: *.neftd runtime NEF8 font dictionary; extracted *.fontbin payloads");
+    println!("Output modes: default production output; add --debug or --verbose for debug diagnostics.");
 }
-
 pub fn wait_for_enter() {
     if io::stdin().is_terminal() {
         println!("Press Enter to close...");

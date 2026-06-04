@@ -1,6 +1,6 @@
 [package]
 name = "northstar-ytd-packer"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 build = "build.rs"
 description = "North Star XML-free YTD/NEF8 texture dictionary packer and extractor"

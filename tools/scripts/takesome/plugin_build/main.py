@@ -8,7 +8,7 @@ from ..console import colorize_script_line
 from ..logs import TeeLog, pause_on_error
 from ..incidents import emit_incident_console_lines, write_incident_bundle
 from ..migration import apply_delete_list
-from ..paths import now_stamp, rel, utc_iso
+from ..paths import engine_core_root, now_stamp, plugins_root, rel, utc_iso
 from ..progress import progress_configure, progress_update
 from ..selection import exclusive_choice_kind, split_choice_tokens, unique_casefolded
 from ..tools import validate_build_tools

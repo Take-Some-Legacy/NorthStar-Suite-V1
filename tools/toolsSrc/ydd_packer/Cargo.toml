@@ -1,6 +1,6 @@
 [package]
 name = "northstar-ydd-packer"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 build = "build.rs"
 description = "North Star NEF8/ListFile drawable dictionary importer for OBJ, glTF, GLB and FBX sources"

@@ -1,0 +1,80 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.sed",
+  "version": "4.2.1-gnuwin32",
+  "name": "GNUWin32 sed",
+  "description": "Third-party GNU sed executable packaged as an individual registry-visible stream-edit tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU sed",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/sed",
+  "executable": "bin/sed.exe",
+  "install_path": "tools/toolbelt/third_party/sed/bin/sed.exe",
+  "expected_sha256": "5c2e7c4e79b2af04f09ddec2b01bc68de99761a149e90a37319f515682843116",
+  "expected_size_bytes": 77824,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "text.transform.stream",
+    "workspace.edit.checkable",
+    "suite.vendor.sed"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU sed version.",
+      "args": [
+        "--version"
+      ]
+    },
+    {
+      "id": "stream-edit-file",
+      "description": "Transform one file through the Suite wrapper.",
+      "suite_command": "sed-file",
+      "args_schema": [
+        {
+          "name": "script",
+          "flag": "--script",
+          "required": true,
+          "description": "sed -e script."
+        },
+        {
+          "name": "input",
+          "flag": "--input",
+          "required": true,
+          "description": "Input text file."
+        },
+        {
+          "name": "output",
+          "flag": "--output",
+          "required": true,
+          "description": "Output text file."
+        },
+        {
+          "name": "check",
+          "flag": "--check",
+          "required": false,
+          "description": "Print transformed output without writing."
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/sed.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

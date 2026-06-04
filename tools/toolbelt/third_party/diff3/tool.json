@@ -1,0 +1,49 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.diff3",
+  "version": "2.8.7-gnuwin32",
+  "name": "GNUWin32 diff3",
+  "description": "Third-party GNU diff3 executable packaged as an individual registry-visible three-way comparison tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU diffutils",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/diff3",
+  "executable": "bin/diff3.exe",
+  "install_path": "tools/toolbelt/third_party/diff3/bin/diff3.exe",
+  "expected_sha256": "d770ac96fa4fabc42a2da04f897febf07c6794e4a6d5e4c1b64f23b039916cf8",
+  "expected_size_bytes": 59392,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "text.diff.three_way",
+    "workspace.compare.three_way",
+    "suite.vendor.diff3"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU diff3 version.",
+      "args": [
+        "--version"
+      ]
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/diff3.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

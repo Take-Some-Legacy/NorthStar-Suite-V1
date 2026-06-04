@@ -1,7 +1,7 @@
 {
   "schema": "takesome.tool.v2",
   "id": "northstar.ydd_packer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "name": "North Star YDD Packer",
   "description": "Resident NEF8 ListFile .ydd drawable dictionary packer/inspector/validator.",
   "kind": "rust-cli",
@@ -22,6 +22,20 @@
         "--help"
       ],
       "description": "Print tool usage."
+    },
+    {
+      "id": "version",
+      "args": [
+        "version"
+      ],
+      "description": "Print tool version."
+    },
+    {
+      "id": "accepted-inputs",
+      "args": [
+        "accepted-inputs"
+      ],
+      "description": "Print accepted input and output file contract."
     }
   ],
   "capabilities": [
@@ -32,5 +46,5 @@
     "model.import.glb",
     "model.import.fbx.placeholder"
   ],
-  "sha256": "ed2d36c5e0ce34ae02e19abaa8ff8becc8954deb8a6168eb6fa1ec4e1f540688"
+  "sha256": "70a448722e24910f7e130b6fd303ca4ab13e93ac2099990180f4b731469a20fc"
 }

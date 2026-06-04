@@ -1,0 +1,54 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.tail",
+  "version": "5.3.0-gnuwin32",
+  "name": "GNUWin32 tail",
+  "description": "Third-party GNUWin32 tail.exe executable packaged as an individual self-contained registry-visible tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU coreutils",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/tail",
+  "executable": "bin/tail.exe",
+  "install_path": "tools/toolbelt/third_party/tail/bin/tail.exe",
+  "expected_sha256": "9d62a3482efe6e11de2878ba3002546eae690fe23985e8492c7f6895fb3a2984",
+  "expected_size_bytes": 88064,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "text.tail.lines",
+    "diagnostics.log.tail",
+    "suite.vendor.tail"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU tail version.",
+      "args": [
+        "--version"
+      ]
+    },
+    {
+      "id": "tail-file",
+      "description": "Read bounded last lines through the Suite wrapper.",
+      "suite_command": "tail-file"
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/tail.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

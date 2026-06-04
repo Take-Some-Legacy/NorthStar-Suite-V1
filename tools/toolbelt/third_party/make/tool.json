@@ -1,0 +1,49 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.make",
+  "version": "3.81-gnuwin32",
+  "name": "GNUWin32 make",
+  "description": "Third-party GNUWin32 make.exe executable packaged as an individual self-contained registry-visible tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU Make",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/make",
+  "executable": "bin/make.exe",
+  "install_path": "tools/toolbelt/third_party/make/bin/make.exe",
+  "expected_sha256": "19e41b7f9b99773b5c6f2b93426cc525f6b63c461cc034a17f6b6263d8d54557",
+  "expected_size_bytes": 175104,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "build.make",
+    "workspace.build.external",
+    "suite.vendor.make"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU make version.",
+      "args": [
+        "--version"
+      ]
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/make.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

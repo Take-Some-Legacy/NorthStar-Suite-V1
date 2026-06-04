@@ -1,0 +1,1 @@
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\ddsinfo\test\..\testData\test.dds 512 x 512 x 1 DXT1

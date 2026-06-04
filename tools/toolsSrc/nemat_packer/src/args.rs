@@ -15,6 +15,7 @@ pub struct CommonArgs {
     pub textures: Vec<String>,
     pub params: Vec<String>,
     pub pretty: bool,
+    pub debug: bool,
 }
 
 pub fn parse_args(args: &[String]) -> Result<CommonArgs, String> {
@@ -69,6 +70,7 @@ pub fn parse_args(args: &[String]) -> Result<CommonArgs, String> {
                 out.params.push(args.get(i).ok_or("--param requires name:type=value")?.clone());
             }
             "--pretty" => out.pretty = true,
+            "--debug" | "--verbose" => out.debug = true,
             "--help" | "-h" => return Err("help requested".to_owned()),
             other => return Err(format!("unknown argument '{other}'")),
         }

@@ -1,0 +1,13 @@
+{
+  "action_id": "ytyp.build",
+  "group": "Metadata",
+  "title": "Build YTYP metadata",
+  "description": "Compile XML-first .ytyp.xml metadata sources into NEF8 .ytyp runtime assets.",
+  "command": "build-ytyp",
+  "args": [],
+  "requires_tools": ["northstar.ytyp_packer"],
+  "requires_workspace": ["script_env"],
+  "outputs": ["**/*.ytyp"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

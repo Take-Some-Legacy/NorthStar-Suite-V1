@@ -1,0 +1,3 @@
+player_zero
+weapon_alpha
+vehicle_beta

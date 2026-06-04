@@ -7,6 +7,14 @@ from pathlib import Path
 ENGINE_REPO_ENV = "NORTHSTAR_ENGINE_REPO"
 LEGACY_REPO_ENV = "NEWENGINE_REPO_ROOT"
 SUITE_ROOT_ENVS = ("NORTHSTAR_SUITE_ROOT", "NEWENGINE_SUITE_ROOT", "TAKESOME_SUITE_ROOT")
+DEFAULT_EXTERNAL_SUITE_ROOTS = (Path(r"D:\\TakeSomeData"),)
+
+
+def _valid_external_suite_root(path: Path) -> bool:
+    try:
+        return path.exists() and path.is_dir() and (path / "dataSet").exists()
+    except OSError:
+        return False
 
 
 def repo_root_from_script() -> Path:
@@ -89,6 +97,9 @@ def suite_root(project_root: Path) -> Path:
         env = os.environ.get(name)
         if env:
             return Path(env).expanduser().resolve()
+    for candidate in DEFAULT_EXTERNAL_SUITE_ROOTS:
+        if _valid_external_suite_root(candidate):
+            return candidate.resolve()
     return project_root.resolve() / ".takesome"
 
 

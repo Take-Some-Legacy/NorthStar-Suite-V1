@@ -16,8 +16,17 @@ pub fn print_help() {
     println!("  northstar-ytyp-packer manifest --input assets/meta/item.ytyp");
     println!("  northstar-ytyp-packer dump-metadata --input assets/meta/item.ytyp");
     println!("  northstar-ytyp-packer dump-dependencies --input assets/meta/item.ytyp");
+    println!();
+    println!("Common commands:");
+    println!("  pack/build/compile/create/import     Build a runtime asset where supported.");
+    println!("  inspect | validate | doctor          Inspect or validate an existing runtime asset.");
+    println!("  accepted-inputs                      Print accepted input/output contract.");
+    println!("  version                              Print tool version.");
+    println!();
+    println!("Accepted input files: *.ytyp.xml generic metadata XML sources; *.ytyp NEF8 metadata assets for inspect/validate/dump");
+    println!("Produced output files: *.ytyp runtime NEF8 metadata dictionary; XML dumps; JSON manifest/metadata/dependency projections");
+    println!("Output modes: default production output; add --debug or --verbose for debug diagnostics.");
 }
-
 pub fn wait_for_enter() {
     println!();
     println!("This tool works through arguments. Press Enter to close...");

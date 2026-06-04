@@ -1,0 +1,67 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.ddsinfo",
+  "version": "1.0.0",
+  "name": "ddsinfo",
+  "description": "Third-party DDS inspection utility for dimensions, compression and recursive directory scans.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "third-party",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/ddsinfo",
+  "executable": "bin/ddsinfo.exe",
+  "install_path": "tools/toolbelt/third_party/ddsinfo/bin/ddsinfo.exe",
+  "expected_sha256": "650673524142434da0d230a1c01c258affe4355c3de2e6dfc7a2270eb2f0cd47",
+  "expected_size_bytes": 122880,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "assets.texture.dds.inspect",
+    "assets.texture.dds.dimensions",
+    "assets.texture.dds.compression",
+    "workspace.image.scan"
+  ],
+  "commands": [
+    {
+      "id": "help",
+      "description": "Print usage information.",
+      "args": [
+        "--help"
+      ]
+    },
+    {
+      "id": "inspect",
+      "description": "Inspect DDS files or directories.",
+      "example_args": [
+        "-r",
+        "-c",
+        "-d",
+        "."
+      ]
+    },
+    {
+      "id": "dimensions",
+      "description": "Display image dimensions.",
+      "args": [
+        "--dimensions"
+      ]
+    },
+    {
+      "id": "compression",
+      "description": "Display DDS compression method.",
+      "args": [
+        "--compression"
+      ]
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--help"
+    ]
+  },
+  "usage_file": "USAGE.txt",
+  "readme": "README.md"
+}

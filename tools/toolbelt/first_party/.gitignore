@@ -1,0 +1,3 @@
+.testAll/
+**/test/_out/
+**/bin/proof.*

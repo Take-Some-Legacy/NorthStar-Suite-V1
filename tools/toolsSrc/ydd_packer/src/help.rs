@@ -34,8 +34,17 @@ Examples:
   northstar-ydd-packer list -i assets/models/ped.ydd
   northstar-ydd-packer inspect -i assets/models/ped.ydd
 "#);
+    println!();
+    println!("Common commands:");
+    println!("  pack/build/compile/create/import     Build a runtime asset where supported.");
+    println!("  inspect | validate | doctor          Inspect or validate an existing runtime asset.");
+    println!("  accepted-inputs                      Print accepted input/output contract.");
+    println!("  version                              Print tool version.");
+    println!();
+    println!("Accepted input files: *.obj, *.gltf, *.glb, ASCII *.fbx model sources; *.ydd for inspect/list/validate/dump-body");
+    println!("Produced output files: *.ydd runtime NEF8 drawable dictionary; *.yddbody body dumps");
+    println!("Output modes: default production output; add --debug or --verbose for debug diagnostics.");
 }
-
 pub fn wait_for_enter() {
     if io::stdin().is_terminal() {
         println!("Press Enter to close...");

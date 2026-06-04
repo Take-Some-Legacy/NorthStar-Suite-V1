@@ -1,0 +1,49 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.funzip",
+  "version": "5.51-gnuwin32",
+  "name": "GNUWin32 funzip",
+  "description": "Third-party GNUWin32 funzip.exe executable packaged as an individual self-contained registry-visible tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/Info-ZIP",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/funzip",
+  "executable": "bin/funzip.exe",
+  "install_path": "tools/toolbelt/third_party/funzip/bin/funzip.exe",
+  "expected_sha256": "4cc730d499facea248ed155098a1ac0489ebb30e8d4904ed6e494f64bec2a15b",
+  "expected_size_bytes": 24576,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "archive.zip.stream_extract",
+    "workspace.archive.inspect",
+    "suite.vendor.funzip"
+  ],
+  "commands": [
+    {
+      "id": "help",
+      "description": "Print funzip help output.",
+      "args": [
+        "--help"
+      ]
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--help"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/funzip.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

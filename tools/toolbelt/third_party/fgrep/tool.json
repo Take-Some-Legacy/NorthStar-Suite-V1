@@ -1,0 +1,49 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.fgrep",
+  "version": "2.5.4-gnuwin32",
+  "name": "GNUWin32 fgrep",
+  "description": "Third-party GNU fgrep executable packaged as an individual registry-visible fixed-string search tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU grep",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/fgrep",
+  "executable": "bin/fgrep.exe",
+  "install_path": "tools/toolbelt/third_party/fgrep/bin/fgrep.exe",
+  "expected_sha256": "a3936f34f15a7debcca2d02807bee120922de3169c42adf129c46bc29661e492",
+  "expected_size_bytes": 55296,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "text.search.fixed_string",
+    "workspace.search.files",
+    "suite.vendor.fgrep"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU fgrep version.",
+      "args": [
+        "--version"
+      ]
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/fgrep.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

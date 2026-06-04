@@ -4,7 +4,7 @@ import json
 import shutil
 from pathlib import Path
 
-from ..paths import suite_path
+from ..paths import engine_core_root, plugins_root, suite_path
 
 
 def manifest(root: Path) -> dict:

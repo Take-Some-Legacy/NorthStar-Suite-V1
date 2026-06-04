@@ -1,4 +1,5 @@
 use std::fs;
+use crate::diagnostics;
 
 use northstar_neui_packer::{
     binding_plan_projection_json, compiled_document_projection_json, dependencies, entry_names,
@@ -6,6 +7,11 @@ use northstar_neui_packer::{
 };
 
 use crate::{args::{parse_args, required_input}, discovery, help};
+
+
+const TOOL_NAME: &str = "northstar-neui-packer";
+const ACCEPTED_INPUTS: &str = "*.neui.xml XML UI dictionaries; *.neui NEF8 UI dictionaries for inspect/validate/dump";
+const PRODUCED_OUTPUTS: &str = "*.neui runtime NEF8 UI dictionary; XML dumps; JSON manifest/binding/dependency projections";
 
 pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
     if raw_args.is_empty() {
@@ -27,6 +33,14 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
         "dump-compiled-document" => run_dump_compiled_document(&raw_args[1..]),
         "dump-binding-plan" => run_dump_binding_plan(&raw_args[1..]),
         "dump-dependencies" => run_dump_dependencies(&raw_args[1..]),
+        "accepted-inputs" | "inputs" | "formats" => {
+            diagnostics::print_contract(TOOL_NAME, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+            Ok(())
+        }
+        "version" | "--version" | "-V" => {
+            diagnostics::print_version(TOOL_NAME);
+            Ok(())
+        }
         "help" | "--help" | "-h" => {
             help::print_help();
             help::wait_for_enter();
@@ -53,6 +67,9 @@ fn run_compile(args: &[String]) -> Result<(), String> {
     }
 
     println!("[INFO] UI build started");
+    diagnostics::print_operation(TOOL_NAME, "compile", cfg.debug, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+    diagnostics::print_debug_value(cfg.debug, "root", root.display());
+    diagnostics::print_debug_value(cfg.debug, "source_count", xml_sources.len());
     for source in &xml_sources {
         let source_path = discovery::absolutize(&root, source);
         let target = cfg.output.clone().unwrap_or_else(|| discovery::target_path_for_xml(&root, &source_path));

@@ -1,6 +1,6 @@
 [package]
 name = "northstar-neftd-packer"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 build = "build.rs"
 description = "North Star .neftd NEF8 font dictionary packer"

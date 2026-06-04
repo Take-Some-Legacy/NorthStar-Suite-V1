@@ -1,6 +1,6 @@
 [package]
 name = "northstar-ytyp-packer"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 build = "build.rs"
 description = "North Star XML-first YTYP/NEF8 generic metadata dictionary packer"

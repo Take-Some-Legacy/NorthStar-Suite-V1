@@ -33,6 +33,9 @@ except Exception:  # pragma: no cover - bootstrap fallback
         return engine_repo_root(project_root) / "Plugins"
 
     def suite_root(project_root: Path) -> Path:
+        candidate = Path(r"D:\\TakeSomeData")
+        if candidate.exists() and candidate.is_dir() and (candidate / "dataSet").exists():
+            return candidate.resolve()
         return project_root.resolve() / ".takesome"
 
 
@@ -82,6 +85,8 @@ def _write_env_cmd(
         f"set \"NEWENGINE_PYTHON_CMD={_cmd_value(python_cmd)}\"",
         "set \"CARGO_TERM_COLOR=never\"",
         "set \"PYTHONUTF8=1\"",
+        f"set \"TEMP={_cmd_path(suite_dir / 'temp')}\"",
+        f"set \"TMP={_cmd_path(suite_dir / 'temp')}\"",
         "if not defined NEWENGINE_TERMINAL_TYPEWRITER set \"NEWENGINE_TERMINAL_TYPEWRITER=0\"",
         "if not defined NEWENGINE_TERMINAL_TYPEWRITER_DELAY_MS set \"NEWENGINE_TERMINAL_TYPEWRITER_DELAY_MS=0\"",
         "exit /b 0",
@@ -145,6 +150,8 @@ def main(argv: list[str]) -> int:
         plugin_dir.mkdir(parents=True, exist_ok=True)
         (plugin_dir / "codecs").mkdir(parents=True, exist_ok=True)
         suite_dir.mkdir(parents=True, exist_ok=True)
+        (suite_dir / "temp").mkdir(parents=True, exist_ok=True)
+        (suite_dir / "dataSet").mkdir(parents=True, exist_ok=True)
         if scan_and_cache_tools is not None:
             scan_and_cache_tools(project_root)
         _write_env_cmd(

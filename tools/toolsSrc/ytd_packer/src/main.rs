@@ -1,5 +1,6 @@
 mod args;
 mod commands;
+mod diagnostics;
 mod fixture_gen;
 mod help;
 mod nef8;

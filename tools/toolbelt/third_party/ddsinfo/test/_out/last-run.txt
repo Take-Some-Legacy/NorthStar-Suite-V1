@@ -1,0 +1,4 @@
+[OK] ddsinfo battle test passed
+exe=C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\ddsinfo\test\..\bin\ddsinfo.exe
+data=C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\ddsinfo\test\..\testData
+fixture=C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\ddsinfo\test\..\testData\test.dds

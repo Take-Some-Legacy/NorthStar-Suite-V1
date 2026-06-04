@@ -1,4 +1,5 @@
 use std::fs;
+use crate::diagnostics;
 
 use crate::{
     args::{parse_args, required_input},
@@ -6,6 +7,11 @@ use crate::{
     nef8::{inspect_ytyp_json, pack_ytyp_xml_to_nef8},
     xmlmeta::{dependencies, entry_names, manifest_json_for_metadata, metadata_projection_json, validate_metadata_xml},
 };
+
+
+const TOOL_NAME: &str = "northstar-ytyp-packer";
+const ACCEPTED_INPUTS: &str = "*.ytyp.xml generic metadata XML sources; *.ytyp NEF8 metadata assets for inspect/validate/dump";
+const PRODUCED_OUTPUTS: &str = "*.ytyp runtime NEF8 metadata dictionary; XML dumps; JSON manifest/metadata/dependency projections";
 
 pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
     if raw_args.is_empty() {
@@ -26,6 +32,14 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
         "dump-xml" | "dump-xmlmetadata" => run_dump_xml(&raw_args[1..]),
         "dump-metadata" => run_dump_metadata(&raw_args[1..]),
         "dump-dependencies" => run_dump_dependencies(&raw_args[1..]),
+        "accepted-inputs" | "inputs" | "formats" => {
+            diagnostics::print_contract(TOOL_NAME, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+            Ok(())
+        }
+        "version" | "--version" | "-V" => {
+            diagnostics::print_version(TOOL_NAME);
+            Ok(())
+        }
         "help" | "--help" | "-h" => {
             help::print_help();
             help::wait_for_enter();
@@ -52,6 +66,10 @@ fn run_compile(args: &[String]) -> Result<(), String> {
     }
 
     println!("[INFO] YTYP metadata build started");
+    diagnostics::print_operation(TOOL_NAME, "compile", cfg.debug, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+    diagnostics::print_debug_value(cfg.debug, "root", root.display());
+    diagnostics::print_debug_value(cfg.debug, "source_count", xml_sources.len());
+    for source in &xml_sources { diagnostics::print_debug_value(cfg.debug, "source", source.display()); }
     for source in &xml_sources {
         let source_path = discovery::absolutize(&root, source);
         let target = cfg.output.clone().unwrap_or_else(|| discovery::target_path_for_xml(&root, &source_path));

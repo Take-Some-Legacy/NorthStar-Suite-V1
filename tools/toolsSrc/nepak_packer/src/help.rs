@@ -28,8 +28,17 @@ Examples:
   northstar-nepak-packer validate -i builds/runtime.nepak
   northstar-nepak-packer extract -i builds/runtime.nepak -o .takesome/extract/nepak --overwrite
 "#);
+    println!();
+    println!("Common commands:");
+    println!("  pack/build/compile/create/import     Build a runtime asset where supported.");
+    println!("  inspect | validate | doctor          Inspect or validate an existing runtime asset.");
+    println!("  accepted-inputs                      Print accepted input/output contract.");
+    println!("  version                              Print tool version.");
+    println!();
+    println!("Accepted input files: directory trees and opaque loose files for pack; *.nepak for inspect/validate/extract");
+    println!("Produced output files: *.nepak VFS container; extracted directory trees");
+    println!("Output modes: default production output; add --debug or --verbose for debug diagnostics.");
 }
-
 pub fn wait_for_enter() {
     if io::stdin().is_terminal() {
         println!("Press Enter to close...");

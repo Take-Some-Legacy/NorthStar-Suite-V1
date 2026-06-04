@@ -1,7 +1,7 @@
 {
   "schema": "takesome.tool.v2",
   "id": "northstar.ytyp_packer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "name": "North Star YTYP Packer",
   "description": "Generic XML metadata .ytyp packer/inspector/validator.",
   "kind": "rust-cli",
@@ -22,8 +22,22 @@
         "--help"
       ],
       "description": "Print tool usage."
+    },
+    {
+      "id": "version",
+      "args": [
+        "version"
+      ],
+      "description": "Print tool version."
+    },
+    {
+      "id": "accepted-inputs",
+      "args": [
+        "accepted-inputs"
+      ],
+      "description": "Print accepted input and output file contract."
     }
   ],
   "capabilities": [],
-  "sha256": "0079747a91ca410f57b0efad22394742653e8dcca2e354523f0c7ce37b72ae54"
+  "sha256": "3c186bfa2cace3674180930772f202fb60afc80b2bfca10d8cdba6247fba4351"
 }

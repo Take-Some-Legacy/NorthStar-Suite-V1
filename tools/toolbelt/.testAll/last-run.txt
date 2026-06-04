@@ -1,0 +1,12 @@
+[TESTALL] Toolbelt smoke test run
+[INFO] toolbelt_root=C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt
+[INFO] runner=single-console cmd.exe call mode
+
+[RUN] first_party: C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\first_party\testAll.bat
+[PASS] first_party testAll
+
+[RUN] third_party: C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\testAll.bat
+[PASS] third_party testAll
+
+[SUMMARY] groups=2 pass=2 fail=0
+[RESULT] exit=0

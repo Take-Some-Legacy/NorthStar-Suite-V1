@@ -1,7 +1,7 @@
 {
   "schema": "takesome.tool.v2",
   "id": "northstar.neui_packer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "name": "North Star NEUI Packer",
   "description": "XML-first .neui UI dictionary packer/inspector/validator.",
   "kind": "rust-cli",
@@ -22,8 +22,22 @@
         "--help"
       ],
       "description": "Print tool usage."
+    },
+    {
+      "id": "version",
+      "args": [
+        "version"
+      ],
+      "description": "Print tool version."
+    },
+    {
+      "id": "accepted-inputs",
+      "args": [
+        "accepted-inputs"
+      ],
+      "description": "Print accepted input and output file contract."
     }
   ],
   "capabilities": [],
-  "sha256": "d3ca1f8bfbd8f04ad51e90adc1259062a70fc1b77faf01131a8bfb34a8342c66"
+  "sha256": "c3a3bfb73d701063ec4cfc229c52d524427008d56892de27bbe9d802902fca73"
 }

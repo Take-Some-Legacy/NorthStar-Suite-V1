@@ -5,7 +5,7 @@ import zipfile
 from pathlib import Path
 from typing import Any, Dict, List
 
-from .contracts import BridgeContext, BridgeError
+from .contracts import BridgeContext, BridgeError, bridge_suite_root
 from .paths import load_config, norm_rel, rel
 
 LOGIC_DIR_NAMES = {
@@ -31,7 +31,9 @@ LOGIC_EXTENSIONS = {
 
 def dataset_root(ctx: BridgeContext) -> Path:
     config = load_config(ctx)
-    raw = config.get("dataSetDirectory") or ".takesome/dataSet"
+    raw = config.get("dataSetDirectory")
+    if not raw:
+        return (bridge_suite_root(ctx.root) / "dataSet").resolve()
     path = Path(str(raw))
     return (ctx.root / path).resolve() if not path.is_absolute() else path.resolve()
 

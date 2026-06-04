@@ -1,0 +1,20 @@
+{
+  "action_id": "gui.editor.types.list",
+  "group": "Editor",
+  "title": "List NorthStar GUI Editor format types",
+  "description": "Run the NorthStar GUI Editor type registry listing through descriptor-driven tool execution.",
+  "command": "tools",
+  "args": [
+    "run",
+    "northstar.gui_editor",
+    "--",
+    "types-list",
+    "--root",
+    "$repo_root/EngineRepo/NewEngine"
+  ],
+  "requires_tools": ["northstar.gui_editor"],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

@@ -10,6 +10,7 @@ pub struct Args {
     pub srgb: bool,
     pub no_mips: bool,
     pub raw_data: bool,
+    pub debug: bool,
 }
 
 pub fn parse_args(args: &[String]) -> Result<Args, String> {
@@ -26,6 +27,7 @@ pub fn parse_args(args: &[String]) -> Result<Args, String> {
             "--srgb" => out.srgb = true,
             "--no-mips" => out.no_mips = true,
             "--raw-data" => out.raw_data = true,
+            "--debug" | "--verbose" => out.debug = true,
             "--help" | "-h" => return Err("help requested".to_owned()),
             other => return Err(format!("unknown argument '{other}'")),
         }

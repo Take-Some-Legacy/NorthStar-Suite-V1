@@ -1,0 +1,13 @@
+{
+  "action_id": "ytyp.validate",
+  "group": "Metadata",
+  "title": "Validate YTYP metadata",
+  "description": "Validate .ytyp.xml source and NEF8 .ytyp runtime generic metadata assets.",
+  "command": "validate-ytyp",
+  "args": [],
+  "requires_tools": ["northstar.ytyp_packer"],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

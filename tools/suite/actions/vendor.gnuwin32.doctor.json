@@ -2,11 +2,13 @@
   "action_id": "vendor.gnuwin32.doctor",
   "group": "Vendor Tools",
   "title": "Validate GNUWin32 vendor tools",
-  "description": "Validate quarantined GNUWin32 binaries and SHA-256 hashes under tools/vendor/gnuwin32/bin.",
+  "description": "Validate self-contained third-party GNUWin32 binaries and SHA-256 hashes under tools/toolbelt/third_party/<tool>/bin.",
   "command": "vendor-gnuwin32-doctor",
   "args": [],
   "requires_tools": [],
-  "requires_workspace": ["script_env"],
+  "requires_workspace": [
+    "script_env"
+  ],
   "outputs": [],
   "safe_for_menu": true,
   "danger_level": "normal"

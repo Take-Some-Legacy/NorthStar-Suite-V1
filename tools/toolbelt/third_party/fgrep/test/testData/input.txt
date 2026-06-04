@@ -1,0 +1,4 @@
+alpha
+needle one
+NEEDLE two
+plain text

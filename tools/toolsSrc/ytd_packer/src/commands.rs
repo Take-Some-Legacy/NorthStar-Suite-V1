@@ -1,8 +1,14 @@
 use newengine_texture_container::{parse, parse_manifest_only, pack_encoded_with_options, write_dds_runtime_mip_chain, TextureBuildOptions};
 use serde_json::json;
 use std::fs;
+use crate::diagnostics;
 
 use crate::{args::{parse_args, required_input, required_output}, fixture_gen, help, nef8, texture_io};
+
+
+const TOOL_NAME: &str = "northstar-ytd-packer";
+const ACCEPTED_INPUTS: &str = "*.png, *.bmp, *.jpg, *.jpeg, *.dds, *.tga texture sources; *.ytd for inspect/validate/extract/dump-netd";
+const PRODUCED_OUTPUTS: &str = "*.ytd runtime NEF8 texture dictionary; extracted *.dds files; *.netd body dumps";
 
 pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
     if raw_args.is_empty() {
@@ -23,6 +29,14 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
         "manifest" => run_inspect(&raw_args[1..]),
         "dump-netd" => run_dump_netd(&raw_args[1..]),
         "write-smoke-fixtures" => run_write_smoke_fixtures(&raw_args[1..]),
+        "accepted-inputs" | "inputs" | "formats" => {
+            diagnostics::print_contract(TOOL_NAME, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+            Ok(())
+        }
+        "version" | "--version" | "-V" => {
+            diagnostics::print_version(TOOL_NAME);
+            Ok(())
+        }
         "help" | "--help" | "-h" => {
             help::print_help();
             help::wait_for_enter();
@@ -44,6 +58,10 @@ fn run_pack(args: &[String]) -> Result<(), String> {
     let cfg = parse_args(args)?;
     let output = required_output(&cfg, "pack", "file.ytd")?;
     let sources = texture_io::collect_sources(cfg.input_dir.as_deref(), &cfg.textures)?;
+    diagnostics::print_operation(TOOL_NAME, "pack", cfg.debug, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+    diagnostics::print_debug_value(cfg.debug, "source_count", sources.len());
+    for (name, path) in &sources { diagnostics::print_debug_value(cfg.debug, "source", format!("{}={}", name, path.display())); }
+    diagnostics::print_debug_value(cfg.debug, "output", output.display());
     if sources.is_empty() {
         return Err("pack requires --texture name=path or --input-dir with PNG/BMP/JPG/JPEG/DDS/TGA files".to_owned());
     }

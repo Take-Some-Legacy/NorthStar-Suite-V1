@@ -8,15 +8,16 @@ from typing import Sequence
 from .cargo.process import cargo_exe
 from .paths import rel
 
-YTD_PACKER_MANIFEST = Path("tools") / "northstar" / "ytd_packer" / "Cargo.toml"
+YTD_PACKER_MANIFEST = Path("tools") / "toolsSrc" / "ytd_packer" / "Cargo.toml"
 
 
 def ytd_packer_exe(root: Path) -> Path | None:
     name = "northstar-ytd-packer.exe" if os.name == "nt" else "northstar-ytd-packer"
     candidates = [
         root / "tools" / "exe" / name,
-        root / "tools" / "northstar" / "ytd_packer" / "target" / "release" / name,
-        root / "tools" / "northstar" / "ytd_packer" / "target" / "debug" / name,
+        root / "tools" / "toolbelt" / "first_party" / "northstar" / "ytd_packer" / "bin" / name,
+        root / "tools" / "toolsSrc" / "ytd_packer" / "target" / "release" / name,
+        root / "tools" / "toolsSrc" / "ytd_packer" / "target" / "debug" / name,
     ]
     for candidate in candidates:
         if candidate.exists():

@@ -1,7 +1,7 @@
 {
   "schema": "takesome.tool.v2",
   "id": "northstar.nepak_packer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "name": "North Star NEPAK Packer",
   "description": "Generic .nepak VFS container packer/extractor/inspector/validator for opaque byte entries.",
   "kind": "rust-cli",
@@ -22,6 +22,20 @@
         "--help"
       ],
       "description": "Print tool usage."
+    },
+    {
+      "id": "version",
+      "args": [
+        "version"
+      ],
+      "description": "Print tool version."
+    },
+    {
+      "id": "accepted-inputs",
+      "args": [
+        "accepted-inputs"
+      ],
+      "description": "Print accepted input and output file contract."
     }
   ],
   "capabilities": [
@@ -31,5 +45,5 @@
     "assets.container.nepak.inspect",
     "assets.container.nepak.validate"
   ],
-  "sha256": "80226b9857569fadb7882722297e4a8cc264f554e2408c9b26237df944aab3f4"
+  "sha256": "4b4e7df126140687d76159bb62326f3620ce2cb2191d01fdeaaad67b04ea079d"
 }

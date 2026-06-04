@@ -1,6 +1,6 @@
 [package]
 name = "northstar-neui-packer"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 build = "build.rs"
 description = "Pack .neui import descriptors into runtime NEF8/XMLcentral UI dictionaries"

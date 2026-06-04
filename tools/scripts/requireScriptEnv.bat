@@ -7,7 +7,10 @@ chcp 65001 >nul
 set "NE_REQUIRE_EXIT=0"
 for %%I in ("%~dp0..\..") do set "NE_REQUIRE_REPO_ROOT=%%~fI"
 set "NE_REQUIRE_SUITE_ROOT=%NE_REQUIRE_REPO_ROOT%\.takesome"
+if not defined NEWENGINE_SUITE_ROOT if exist "D:\TakeSomeData\script-env.cmd" set "NEWENGINE_SUITE_ROOT=D:\TakeSomeData"
+if not defined TAKESOME_SUITE_ROOT if defined NEWENGINE_SUITE_ROOT set "TAKESOME_SUITE_ROOT=%NEWENGINE_SUITE_ROOT%"
 set "NE_REQUIRE_ENV_CMD=%NE_REQUIRE_SUITE_ROOT%\script-env.cmd"
+if defined NEWENGINE_SUITE_ROOT if exist "%NEWENGINE_SUITE_ROOT%\script-env.cmd" set "NE_REQUIRE_ENV_CMD=%NEWENGINE_SUITE_ROOT%\script-env.cmd"
 
 rem If the current shell does not have the env, but the repo was initialized once,
 rem hydrate this invocation from the repo-local generated env file.
@@ -28,7 +31,6 @@ if not defined NEWENGINE_PYTHON_CMD set "NE_REQUIRE_EXIT=105"
 if "%NE_REQUIRE_EXIT%"=="0" if not exist "%NEWENGINE_ROOT%\Cargo.toml" set "NE_REQUIRE_EXIT=106"
 if "%NE_REQUIRE_EXIT%"=="0" if not exist "%NEWENGINE_REPO_ROOT%\Plugins" set "NE_REQUIRE_EXIT=107"
 if "%NE_REQUIRE_EXIT%"=="0" if not exist "%NEWENGINE_SCRIPT_ROOT%\takesome.py" set "NE_REQUIRE_EXIT=108"
-if "%NE_REQUIRE_EXIT%"=="0" if /I not "%NEWENGINE_SUITE_ROOT%"=="%NE_REQUIRE_SUITE_ROOT%" set "NE_REQUIRE_EXIT=110"
 
 if not "%NE_REQUIRE_EXIT%"=="0" (
   echo.

@@ -1,0 +1,54 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.touch",
+  "version": "5.3.0-gnuwin32",
+  "name": "GNUWin32 touch",
+  "description": "Third-party GNUWin32 touch.exe executable packaged as an individual self-contained registry-visible tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU coreutils",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/touch",
+  "executable": "bin/touch.exe",
+  "install_path": "tools/toolbelt/third_party/touch/bin/touch.exe",
+  "expected_sha256": "c6627232409107b3db5096eaf7dc11b27f34b2fc53df3a3a8394c5e1e093fc00",
+  "expected_size_bytes": 78848,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "file.timestamp.touch",
+    "workspace.file.touch",
+    "suite.vendor.touch"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU touch version.",
+      "args": [
+        "--version"
+      ]
+    },
+    {
+      "id": "touch-file",
+      "description": "Touch/create one file through the Suite wrapper.",
+      "suite_command": "touch-file"
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/touch.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

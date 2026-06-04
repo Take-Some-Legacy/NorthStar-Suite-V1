@@ -11,6 +11,7 @@ pub struct Args {
     pub flip_v: bool,
     pub triangulate: bool,
     pub include_diagnostics: bool,
+    pub debug: bool,
 }
 
 pub fn parse_args(args: &[String]) -> Result<Args, String> {
@@ -27,6 +28,7 @@ pub fn parse_args(args: &[String]) -> Result<Args, String> {
             "--flip-v" => out.flip_v = true,
             "--no-triangulate" => out.triangulate = false,
             "--include-diagnostics" => out.include_diagnostics = true,
+            "--debug" | "--verbose" => out.debug = true,
             "--help" | "-h" => return Err("help requested".to_owned()),
             other if other.starts_with('-') => return Err(format!("unknown argument '{other}'")),
             positional => out.inputs.push(PathBuf::from(positional)),

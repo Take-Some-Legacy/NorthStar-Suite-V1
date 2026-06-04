@@ -8,6 +8,7 @@ pub struct Args {
     pub path: Option<String>,
     pub overwrite: bool,
     pub no_compress: bool,
+    pub debug: bool,
 }
 
 pub fn parse_args(args: &[String]) -> Result<Args, String> {
@@ -21,6 +22,7 @@ pub fn parse_args(args: &[String]) -> Result<Args, String> {
             "--path" | "--entry" => { i += 1; out.path = Some(args.get(i).ok_or("--path requires value")?.clone()); }
             "--overwrite" => out.overwrite = true,
             "--no-compress" => out.no_compress = true,
+            "--debug" | "--verbose" => out.debug = true,
             "--help" | "-h" => return Err("help requested".to_owned()),
             other if other.starts_with('-') => return Err(format!("unknown argument '{other}'")),
             positional => {

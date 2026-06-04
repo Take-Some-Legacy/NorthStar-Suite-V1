@@ -1,0 +1,54 @@
+[TESTALL] Third-party tool smoke test run
+[INFO] third_party_root=C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party
+[INFO] runner=single-console cmd.exe call mode
+
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\bison\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\bison\test\test.bat
+
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\diff\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\diff\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\diff3\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\diff3\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\fgrep\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\fgrep\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\flex\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\flex\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\flexpp\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\flexpp\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\funzip\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\funzip\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\hasher\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\hasher\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\m4\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\m4\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\make\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\make\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\sdiff\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\sdiff\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\sed\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\sed\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\symbol_extract\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\symbol_extract\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\tail\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\tail\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\tar\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\tar\test\test.bat
+.
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\touch\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\touch\test\test.bat
+.
+[SUMMARY] total=16 pass=16 fail=0
+[RESULT] exit=0

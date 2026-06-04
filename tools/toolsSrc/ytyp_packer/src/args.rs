@@ -8,6 +8,7 @@ pub struct CommonArgs {
     pub all: bool,
     pub check: bool,
     pub logical_path: Option<String>,
+    pub debug: bool,
 }
 
 pub fn parse_args(args: &[String]) -> Result<CommonArgs, String> {
@@ -33,6 +34,7 @@ pub fn parse_args(args: &[String]) -> Result<CommonArgs, String> {
             }
             "--all" => out.all = true,
             "--check" => out.check = true,
+            "--debug" | "--verbose" => out.debug = true,
             "--help" | "-h" => return Err("help requested".to_owned()),
             other => return Err(format!("unknown argument '{other}'")),
         }

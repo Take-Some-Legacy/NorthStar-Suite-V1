@@ -1,0 +1,22 @@
+{
+  "action_id": "gui.editor.open.texture_dictionary",
+  "group": "Editor",
+  "title": "Open texture dictionary through NorthStar GUI Editor route",
+  "description": "Open a known texture dictionary asset through the NorthStar GUI Editor provider/type routing pipeline.",
+  "command": "tools",
+  "args": [
+    "run",
+    "northstar.gui_editor",
+    "--",
+    "open",
+    "--root",
+    "$repo_root/EngineRepo/NewEngine",
+    "--asset",
+    "neocore2/assets/ui/icons/builtin_icons.ytd"
+  ],
+  "requires_tools": ["northstar.gui_editor"],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

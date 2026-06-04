@@ -8,15 +8,16 @@ from typing import Sequence
 from .cargo.process import cargo_exe
 from .paths import rel
 
-NEUI_PACKER_MANIFEST = Path("tools") / "northstar" / "neui_packer" / "Cargo.toml"
+NEUI_PACKER_MANIFEST = Path("tools") / "toolsSrc" / "neui_packer" / "Cargo.toml"
 
 
 def neui_packer_exe(root: Path) -> Path | None:
     name = "northstar-neui-packer.exe" if os.name == "nt" else "northstar-neui-packer"
     candidates = [
         root / "tools" / "exe" / name,
-        root / "tools" / "northstar" / "neui_packer" / "target" / "debug" / name,
-        root / "tools" / "northstar" / "neui_packer" / "target" / "release" / name,
+        root / "tools" / "toolsSrc" / "neui_packer" / "target" / "debug" / name,
+        root / "tools" / "toolbelt" / "first_party" / "northstar" / "neui_packer" / "bin" / name,
+        root / "tools" / "toolsSrc" / "neui_packer" / "target" / "release" / name,
     ]
     for candidate in candidates:
         if candidate.exists():

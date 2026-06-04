@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::Path;
+use crate::diagnostics;
 
 use crate::{
     args::{parse_args, required_input, required_output, required_sources},
@@ -7,6 +8,11 @@ use crate::{
     help,
     nef8,
 };
+
+
+const TOOL_NAME: &str = "northstar-neftd-packer";
+const ACCEPTED_INPUTS: &str = "*.ttf, *.otf, *.ttc, *.woff, *.woff2 font sources; *.neftd for inspect/list/validate/extract";
+const PRODUCED_OUTPUTS: &str = "*.neftd runtime NEF8 font dictionary; extracted *.fontbin payloads";
 
 pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
     if raw_args.is_empty() {
@@ -25,6 +31,14 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
         "validate" | "doctor" => run_validate(&raw_args[1..]),
         "list" => run_list(&raw_args[1..]),
         "extract" => run_extract(&raw_args[1..]),
+        "accepted-inputs" | "inputs" | "formats" => {
+            diagnostics::print_contract(TOOL_NAME, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+            Ok(())
+        }
+        "version" | "--version" | "-V" => {
+            diagnostics::print_version(TOOL_NAME);
+            Ok(())
+        }
         "help" | "--help" | "-h" => {
             help::print_help();
             help::wait_for_enter();
@@ -38,6 +52,10 @@ fn run_pack(args: &[String]) -> Result<(), String> {
     let cfg = parse_args(args)?;
     let sources = required_sources(&cfg, "pack")?;
     let output = required_output(&cfg, "pack", "file.neftd")?;
+    diagnostics::print_operation(TOOL_NAME, "pack", cfg.debug, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
+    diagnostics::print_debug_value(cfg.debug, "source_count", sources.len());
+    for source in &sources { diagnostics::print_debug_value(cfg.debug, "source", source.display()); }
+    diagnostics::print_debug_value(cfg.debug, "output", output.display());
     let opts = ImportOptions { entry: cfg.entry.clone(), family: cfg.family.clone(), style: cfg.style.clone(), weight: cfg.weight };
     let dict = font::import_sources(&sources, &opts)?;
     let logical = output.to_string_lossy().replace('\\', "/");

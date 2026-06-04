@@ -224,14 +224,20 @@ def _run_tool(repo_root: Path, ns: Any, *, log: TeeLog) -> int:
     if tool is None:
         log.emit(f"[ERROR] Unknown tool id: {ns.tool_id}")
         return 2
-    if tool.kind != "rust-cli":
+    runnable_kinds = {"rust-cli", "external-cli", "vendor-cli"}
+    if tool.kind not in runnable_kinds:
         log.emit(f"[ERROR] Tool is not runnable by this launcher: {tool.id} kind={tool.kind}")
         return 2
     exe = target_exe(tool, bool(ns.release))
     if not exe.exists():
-        rc = build_tool_descriptor(repo_root, tool, release=bool(ns.release), log=log)
-        if rc != 0:
-            return rc
+        if tool.kind == "rust-cli":
+            rc = build_tool_descriptor(repo_root, tool, release=bool(ns.release), log=log)
+            if rc != 0:
+                return rc
+        else:
+            log.emit(f"[ERROR] Tool executable is missing: {tool.id} expected={rel(repo_root, exe)}")
+            log.emit("[INFO] Copy the executable payload into the tool package bin/ directory described by tool.json.")
+            return 1
     forwarded = list(ns.tool_args or [])
     if forwarded and forwarded[0] == "--":
         forwarded = forwarded[1:]

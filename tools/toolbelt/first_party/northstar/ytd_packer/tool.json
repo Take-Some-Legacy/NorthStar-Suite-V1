@@ -1,7 +1,7 @@
 {
   "schema": "takesome.tool.v2",
   "id": "northstar.ytd_packer",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "name": "North Star YTD Packer",
   "description": "Texture dictionary .ytd packer/inspector/validator/extractor.",
   "kind": "rust-cli",
@@ -22,8 +22,22 @@
         "--help"
       ],
       "description": "Print tool usage."
+    },
+    {
+      "id": "version",
+      "args": [
+        "version"
+      ],
+      "description": "Print tool version."
+    },
+    {
+      "id": "accepted-inputs",
+      "args": [
+        "accepted-inputs"
+      ],
+      "description": "Print accepted input and output file contract."
     }
   ],
   "capabilities": [],
-  "sha256": "04b85dfdbae2ce5a54f8f5289013f2b3e49a868fe13208d337b64de2a98db554"
+  "sha256": "826a4fe2fb7561a4bdf4664376dccd28710cba58f64eaa5bc89ad6e42d97e811"
 }

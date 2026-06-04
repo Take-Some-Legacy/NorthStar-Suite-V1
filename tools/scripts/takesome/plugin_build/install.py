@@ -4,7 +4,7 @@ from pathlib import Path
 
 from ..cargo import build_state_root, cleanup_old_versions
 from ..logs import TeeLog
-from ..paths import rel
+from ..paths import engine_core_root, rel
 
 
 def cleanup_deprecated_artifacts(root: Path, log: TeeLog) -> None:

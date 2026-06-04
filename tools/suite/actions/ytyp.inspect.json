@@ -1,0 +1,13 @@
+{
+  "action_id": "ytyp.inspect",
+  "group": "Metadata",
+  "title": "Inspect YTYP metadata",
+  "description": "Inspect a NEF8 .ytyp generic XML metadata dictionary and print readable JSON.",
+  "command": "inspect-ytyp",
+  "args": [],
+  "requires_tools": ["northstar.ytyp_packer"],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

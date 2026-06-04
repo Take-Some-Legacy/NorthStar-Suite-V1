@@ -1,0 +1,19 @@
+{
+  "action_id": "gui.editor.build.release",
+  "group": "Editor",
+  "title": "Build NorthStar GUI Editor / release",
+  "description": "Build the standalone NorthStar GUI Editor host shell in release profile.",
+  "command": "build-tool",
+  "args": [
+    "--tool-dir",
+    "EngineRepo/NewEngine/editor/northstar-gui-editor",
+    "--release"
+  ],
+  "requires_tools": [],
+  "requires_workspace": ["script_env", "cargo"],
+  "outputs": [
+    "EngineRepo/NewEngine/editor/northstar-gui-editor/target/release/northstar-gui-editor.exe"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

@@ -11,6 +11,7 @@ pub struct Args {
     pub weight: Option<u16>,
     pub no_compress: bool,
     pub overwrite: bool,
+    pub debug: bool,
 }
 
 pub fn parse_args(args: &[String]) -> Result<Args, String> {
@@ -27,6 +28,7 @@ pub fn parse_args(args: &[String]) -> Result<Args, String> {
             "--weight" => { i += 1; out.weight = Some(args.get(i).ok_or("--weight requires value")?.parse::<u16>().map_err(|_| "--weight must be a number")?); }
             "--no-compress" => out.no_compress = true,
             "--overwrite" => out.overwrite = true,
+            "--debug" | "--verbose" => out.debug = true,
             "--help" | "-h" => return Err("help requested".to_owned()),
             other if other.starts_with('-') => return Err(format!("unknown argument '{other}'")),
             positional => out.inputs.push(PathBuf::from(positional)),

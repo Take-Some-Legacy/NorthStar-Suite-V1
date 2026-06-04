@@ -1,0 +1,65 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gnuwin32.tar",
+  "version": "1.13-gnuwin32",
+  "name": "GNUWin32 tar",
+  "description": "Third-party GNUWin32 tar.exe executable packaged as an individual self-contained registry-visible tool.",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNUWin32/GNU tar",
+  "root": ".",
+  "package_root": "tools/toolbelt/third_party/tar",
+  "executable": "bin/tar.exe",
+  "install_path": "tools/toolbelt/third_party/tar/bin/tar.exe",
+  "expected_sha256": "7384e3c6b76126358166f382e6790aefd55ab36eab781ce5b06b7f2d979b1095",
+  "expected_size_bytes": 167424,
+  "safe_for_build": false,
+  "build_validation": false,
+  "safe_to_auto_run": false,
+  "maturity": "vendor-provisional",
+  "capabilities": [
+    "archive.tar.list",
+    "archive.tar.extract",
+    "archive.tar.create",
+    "suite.vendor.tar"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print the GNU tar version.",
+      "args": [
+        "--version"
+      ]
+    },
+    {
+      "id": "list",
+      "description": "List archive entries through the Suite wrapper.",
+      "suite_command": "tar-list"
+    },
+    {
+      "id": "extract",
+      "description": "Extract an archive through the Suite wrapper.",
+      "suite_command": "tar-extract"
+    },
+    {
+      "id": "create",
+      "description": "Create an archive through the Suite wrapper.",
+      "suite_command": "tar-create"
+    }
+  ],
+  "validation": {
+    "mode": "presence_and_hash",
+    "args": [
+      "--version"
+    ]
+  },
+  "readme": "README.md",
+  "runtime_files": [
+    "bin/tar.exe",
+    "bin/libiconv-2.dll",
+    "bin/libiconv2.dll",
+    "bin/libintl-2.dll",
+    "bin/libintl3.dll",
+    "bin/regex2.dll"
+  ]
+}

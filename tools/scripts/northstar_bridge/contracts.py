@@ -21,7 +21,26 @@ MAX_EXEC_STDERR_BYTES = 12 * 1024
 MAX_READ_BYTES_DEFAULT = 128 * 1024
 MAX_SEARCH_FILE_BYTES = 512 * 1024
 OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
-OPENAI_KEY_CACHE_REL = Path(".takesome") / "secrets" / "openai_api_key.local"
+SUITE_ROOT_ENVS = ("NORTHSTAR_SUITE_ROOT", "NEWENGINE_SUITE_ROOT", "TAKESOME_SUITE_ROOT")
+DEFAULT_EXTERNAL_SUITE_ROOT = Path(r"D:\\TakeSomeData")
+OPENAI_KEY_CACHE_REL = Path("secrets") / "openai_api_key.local"
+
+
+def _valid_external_suite_root(path: Path) -> bool:
+    try:
+        return path.exists() and path.is_dir() and (path / "dataSet").exists()
+    except OSError:
+        return False
+
+
+def bridge_suite_root(project_root: Path) -> Path:
+    for name in SUITE_ROOT_ENVS:
+        env = os.environ.get(name)
+        if env:
+            return Path(env).expanduser().resolve()
+    if _valid_external_suite_root(DEFAULT_EXTERNAL_SUITE_ROOT):
+        return DEFAULT_EXTERNAL_SUITE_ROOT.resolve()
+    return project_root.resolve() / ".takesome"
 
 SAFE_TEXT_EXTENSIONS = {
     ".bat", ".cmd", ".cfg", ".conf", ".css", ".csv", ".frag", ".glsl",
@@ -79,8 +98,12 @@ class BridgeContext:
         return self.root / "config" / "suite" / "ai_bridge.v1.json"
 
     @property
+    def suite_root(self) -> Path:
+        return bridge_suite_root(self.root)
+
+    @property
     def ai_root(self) -> Path:
-        return self.root / ".takesome" / "ai-bridge"
+        return self.suite_root / "ai-bridge"
 
     @property
     def log_dir(self) -> Path:
@@ -92,7 +115,7 @@ class BridgeContext:
 
     @property
     def openai_key_cache_path(self) -> Path:
-        return self.root / OPENAI_KEY_CACHE_REL
+        return self.suite_root / OPENAI_KEY_CACHE_REL
 
 def configure_stdio() -> None:
     for name in ("stdout", "stderr"):
