@@ -7,6 +7,7 @@ description = "North Star NEF8/ListFile drawable dictionary importer for OBJ, gl
 license = "MIT"
 
 [dependencies]
+northstar-cli = { path = "../../shared/northstar_cli" }
 base64 = "0.22"
 blake3 = "1.5"
 flate2 = "1.0"

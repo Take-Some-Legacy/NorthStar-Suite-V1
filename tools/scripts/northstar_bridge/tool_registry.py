@@ -60,6 +60,7 @@ class ProjectTool:
     default_cwd: str = "."
     descriptor_id: str = ""
     always_write: bool = False
+    descriptor_commands: tuple[dict[str, Any], ...] = ()
 
 
 def tool_input_schema() -> Dict[str, Any]:
@@ -137,6 +138,51 @@ def _which(command: str) -> Optional[list[str]]:
     return [found] if found else None
 
 
+def _descriptor_safe_command_ids(commands: Iterable[dict[str, Any]]) -> set[str]:
+    safe: set[str] = set()
+    for command in commands:
+        if not isinstance(command, dict):
+            continue
+        command_id = str(command.get("id", "")).strip()
+        if not command_id:
+            continue
+        if bool(command.get("readOnlyHint", False)) and bool(command.get("idempotentHint", False)) and not bool(command.get("destructiveHint", False)):
+            safe.add(command_id)
+    return safe
+
+
+def _descriptor_default_safe(commands: Iterable[dict[str, Any]]) -> bool:
+    commands = tuple(command for command in commands if isinstance(command, dict))
+    if not commands:
+        return False
+    safe_ids = _descriptor_safe_command_ids(commands)
+    first_id = str(commands[0].get("id", "")).strip()
+    return bool(first_id and first_id in safe_ids)
+
+
+def _descriptor_args_match_command(command: dict[str, Any], args: list[str]) -> bool:
+    expected = command.get("args", [])
+    if not isinstance(expected, list):
+        return False
+    return [str(item) for item in expected] == args
+
+
+def _descriptor_args_are_safe(tool: "ProjectTool", args: list[str]) -> bool:
+    if not tool.descriptor_id:
+        return False
+    commands = tuple(command for command in tool.descriptor_commands if isinstance(command, dict))
+    if not commands:
+        return False
+    if not args:
+        return _descriptor_default_safe(commands)
+    safe_ids = _descriptor_safe_command_ids(commands)
+    for command in commands:
+        command_id = str(command.get("id", "")).strip()
+        if command_id in safe_ids and _descriptor_args_match_command(command, args):
+            return True
+    return False
+
+
 def discover_project_tools(ctx: BridgeContext, *, include_unavailable: bool = False) -> list[ProjectTool]:
     tools: list[ProjectTool] = []
     seen: set[str] = set()
@@ -175,6 +221,7 @@ def discover_project_tools(ctx: BridgeContext, *, include_unavailable: bool = Fa
         if public in seen:
             continue
         seen.add(public)
+        descriptor_commands = tuple(dict(command) for command in (descriptor.commands or []))
         tools.append(ProjectTool(
             public_name=public,
             command=["__takesome_tool_descriptor__", descriptor.id],
@@ -182,7 +229,8 @@ def discover_project_tools(ctx: BridgeContext, *, include_unavailable: bool = Fa
             kind=str(descriptor.kind),
             description=f"Run descriptor-discovered tool `{descriptor.id}`: {descriptor.description or descriptor.name}. Descriptor: {rel(ctx.root, descriptor.descriptor_path)}.",
             descriptor_id=descriptor.id,
-            always_write=True,
+            always_write=not _descriptor_default_safe(descriptor_commands),
+            descriptor_commands=descriptor_commands,
         ))
     return tools
 
@@ -204,6 +252,8 @@ def _has_any(args: Iterable[str], names: Iterable[str]) -> bool:
 
 def _is_mutating(tool: ProjectTool, args: list[str]) -> bool:
     name = tool.public_name.lower()
+    if tool.descriptor_id:
+        return not _descriptor_args_are_safe(tool, args)
     if tool.always_write:
         return True
     if name == "sed":
@@ -345,6 +395,7 @@ def project_tool_registry(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str,
                 "descriptor_id": tool.descriptor_id or None,
                 "command": [Path(part).name if i == 0 else part for i, part in enumerate(tool.command)],
                 "always_write": tool.always_write,
+                "safe_command_ids": sorted(_descriptor_safe_command_ids(tool.descriptor_commands)) if tool.descriptor_id else [],
                 "description": tool.description,
             }
             for tool in tools

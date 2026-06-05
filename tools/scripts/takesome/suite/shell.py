@@ -18,7 +18,7 @@ from ..console.theme import density, theme
 from ..console_menu import ConsoleChoice, interactive_menu_enabled, run_action_menu, run_dual_action_menu
 from ..console.frame import ellipsize_middle, terminal_height, terminal_render_width, terminal_width
 from ..migration import apply_delete_list
-from ..paths import rel, suite_root
+from ..paths import engine_core_root, rel, suite_root
 from ..progress import progress_update
 from .actions import SuiteAction, SuiteCategory
 from .context import SuiteContext, load_suite_context

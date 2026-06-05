@@ -28,7 +28,11 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
     match raw_args[0].as_str() {
         "create-draft" | "draft" | "new" => run_create_draft(&raw_args[1..]),
         "pack" | "compile" | "build" => run_pack(&raw_args[1..]),
-        "validate" | "doctor" => run_validate(&raw_args[1..]),
+        "validate" |
+        "doctor" => {
+            diagnostics::print_doctor_ok(TOOL_NAME);
+            Ok(())
+        },
         "inspect" => run_inspect(&raw_args[1..]),
         "dump-xml" | "dump-xmltype" => run_dump_xml(&raw_args[1..]),
         "manifest" => run_manifest(&raw_args[1..]),

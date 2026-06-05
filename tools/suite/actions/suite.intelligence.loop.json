@@ -1,0 +1,18 @@
+{
+  "action_id": "suite.intelligence.loop",
+  "group": "Suite Intelligence",
+  "title": "Run Suite Intelligence resident loop",
+  "description": "Run the foreground resident intelligence loop. It scans workspace state, self-checks wiring, ranks next tasks, calls the configured cloud planner on a throttle, and writes state/events until stopped by the operator.",
+  "command": "suite-intelligence-loop",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [
+    ".takesome/intelligence/loop-state.json",
+    ".takesome/intelligence/loop-events.jsonl",
+    ".takesome/intelligence/operator-request.md",
+    ".takesome/intelligence/operator-response.md"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

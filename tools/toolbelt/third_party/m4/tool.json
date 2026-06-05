@@ -28,7 +28,10 @@
       "description": "Print the GNU m4 version.",
       "args": [
         "--version"
-      ]
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     }
   ],
   "validation": {
@@ -40,10 +43,9 @@
   "readme": "README.md",
   "runtime_files": [
     "bin/m4.exe",
-    "bin/libiconv-2.dll",
-    "bin/libiconv2.dll",
-    "bin/libintl-2.dll",
-    "bin/libintl3.dll",
     "bin/regex2.dll"
-  ]
+  ],
+  "legacy_provider_family": "GNUWin32",
+  "legacy_status": "legacy-replace",
+  "replacement_source_policy": "Prefer pinned MSYS2 UCRT64 package or self-built mingw-w64 artifact with VENDOR.lock.json; no mixed random exe drops."
 }

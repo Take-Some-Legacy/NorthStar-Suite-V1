@@ -390,6 +390,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "northstar-cli"
+version = "0.1.0"
+
+[[package]]
 name = "northstar-ytd-packer"
 version = "0.3.1"
 dependencies = [
@@ -397,6 +401,7 @@ dependencies = [
  "flate2",
  "image",
  "newengine-texture-container",
+ "northstar-cli",
  "serde_json",
  "winres",
 ]

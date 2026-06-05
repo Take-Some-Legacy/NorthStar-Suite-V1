@@ -23,8 +23,8 @@
 [RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\funzip\test\test.bat
 [PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\funzip\test\test.bat
 .
-[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\hasher\test\test.bat
-[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\hasher\test\test.bat
+[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\grep\test\test.bat
+[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\grep\test\test.bat
 .
 [RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\m4\test\test.bat
 [PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\m4\test\test.bat
@@ -38,9 +38,6 @@
 [RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\sed\test\test.bat
 [PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\sed\test\test.bat
 .
-[RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\symbol_extract\test\test.bat
-[PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\symbol_extract\test\test.bat
-.
 [RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\tail\test\test.bat
 [PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\tail\test\test.bat
 .
@@ -50,5 +47,5 @@
 [RUN] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\touch\test\test.bat
 [PASS] C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\third_party\touch\test\test.bat
 .
-[SUMMARY] total=16 pass=16 fail=0
+[SUMMARY] total=15 pass=15 fail=0
 [RESULT] exit=0

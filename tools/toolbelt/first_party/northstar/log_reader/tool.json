@@ -1,0 +1,34 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "northstar.log_reader",
+  "name": "North Star LIVE Log Reader",
+  "version": "0.1.0",
+  "kind": "first_party",
+  "entry": {
+    "windows": "bin/northstar-log-reader.exe"
+  },
+  "commands": [
+    { "id": "help", "args": ["--help"], "safe": true },
+    { "id": "version", "args": ["version"], "safe": true },
+    { "id": "accepted-inputs", "args": ["accepted-inputs"], "safe": true },
+    { "id": "doctor", "args": ["doctor"], "safe": true },
+    { "id": "read", "args": ["read"], "safe": true },
+    { "id": "tail", "args": ["tail"], "safe": true },
+    { "id": "live", "args": ["live"], "safe": true },
+    { "id": "listen", "args": ["listen"], "safe": true },
+    { "id": "stream", "args": ["stream"], "safe": true },
+    { "id": "ui", "args": ["ui"], "safe": true }
+  ],
+  "accepted_inputs": [
+    "live http:// NDJSON stream",
+    "live http:// SSE stream",
+    "file:// URL",
+    "*.jsonl",
+    "*.ulog.jsonl"
+  ],
+  "produced_outputs": [
+    "LIVE JSONL stdout",
+    "LIVE table stdout",
+    "*.html live UI"
+  ]
+}

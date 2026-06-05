@@ -1,26 +1,11 @@
-#[cfg(target_os = "windows")]
+#[path = "../../shared/northstar_build/windows_file_info.rs"]
+mod windows_file_info;
+
 fn main() {
-    let version = env!("CARGO_PKG_VERSION");
-    let icon_path = "../icons/northstar-ydd-packer.ico";
-
-    println!("cargo:rerun-if-changed={icon_path}");
-
-    let mut resource = winres::WindowsResource::new();
-    resource.set_icon(icon_path);
-    resource.set("CompanyName", "Take Some");
-    resource.set("FileDescription", "North Star YDD NEF8 drawable dictionary importer");
-    resource.set("FileVersion", version);
-    resource.set("InternalName", "northstar-ydd-packer");
-    resource.set("LegalCopyright", "Copyright (c) Take Some");
-    resource.set("OriginalFilename", "northstar-ydd-packer.exe");
-    resource.set("ProductName", "North Star Engine Tools");
-    resource.set("ProductVersion", version);
-    resource.set_language(0x0409);
-
-    if let Err(err) = resource.compile() {
-        panic!("failed to compile Windows resources for northstar-ydd-packer: {err}");
-    }
+    windows_file_info::compile(windows_file_info::ToolFileInfo {
+        internal_name: "northstar-ydd-packer",
+        original_filename: "northstar-ydd-packer.exe",
+        file_description: "North Star YDD NEF8 drawable dictionary importer",
+        icon_path: Some("../icons/northstar-ydd-packer.ico"),
+    });
 }
-
-#[cfg(not(target_os = "windows"))]
-fn main() {}

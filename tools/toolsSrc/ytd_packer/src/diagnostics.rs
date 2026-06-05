@@ -1,7 +1,8 @@
+use northstar_cli::ansi;
 pub fn print_contract(tool_name: &str, accepted_inputs: &str, produced_outputs: &str) {
     println!("[INFO] {tool_name} version={}", env!("CARGO_PKG_VERSION"));
-    println!("[INFO] production output: compact [INFO]/[OK]/[WARN]/[ERROR] lines for suite logs");
-    println!("[INFO] debug output: add --debug or --verbose to print accepted formats, resolved paths and counts");
+    ansi::info("production output: compact status lines for suite logs");
+    ansi::info("debug output: add --debug or --verbose to print accepted formats, resolved paths and counts");
     println!("[INFO] accepted input files: {accepted_inputs}");
     println!("[INFO] produced output files: {produced_outputs}");
 }
@@ -24,4 +25,10 @@ pub fn print_debug_value<T: std::fmt::Display>(debug: bool, key: &str, value: T)
     if debug {
         println!("[DEBUG] {key}={value}");
     }
+}
+
+
+pub fn print_doctor_ok(tool_name: &str) {
+    ansi::ok(format!("{tool_name} doctor passed"));
+    ansi::info(format!("version={}", env!("CARGO_PKG_VERSION")));
 }

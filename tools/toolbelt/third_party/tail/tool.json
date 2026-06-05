@@ -1,54 +1,56 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.tail",
-  "version": "5.3.0-gnuwin32",
-  "name": "GNUWin32 tail",
-  "description": "Third-party GNUWin32 tail.exe executable packaged as an individual self-contained registry-visible tool.",
+  "id": "vendor.msys2.gnu.tail",
+  "version": "8.32-msys2-usr",
+  "name": "GNU tail",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/GNU coreutils",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/tail",
-  "executable": "bin/tail.exe",
-  "install_path": "tools/toolbelt/third_party/tail/bin/tail.exe",
-  "expected_sha256": "9d62a3482efe6e11de2878ba3002546eae690fe23985e8492c7f6895fb3a2984",
-  "expected_size_bytes": 88064,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "text.tail.lines",
-    "diagnostics.log.tail",
-    "suite.vendor.tail"
+  "package_root": "tools/toolbelt/third_party/tail",
+  "root": "tools/toolbelt/third_party/tail",
+  "executable": "bin/tail.exe",
+  "expected_sha256": "8608c4138642de6dca0806b266b3009c137dc373171978cf47418056a5e05c55",
+  "expected_size_bytes": 56617,
+  "description": "MSYS2 usr GNU tail executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "version",
-      "description": "Print the GNU tail version.",
+      "description": "Print GNU tail version.",
       "args": [
         "--version"
-      ]
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     },
     {
-      "id": "tail-file",
-      "description": "Read bounded last lines through the Suite wrapper.",
-      "suite_command": "tail-file"
+      "id": "help",
+      "description": "Print GNU tail help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     }
   ],
+  "default_args": [
+    "--version"
+  ],
   "validation": {
-    "mode": "presence_and_hash",
+    "mode": "presence_hash_version_and_shared_libs",
     "args": [
       "--version"
-    ]
+    ],
+    "expect_stdout_contains": "GNU coreutils) 8.32"
   },
-  "readme": "README.md",
-  "runtime_files": [
-    "bin/tail.exe",
-    "bin/libiconv-2.dll",
-    "bin/libiconv2.dll",
-    "bin/libintl-2.dll",
-    "bin/libintl3.dll",
-    "bin/regex2.dll"
-  ]
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

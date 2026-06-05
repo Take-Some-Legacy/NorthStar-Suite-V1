@@ -1,0 +1,17 @@
+{
+  "action_id": "suite.intelligence.loop.check",
+  "group": "Suite Intelligence",
+  "title": "Run Suite Intelligence loop check",
+  "description": "Run exactly one resident intelligence loop cycle: scan workspace, self-check wiring, rank next tasks, call the configured cloud planner when available, and write loop state/events.",
+  "command": "suite-intelligence-loop-check",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [
+    ".takesome/intelligence/loop-state.json",
+    ".takesome/intelligence/loop-events.jsonl",
+    ".takesome/intelligence/operator-request.md"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

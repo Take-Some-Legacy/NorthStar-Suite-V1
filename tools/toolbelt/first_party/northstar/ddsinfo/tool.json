@@ -1,0 +1,148 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "northstar.ddsinfo",
+  "version": "1.2.0-stability.1",
+  "name": "North Star DDS Info",
+  "description": "First-party source-owned DDS metadata inspector for dimensions, compression, DXGI format, mipmaps and recursive scans.",
+  "kind": "dotnet-host-cli",
+  "source_type": "first_party",
+  "owner": "North Star",
+  "maturity": "first-party-stable",
+  "root": "tools/toolbelt/first_party/northstar/ddsinfo",
+  "package_root": "tools/toolbelt/first_party/northstar/ddsinfo",
+  "source_root": "tools/toolsSrc/ddsinfo",
+  "build_system": "dotnet",
+  "build_command": [
+    "dotnet",
+    "publish",
+    "ddsinfo.csproj",
+    "-c",
+    "Release",
+    "-r",
+    "win-x64",
+    "--self-contained",
+    "false",
+    "-p:PublishSingleFile=false",
+    "-p:PublishReadyToRun=false",
+    "-o",
+    "publish"
+  ],
+  "executable": "bin/ddsinfo.exe",
+  "install_path": "tools/toolbelt/first_party/northstar/ddsinfo/bin/ddsinfo.exe",
+  "expected_sha256": "2db7341c7eddbe719846ef9f21956f7312e051f7fe3833c0ec271c58275be28e",
+  "expected_size_bytes": 154112,
+  "safe_for_build": true,
+  "build_validation": true,
+  "safe_to_auto_run": false,
+  "capabilities": [
+    "assets.texture.dds.inspect",
+    "assets.texture.dds.dimensions",
+    "assets.texture.dds.compression",
+    "workspace.image.scan"
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print version information.",
+      "args": [
+        "--version"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print usage information.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "inspect",
+      "description": "Inspect DDS files or directories.",
+      "example_args": [
+        "-r",
+        "-c",
+        "-d",
+        "."
+      ]
+    },
+    {
+      "id": "dimensions",
+      "description": "Display image dimensions.",
+      "args": [
+        "--dimensions"
+      ]
+    },
+    {
+      "id": "compression",
+      "description": "Display DDS compression method.",
+      "args": [
+        "--compression"
+      ]
+    }
+  ],
+  "validation": {
+    "mode": "presence_hash_version",
+    "args": [
+      "--library",
+      "$repo_root/tools/toolbelt/libraries/northstar.ddsinfo.dll",
+      "--version"
+    ],
+    "expect_stdout_contains": "ddsinfo Version: 1.2.0.0"
+  },
+  "usage_file": "USAGE.txt",
+  "readme": "README.md",
+  "shared_libs": [
+    {
+      "id": "northstar.ddsinfo.managed",
+      "path": "tools/toolbelt/libraries"
+    }
+  ],
+  "managed_libraries": [
+    {
+      "path": "tools/toolbelt/libraries/northstar.ddsinfo.dll",
+      "sha256": "f7a243d5fbd7ba387d2fcca33457485a15cfd0739f37d2399cf3a1ed3c60bbab",
+      "size": 22016
+    },
+    {
+      "path": "tools/toolbelt/libraries/northstar.ddsinfo.deps.json",
+      "sha256": "d846a3d74c0c9d219b3eb57872bb024c6272f24b6197f4e4da80a7f9acf34924",
+      "size": 437
+    },
+    {
+      "path": "tools/toolbelt/libraries/northstar.ddsinfo.pdb",
+      "sha256": "10b5356caf044993ef36ec802fe7d3770f1863537726e6578569da1d6964dfb5",
+      "size": 14960
+    },
+    {
+      "path": "tools/toolbelt/first_party/northstar/ddsinfo/bin/ddsinfo_host.dll",
+      "sha256": "dc9daab1c06f1a9d722764a06a159cd2c26db909b3b5659f2c603a5cd66f0352",
+      "size": 7168,
+      "role": "host-runtime-metadata"
+    },
+    {
+      "path": "tools/toolbelt/first_party/northstar/ddsinfo/bin/ddsinfo_host.deps.json",
+      "sha256": "e460ec18919bb28a133b6739af056d9c3226e9934f76e3fffc0bc6a0193030a2",
+      "size": 505,
+      "role": "host-runtime-metadata"
+    },
+    {
+      "path": "tools/toolbelt/first_party/northstar/ddsinfo/bin/ddsinfo_host.runtimeconfig.json",
+      "sha256": "489a92c37422b7e5ce212f9701b7a081d887b895f88b91b000976131f90f823f",
+      "size": 253,
+      "role": "host-runtime-metadata"
+    },
+    {
+      "path": "tools/toolbelt/first_party/northstar/ddsinfo/bin/ddsinfo_host.pdb",
+      "sha256": "81e8d08612d7a45237975ca8929f3a27b6406a1faecfe03885f785f40671904c",
+      "size": 11100,
+      "role": "host-runtime-metadata"
+    }
+  ],
+  "layout_note": "Host exe lives in first_party package bin and accepts implementation path via --library or NORTHSTAR_DDSINFO_LIBRARY; implementation DLL lives in tools/toolbelt/libraries."
+}

@@ -1,0 +1,33 @@
+Usage: northstar-symbol-extract -in[:type] filename [options]
+
+Commands:
+  --help
+      Print human-facing usage.
+
+  version
+      Print tool name and semantic version.
+
+  accepted-inputs
+      Print accepted input/output contract with status output.
+
+  doctor
+      Run a lightweight self-check with status output.
+
+Options:
+  -in[:type] filename
+      Input PE/COFF file. The optional type suffix is accepted for compatibility.
+
+  -out filename
+      Write raw payload output to specified file instead of stdout.
+
+  -exclude substring
+      Exclude symbols that contain the specified substring. May be repeated.
+
+  -searchpath path
+      Accepted for compatibility; reserved for future PDB/DIA lookup.
+
+  -count n
+      Emit at most n payload records.
+
+Payload line format:
+  <name> 0x<RVA_HEX8> <source>

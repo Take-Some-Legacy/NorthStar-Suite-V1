@@ -119,11 +119,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "northstar-cli"
+version = "0.1.0"
+
+[[package]]
 name = "northstar-neui-packer"
 version = "0.2.1"
 dependencies = [
  "blake3",
  "flate2",
+ "northstar-cli",
  "serde_json",
  "winres",
 ]

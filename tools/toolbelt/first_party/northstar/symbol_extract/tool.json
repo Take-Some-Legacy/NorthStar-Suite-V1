@@ -1,0 +1,43 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "northstar.symbol_extract",
+  "version": "0.1.0",
+  "name": "North Star Symbol Extract",
+  "description": "First-party Rust PE/COFF symbol listing utility for workspace diagnostics.",
+  "kind": "rust-cli",
+  "source_type": "first_party",
+  "owner": "Take Some",
+  "root": ".",
+  "package_root": "tools/toolbelt/first_party/northstar/symbol_extract",
+  "source_root": "tools/toolsSrc/symbol_extract",
+  "executable": "bin/northstar-symbol-extract.exe",
+  "install_path": "tools/toolbelt/first_party/northstar/symbol_extract/bin/northstar-symbol-extract.exe",
+  "invocation": {
+    "type": "executable",
+    "windows": "tools/toolbelt/first_party/northstar/symbol_extract/bin/northstar-symbol-extract.exe"
+  },
+  "commands": {
+    "help": { "args": ["--help"], "mutating": false },
+    "version": { "args": ["version"], "mutating": false },
+    "accepted-inputs": { "args": ["accepted-inputs"], "mutating": false },
+    "doctor": { "args": ["doctor"], "mutating": false },
+    "extract": { "args": ["-in", "<filename>", "[-out", "<filename>]"], "mutating": false }
+  },
+  "accepted_inputs": ["*.exe", "*.dll", "*.obj", "*.lib", "PE/COFF files with export or COFF symbol-table data"],
+  "produced_outputs": ["stdout raw symbol list lines", "*.txt symbol list files"],
+  "capabilities": [
+    "workspace.symbols.extract",
+    "workspace.debug.symbols",
+    "diagnostics.symbol_dump"
+  ],
+  "legacy_compatibility": {
+    "replaces": "tools/toolbelt/third_party/symbol_extract/bin/SymbolExtract.exe",
+    "legacy_options": ["-in[:type]", "-out", "-exclude", "-searchpath"],
+    "adds": ["--help", "-h", "/?", "help", "version", "--version", "-V", "accepted-inputs", "doctor", "-count"]
+  },
+  "payload_contract": {
+    "stdout_clean": true,
+    "line_format": "<name> 0x<RVA_HEX8> <source>",
+    "status_commands": ["--help", "version", "accepted-inputs", "doctor"]
+  }
+}

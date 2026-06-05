@@ -15,6 +15,7 @@ from .build import build_registered_tools, build_tool_descriptor, run_tool_valid
 from .cache import scan_and_cache_tools
 from .collect import collect_run_bundle
 from .descriptors import discover_tools, expand_tool_args, target_exe, tool_by_id
+from .runtime_env import tool_runtime_env
 from .doctor import run_workspace_doctor
 from .dataset_lifecycle import dataset_lifecycle_cleanup
 from .dataset_ingest_pipeline import dataset_ingest_pipeline
@@ -244,7 +245,7 @@ def _run_tool(repo_root: Path, ns: Any, *, log: TeeLog) -> int:
     if not forwarded:
         forwarded = list(tool.default_args)
     forwarded = expand_tool_args(repo_root, tool, forwarded)
-    return run_process([str(exe), *forwarded], cwd=repo_root, log=log)
+    return run_process([str(exe), *forwarded], cwd=repo_root, log=log, env=tool_runtime_env(repo_root, tool))
 
 
 def tools_command(repo_root: Path, ns: Any) -> int:

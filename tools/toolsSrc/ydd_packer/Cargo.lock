@@ -125,12 +125,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "northstar-cli"
+version = "0.1.0"
+
+[[package]]
 name = "northstar-ydd-packer"
 version = "0.1.1"
 dependencies = [
  "base64",
  "blake3",
  "flate2",
+ "northstar-cli",
  "serde",
  "serde_json",
  "winres",

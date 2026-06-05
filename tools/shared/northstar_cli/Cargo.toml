@@ -1,0 +1,15 @@
+[package]
+name = "northstar-cli"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Shared North Star CLI helpers for status output and terminal UX."
+
+[lib]
+name = "northstar_cli"
+path = "src/lib.rs"
+
+[dependencies]
+northstar-logging = { path = "../northstar_logging" }
+northstar-ulog = { path = "../northstar_ulog" }
+serde_json = "1.0"

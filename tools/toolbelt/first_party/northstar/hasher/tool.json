@@ -1,0 +1,33 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "northstar.hasher",
+  "version": "0.1.0",
+  "name": "North Star Hasher",
+  "description": "First-party Rust RAGE/JOAAT string hash utility for newline-separated name lists.",
+  "kind": "rust-cli",
+  "source_type": "first_party",
+  "owner": "Take Some",
+  "root": ".",
+  "package_root": "tools/toolbelt/first_party/northstar/hasher",
+  "source_root": "tools/toolsSrc/northstar_hasher",
+  "executable": "bin/northstar-hasher.exe",
+  "install_path": "tools/toolbelt/first_party/northstar/hasher/bin/northstar-hasher.exe",
+  "invocation": {
+    "type": "executable",
+    "windows": "tools/toolbelt/first_party/northstar/hasher/bin/northstar-hasher.exe"
+  },
+  "commands": {
+    "help": { "args": ["--help"], "mutating": false },
+    "version": { "args": ["version"], "mutating": false },
+    "accepted-inputs": { "args": ["accepted-inputs"], "mutating": false },
+    "doctor": { "args": ["doctor"], "mutating": false },
+    "hash": { "args": ["<filename>", "[hashcode]"], "mutating": false }
+  },
+  "accepted_inputs": ["*.txt", "newline-separated name lists"],
+  "produced_outputs": ["stdout ATSTRINGHASH/ATLITERALSTRINGHASH lines"],
+  "legacy_compatibility": {
+    "replaces": "tools/toolbelt/third_party/hasher/bin/hasher.exe",
+    "legacy_options": ["-stripext", "-literal", "filename", "hashcode"],
+    "adds": ["--help", "-h", "/?", "help", "version", "--version", "-V", "accepted-inputs", "doctor"]
+  }
+}

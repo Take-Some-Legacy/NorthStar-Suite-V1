@@ -1,0 +1,13 @@
+{
+  "action_id": "suite.intelligence.analyze",
+  "group": "Suite Intelligence",
+  "title": "Analyze and assign next task",
+  "description": "Analyze recent suite logs and SuiteRegistry actions, then recommend the next executable suite tasks. Uses PyTorch tensor scoring when torch is installed, with deterministic fallback otherwise.",
+  "command": "suite-intelligence",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [".takesome/intelligence/suite-task-report.json"],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

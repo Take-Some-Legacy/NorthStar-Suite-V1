@@ -1,0 +1,30 @@
+{
+  "schema": "northstar.vendor_shared_libs_lock.v1",
+  "id": "vendor.msys2.runtime.usr",
+  "source": "C:/msys64/usr/bin",
+  "provider_family": "MSYS2 usr runtime",
+  "status": "pinned-local-vendor-copy-flat-toolbelt-library",
+  "layout_path": "tools/toolbelt/libraries",
+  "files": [
+    {
+      "path": "msys-2.0.dll",
+      "sha256": "eba0437105ff92b801321378f4ee7ffef6e135f864f10f6c82ccfd2be4f99bd4",
+      "size": 3359873
+    },
+    {
+      "path": "msys-intl-8.dll",
+      "sha256": "fc7dd3f6305b07f01073e49683e104e224b83802d983260ee8ed87878c1c108f",
+      "size": 111181
+    },
+    {
+      "path": "msys-iconv-2.dll",
+      "sha256": "949de57b894259ce7e5971acb1cdea9be8b694160e2418f66afd753ce92a80e9",
+      "size": 1098126
+    },
+    {
+      "path": "msys-pcre-1.dll",
+      "sha256": "9542997f0ea6b4a7057529e4cfa966a55ddfe2e080792d0854725c5e7588924a",
+      "size": 289270
+    }
+  ]
+}

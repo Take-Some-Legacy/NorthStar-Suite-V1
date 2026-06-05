@@ -1,26 +1,11 @@
-#[cfg(target_os = "windows")]
+#[path = "../../shared/northstar_build/windows_file_info.rs"]
+mod windows_file_info;
+
 fn main() {
-    let version = env!("CARGO_PKG_VERSION");
-    let icon_path = "../icons/northstar-neftd-packer.ico";
-
-    println!("cargo:rerun-if-changed={icon_path}");
-
-    let mut resource = winres::WindowsResource::new();
-    resource.set_icon(icon_path);
-    resource.set("CompanyName", "Take Some");
-    resource.set("FileDescription", "North Star NEFTD NEF8 font dictionary tool");
-    resource.set("FileVersion", version);
-    resource.set("InternalName", "northstar-neftd-packer");
-    resource.set("LegalCopyright", "Copyright (c) Take Some");
-    resource.set("OriginalFilename", "northstar-neftd-packer.exe");
-    resource.set("ProductName", "North Star Engine Tools");
-    resource.set("ProductVersion", version);
-    resource.set_language(0x0409);
-
-    if let Err(err) = resource.compile() {
-        panic!("failed to compile Windows resources for northstar-neftd-packer: {err}");
-    }
+    windows_file_info::compile(windows_file_info::ToolFileInfo {
+        internal_name: "northstar-neftd-packer",
+        original_filename: "northstar-neftd-packer.exe",
+        file_description: "North Star NEFTD NEF8 font dictionary tool",
+        icon_path: Some("../icons/northstar-neftd-packer.ico"),
+    });
 }
-
-#[cfg(not(target_os = "windows"))]
-fn main() {}

@@ -614,6 +614,71 @@ def ensure_origin_alive(root: Path, write: bool, origin: Optional[subprocess.Pop
     return spawn_origin(root, write, q, sudo=sudo)
 
 
+def suite_intelligence_enabled() -> bool:
+    value = os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART", "1").strip().lower()
+    return value not in {"0", "false", "no", "off"}
+
+
+def suite_env_file(root: Path) -> Path:
+    raw = os.environ.get("NEWENGINE_SCRIPT_ENV_FILE", "").strip()
+    if raw:
+        return Path(raw)
+    suite_root = os.environ.get("NORTHSTAR_SUITE_ROOT") or os.environ.get("NEWENGINE_SUITE_ROOT") or os.environ.get("TAKESOME_SUITE_ROOT")
+    if suite_root:
+        return Path(suite_root) / "script-env.cmd"
+    return root / ".takesome" / "script-env.cmd"
+
+
+def spawn_suite_intelligence(root: Path, q: "queue.Queue[tuple[str, str]]") -> Optional[subprocess.Popen[str]]:
+    if not suite_intelligence_enabled():
+        emit("STATE", "Suite Intelligence autostart disabled", env="NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART")
+        return None
+    takesome = root / "tools" / "scripts" / "takesome.py"
+    if not takesome.exists():
+        emit("WARN", "Suite Intelligence autostart skipped; takesome.py is missing", path=takesome)
+        return None
+    state_dir = root / ".takesome" / "intelligence"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    env = os.environ.copy()
+    env.update({
+        "PYTHONUTF8": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "NORTHSTAR_SUITE_STDIO_ENCODING": "utf-8",
+        "NORTHSTAR_SUITE_STDIO_ERRORS": "replace",
+        "NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI": os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI", "0"),
+        "NORTHSTAR_SUITE_INTELLIGENCE_INTERVAL_SEC": os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_INTERVAL_SEC", "30"),
+        "NORTHSTAR_SUITE_INTELLIGENCE_OPENAI_EVERY": os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_OPENAI_EVERY", "1"),
+        "NORTHSTAR_SUITE_LLM_PROVIDER": os.environ.get("NORTHSTAR_SUITE_LLM_PROVIDER", "auto"),
+        "NORTHSTAR_LOCAL_MODEL_ROOT": os.environ.get("NORTHSTAR_LOCAL_MODEL_ROOT", r"D:\LLM\DeepSeek-R1-Distill-Qwen-7B-PyTorch"),
+        "NORTHSTAR_SUITE_LLM_PYTHON": os.environ.get("NORTHSTAR_SUITE_LLM_PYTHON", r"D:\TakeSomeData\venvs\northstar-llm-pilot\Scripts\python.exe"),
+    })
+    env_file = suite_env_file(root)
+    env["NEWENGINE_SCRIPT_ENV_FILE"] = str(env_file)
+    cmd = [sys.executable, str(takesome), "suite", "--run", "suite.intelligence.loop"]
+    emit(
+        "INFO",
+        "starting Suite Intelligence resident loop",
+        command="takesome.py suite --run suite.intelligence.loop",
+        mode="safe-monitoring",
+        openai="disabled" if env.get("NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI") == "1" else "enabled",
+        env_file=env_file,
+    )
+    proc = start_process("suite-intelligence", cmd, root, env, q)
+    (state_dir / "resident-loop.pid").write_text(str(proc.pid) + "\n", encoding="utf-8")
+    return proc
+
+
+def ensure_suite_intelligence_alive(root: Path, proc: Optional[subprocess.Popen[str]], q: "queue.Queue[tuple[str, str]]") -> Optional[subprocess.Popen[str]]:
+    if not suite_intelligence_enabled():
+        return proc
+    if proc is not None and proc.poll() is None:
+        return proc
+    if proc is not None:
+        emit("WARN", "Suite Intelligence resident loop exited; restarting", exit_code=proc.returncode)
+    return spawn_suite_intelligence(root, q)
+
+
 def load_stable_tunnel(root: Path) -> StableTunnelConfig:
     declared = load_declared_tunnel_config(root)
     _, _, stable_path = state_paths(root)
@@ -1122,7 +1187,7 @@ def drain_logs(q: "queue.Queue[tuple[str, str]]", nonblocking: bool = False) -> 
     drain_logs_collect(q, nonblocking=nonblocking)
 
 
-def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subprocess.Popen[str], public_url: str, quick: bool, q: "queue.Queue[tuple[str, str]]", write: bool, suspended_configs: Optional[list[SuspendedCloudflaredConfig]] = None, *, sudo: bool = False) -> int:
+def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subprocess.Popen[str], public_url: str, quick: bool, q: "queue.Queue[tuple[str, str]]", write: bool, suspended_configs: Optional[list[SuspendedCloudflaredConfig]] = None, *, sudo: bool = False, suite_intelligence: Optional[subprocess.Popen[str]] = None, intelligence_enabled: bool = True) -> int:
     endpoint = public_url.rstrip("/") + "/mcp" if public_url else ""
     _footer_bind(root, endpoint=endpoint, write=write)
     health = public_url.rstrip("/") + "/health" if public_url else ""
@@ -1134,8 +1199,10 @@ def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subproc
             emit("WARN", "domain was allocated, but public health did not verify yet", endpoint=endpoint)
             if quick:
                 emit("WARN", "quick tunnel URL may require reconnect or fallback to named tunnel", endpoint=endpoint)
-    emit("STATE", "supervisor is running; close this window to stop origin+tunnel")
+    stop_targets = "origin+tunnel+suite-intelligence" if intelligence_enabled else "origin+tunnel"
+    emit("STATE", f"supervisor is running; close this window to stop {stop_targets}")
     next_origin_check = 0.0
+    next_intelligence_check = 0.0
     restart_times: list[float] = []
     try:
         while True:
@@ -1156,6 +1223,9 @@ def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subproc
                 except SupervisorError as exc:
                     emit("ERROR", str(exc))
                     return 1
+            if intelligence_enabled and now >= next_intelligence_check:
+                next_intelligence_check = now + 10.0
+                suite_intelligence = ensure_suite_intelligence_alive(root, suite_intelligence, q)
             if tunnel.poll() is not None:
                 emit("ERROR", "cloudflared tunnel exited", exit_code=tunnel.returncode)
                 return int(tunnel.returncode or 1)
@@ -1164,10 +1234,9 @@ def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subproc
         emit("INFO", "stopping serverBridge")
         return 130
     finally:
-        with _FOOTER_LOCK:
-            _footer_clear_locked()
-            _footer_restore_layout_locked()
-        stop_processes([tunnel, origin])
+        _footer_clear_locked()
+        _footer_restore_layout_locked()
+        stop_processes([tunnel, origin, suite_intelligence])
         if suspended_configs:
             restore_default_cloudflared_configs(suspended_configs)
 
@@ -1200,6 +1269,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--prefer-named", action="store_true")
     parser.add_argument("--setup-named", action="store_true", help="Interactively create a Cloudflare named tunnel when stable config is missing.")
     parser.add_argument("--quick-protocol", default="auto", choices=["http2", "quic", "auto"])
+    parser.add_argument("--no-intelligence", action="store_true", help="Do not start or restart the Suite Intelligence resident loop.")
     parser.add_argument("-sudo", action="store_true", help="Run operator sudo mode for Suite-owned confirmations and skip interactive tunnel setup prompts.")
     args = parser.parse_args(argv)
 
@@ -1215,8 +1285,14 @@ def main(argv: list[str]) -> int:
     origin: Optional[subprocess.Popen[str]] = None
     tunnel: Optional[subprocess.Popen[str]] = None
     suspended_configs: list[SuspendedCloudflaredConfig] = []
+    suite_intelligence: Optional[subprocess.Popen[str]] = None
     try:
         origin = start_origin(root, bridge_write, q, sudo=args.sudo)
+        intelligence_enabled = not args.no_intelligence
+        if intelligence_enabled:
+            suite_intelligence = spawn_suite_intelligence(root, q)
+        else:
+            emit("INFO", "Suite Intelligence resident loop disabled by startup option")
         cloudflared = find_cloudflared()
         cfg = load_stable_tunnel(root)
         if args.prefer_named and cfg.route_mode == "named" and not (cfg.tunnel_name and cfg.public_endpoint) and args.setup_named and not args.sudo:
@@ -1228,7 +1304,7 @@ def main(argv: list[str]) -> int:
                 tunnel, active_protocol = start_named_tunnel(root, cloudflared, cfg, q)
                 public_url = cfg.public_url
                 emit("STATE", "named tunnel selected", endpoint=cfg.public_endpoint, protocol=active_protocol)
-                return monitor(root, origin, tunnel, public_url, quick=False, q=q, write=bridge_write, sudo=args.sudo)
+                return monitor(root, origin, tunnel, public_url, quick=False, q=q, write=bridge_write, sudo=args.sudo, suite_intelligence=suite_intelligence, intelligence_enabled=intelligence_enabled)
             except SupervisorError as exc:
                 emit("WARN", "Named Cloudflare Tunnel failed.", error=str(exc))
                 if not cfg.quick_tunnel_fallback:
@@ -1243,22 +1319,22 @@ def main(argv: list[str]) -> int:
             emit("WARN", "stable named tunnel is not configured; falling back to quick Cloudflare route", config=".takesome/ai-bridge/state/stable-tunnel.json")
         protocol = args.quick_protocol if args.quick_protocol != "auto" else cfg.quick_protocol
         tunnel, public_url, active_protocol, suspended_configs = start_quick_tunnel(root, cloudflared, q, primary=protocol, fallbacks=cfg.quick_fallback_protocols)
-        return monitor(root, origin, tunnel, public_url, quick=True, q=q, write=bridge_write, suspended_configs=suspended_configs, sudo=args.sudo)
+        return monitor(root, origin, tunnel, public_url, quick=True, q=q, write=bridge_write, suspended_configs=suspended_configs, sudo=args.sudo, suite_intelligence=suite_intelligence, intelligence_enabled=intelligence_enabled)
     except KeyboardInterrupt:
         emit("INFO", "stopping serverBridge")
-        stop_processes([tunnel, origin])
+        stop_processes([tunnel, origin, suite_intelligence])
         if suspended_configs:
             restore_default_cloudflared_configs(suspended_configs)
         return 130
     except SupervisorError as exc:
         emit("ERROR", str(exc))
-        stop_processes([tunnel, origin])
+        stop_processes([tunnel, origin, suite_intelligence])
         if suspended_configs:
             restore_default_cloudflared_configs(suspended_configs)
         return 1
     except Exception as exc:
         emit("ERROR", f"unexpected supervisor error: {type(exc).__name__}: {exc}")
-        stop_processes([tunnel, origin])
+        stop_processes([tunnel, origin, suite_intelligence])
         if suspended_configs:
             restore_default_cloudflared_configs(suspended_configs)
         return 1

@@ -9,7 +9,7 @@ from pathlib import Path
 from ..console import console_emit
 from ..paths import rel, suite_path, suite_root
 
-SCRIPT_ENV_VERSION = "4"
+SCRIPT_ENV_VERSION = "5"
 
 
 def discover_python_cmd() -> str:

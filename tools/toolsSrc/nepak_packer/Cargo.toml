@@ -7,6 +7,7 @@ description = "North Star .nepak VFS package packer/extractor/inspector/validato
 license = "MIT"
 
 [dependencies]
+northstar-cli = { path = "../../shared/northstar_cli" }
 blake3 = "1.5"
 flate2 = "1.0"
 serde_json = "1.0"

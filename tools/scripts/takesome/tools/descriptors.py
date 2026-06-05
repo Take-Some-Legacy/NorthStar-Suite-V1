@@ -37,6 +37,7 @@ class ToolDescriptor:
     expected_sha256: str = ""
     expected_size_bytes: int = 0
     commands: list[dict[str, Any]] | None = None
+    shared_libs: list[dict[str, Any]] | None = None
     source_type: str = "first_party"
     owner: str = "Take Some"
     safe_to_auto_run: bool = False
@@ -73,6 +74,7 @@ class ToolDescriptor:
             "capabilities": self.capabilities,
             "legacy_replaces": self.legacy_replaces,
             "commands": list(self.commands or []),
+            "shared_libs": list(self.shared_libs or []),
         }
 
 
@@ -174,6 +176,9 @@ def read_descriptor_v2(repo_root: Path, path: Path, data: dict[str, Any]) -> Too
         commands = []
     validation = data.get("validation", {})
     validation_args = string_list(validation.get("args", [])) if isinstance(validation, dict) else []
+    shared_libs = data.get("shared_libs", [])
+    if not isinstance(shared_libs, list):
+        shared_libs = []
     default_args = string_list(data.get("default_args", []))
     if not default_args and commands:
         first = commands[0]
@@ -202,6 +207,7 @@ def read_descriptor_v2(repo_root: Path, path: Path, data: dict[str, Any]) -> Too
         expected_sha256=str(data.get("expected_sha256", "")).strip(),
         expected_size_bytes=int(data.get("expected_size_bytes", 0) or 0),
         commands=[dict(x) for x in commands if isinstance(x, dict)],
+        shared_libs=[dict(x) for x in shared_libs if isinstance(x, dict)],
         source_type=str(data.get("source_type", "third_party")).strip() or "third_party",
         owner=str(data.get("owner", "third-party")).strip() or "third-party",
         safe_to_auto_run=bool(data.get("safe_to_auto_run", False)),
@@ -228,7 +234,7 @@ def discover_tools(repo_root: Path) -> tuple[list[ToolDescriptor], list[str]]:
             except ValueError as exc:
                 warnings.append(str(exc))
                 continue
-            for label, candidate in [("tool root", tool.root), ("package root", tool.package_root), ("source root", tool.source_root), ("cargo manifest", tool.cargo_manifest), ("executable", tool.executable)]:
+            for label, candidate in [("tool root", tool.root), ("package root", tool.package_root), ("source root", tool.source_root), ("cargo manifest", tool.cargo_manifest), ("executable", tool.executable), *(("shared lib path", _repo_path(repo_root, str(shared.get("path", "")).strip())) for shared in (tool.shared_libs or []) if str(shared.get("path", "")).strip())]:
                 if candidate is None:
                     continue
                 try:

@@ -1,54 +1,56 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.touch",
-  "version": "5.3.0-gnuwin32",
-  "name": "GNUWin32 touch",
-  "description": "Third-party GNUWin32 touch.exe executable packaged as an individual self-contained registry-visible tool.",
+  "id": "vendor.msys2.gnu.touch",
+  "version": "8.32-msys2-usr",
+  "name": "GNU touch",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/GNU coreutils",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/touch",
-  "executable": "bin/touch.exe",
-  "install_path": "tools/toolbelt/third_party/touch/bin/touch.exe",
-  "expected_sha256": "c6627232409107b3db5096eaf7dc11b27f34b2fc53df3a3a8394c5e1e093fc00",
-  "expected_size_bytes": 78848,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "file.timestamp.touch",
-    "workspace.file.touch",
-    "suite.vendor.touch"
+  "package_root": "tools/toolbelt/third_party/touch",
+  "root": "tools/toolbelt/third_party/touch",
+  "executable": "bin/touch.exe",
+  "expected_sha256": "1d895e0f77cbc8b77c3a38da009e8ad8d23a371afd398da5408bdeffcddf5fc0",
+  "expected_size_bytes": 107463,
+  "description": "MSYS2 usr GNU touch executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "version",
-      "description": "Print the GNU touch version.",
+      "description": "Print GNU touch version.",
       "args": [
         "--version"
-      ]
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     },
     {
-      "id": "touch-file",
-      "description": "Touch/create one file through the Suite wrapper.",
-      "suite_command": "touch-file"
+      "id": "help",
+      "description": "Print GNU touch help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     }
   ],
+  "default_args": [
+    "--version"
+  ],
   "validation": {
-    "mode": "presence_and_hash",
+    "mode": "presence_hash_version_and_shared_libs",
     "args": [
       "--version"
-    ]
+    ],
+    "expect_stdout_contains": "GNU coreutils) 8.32"
   },
-  "readme": "README.md",
-  "runtime_files": [
-    "bin/touch.exe",
-    "bin/libiconv-2.dll",
-    "bin/libiconv2.dll",
-    "bin/libintl-2.dll",
-    "bin/libintl3.dll",
-    "bin/regex2.dll"
-  ]
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

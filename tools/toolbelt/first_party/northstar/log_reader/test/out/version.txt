@@ -1,0 +1,1 @@
+northstar-log-reader 0.1.0

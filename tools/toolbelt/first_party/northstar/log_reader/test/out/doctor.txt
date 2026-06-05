@@ -1,0 +1,6 @@
+[90m[[92mOK[90m][0m northstar-log-reader doctor passed
+[90m[[94mINFO[90m][0m version=0.1.0
+[90m[[94mINFO[90m][0m live transport=http ndjson/sse
+[90m[[94mINFO[90m][0m ui command opens native window app: northstar-log-reader ui
+[90m[[94mINFO[90m][0m html command writes browser fallback: northstar-log-reader html --no-open
+[90m[[94mINFO[90m][0m ui layout=log-field + bottom level/search/clear bar

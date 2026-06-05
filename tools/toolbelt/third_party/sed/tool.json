@@ -1,80 +1,56 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.sed",
-  "version": "4.2.1-gnuwin32",
-  "name": "GNUWin32 sed",
-  "description": "Third-party GNU sed executable packaged as an individual registry-visible stream-edit tool.",
+  "id": "vendor.msys2.gnu.sed",
+  "version": "4.9-msys2-usr",
+  "name": "GNU sed",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/GNU sed",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/sed",
-  "executable": "bin/sed.exe",
-  "install_path": "tools/toolbelt/third_party/sed/bin/sed.exe",
-  "expected_sha256": "5c2e7c4e79b2af04f09ddec2b01bc68de99761a149e90a37319f515682843116",
-  "expected_size_bytes": 77824,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "text.transform.stream",
-    "workspace.edit.checkable",
-    "suite.vendor.sed"
+  "package_root": "tools/toolbelt/third_party/sed",
+  "root": "tools/toolbelt/third_party/sed",
+  "executable": "bin/sed.exe",
+  "expected_sha256": "8d54e322dfc3faa60f0464691aba8634197406e53367aa8942409181c0808be8",
+  "expected_size_bytes": 178140,
+  "description": "MSYS2 usr GNU sed executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "version",
-      "description": "Print the GNU sed version.",
+      "description": "Print GNU sed version.",
       "args": [
         "--version"
-      ]
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     },
     {
-      "id": "stream-edit-file",
-      "description": "Transform one file through the Suite wrapper.",
-      "suite_command": "sed-file",
-      "args_schema": [
-        {
-          "name": "script",
-          "flag": "--script",
-          "required": true,
-          "description": "sed -e script."
-        },
-        {
-          "name": "input",
-          "flag": "--input",
-          "required": true,
-          "description": "Input text file."
-        },
-        {
-          "name": "output",
-          "flag": "--output",
-          "required": true,
-          "description": "Output text file."
-        },
-        {
-          "name": "check",
-          "flag": "--check",
-          "required": false,
-          "description": "Print transformed output without writing."
-        }
-      ]
+      "id": "help",
+      "description": "Print GNU sed help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     }
   ],
+  "default_args": [
+    "--version"
+  ],
   "validation": {
-    "mode": "presence_and_hash",
+    "mode": "presence_hash_version_and_shared_libs",
     "args": [
       "--version"
-    ]
+    ],
+    "expect_stdout_contains": "GNU sed) 4.9"
   },
-  "readme": "README.md",
-  "runtime_files": [
-    "bin/sed.exe",
-    "bin/libiconv-2.dll",
-    "bin/libiconv2.dll",
-    "bin/libintl-2.dll",
-    "bin/libintl3.dll",
-    "bin/regex2.dll"
-  ]
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

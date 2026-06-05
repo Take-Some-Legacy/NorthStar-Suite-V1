@@ -7,6 +7,7 @@ description = "North Star XML-free YTD/NEF8 texture dictionary packer and extrac
 license = "MIT"
 
 [dependencies]
+northstar-cli = { path = "../../shared/northstar_cli" }
 blake3 = "1.5"
 flate2 = "1.0"
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "tga", "bmp"] }

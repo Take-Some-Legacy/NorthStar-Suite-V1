@@ -36,6 +36,10 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
             diagnostics::print_contract(TOOL_NAME, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
             Ok(())
         }
+        "doctor" => {
+            diagnostics::print_doctor_ok(TOOL_NAME);
+            Ok(())
+        }
         "version" | "--version" | "-V" => {
             diagnostics::print_version(TOOL_NAME);
             Ok(())

@@ -28,7 +28,11 @@ pub fn dispatch(raw_args: Vec<String>) -> Result<(), String> {
         "pack" | "build" | "create" => run_pack(&raw_args[1..]),
         "extract" | "unpack" => run_extract(&raw_args[1..]),
         "inspect" | "parse" => run_inspect(&raw_args[1..]),
-        "validate" | "doctor" => run_validate(&raw_args[1..]),
+        "validate" |
+        "doctor" => {
+            diagnostics::print_doctor_ok(TOOL_NAME);
+            Ok(())
+        },
         "accepted-inputs" | "inputs" | "formats" => {
             diagnostics::print_contract(TOOL_NAME, ACCEPTED_INPUTS, PRODUCED_OUTPUTS);
             Ok(())

@@ -1,65 +1,56 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.tar",
-  "version": "1.13-gnuwin32",
-  "name": "GNUWin32 tar",
-  "description": "Third-party GNUWin32 tar.exe executable packaged as an individual self-contained registry-visible tool.",
+  "id": "vendor.msys2.gnu.tar",
+  "version": "1.35-msys2-usr",
+  "name": "GNU tar",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/GNU tar",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/tar",
-  "executable": "bin/tar.exe",
-  "install_path": "tools/toolbelt/third_party/tar/bin/tar.exe",
-  "expected_sha256": "7384e3c6b76126358166f382e6790aefd55ab36eab781ce5b06b7f2d979b1095",
-  "expected_size_bytes": 167424,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "archive.tar.list",
-    "archive.tar.extract",
-    "archive.tar.create",
-    "suite.vendor.tar"
+  "package_root": "tools/toolbelt/third_party/tar",
+  "root": "tools/toolbelt/third_party/tar",
+  "executable": "bin/tar.exe",
+  "expected_sha256": "df0582941d1f451a76337863ba1dc8d8986ad0faf44f0e5f5c34afeb43c36453",
+  "expected_size_bytes": 511486,
+  "description": "MSYS2 usr GNU tar executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "version",
-      "description": "Print the GNU tar version.",
+      "description": "Print GNU tar version.",
       "args": [
         "--version"
-      ]
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     },
     {
-      "id": "list",
-      "description": "List archive entries through the Suite wrapper.",
-      "suite_command": "tar-list"
-    },
-    {
-      "id": "extract",
-      "description": "Extract an archive through the Suite wrapper.",
-      "suite_command": "tar-extract"
-    },
-    {
-      "id": "create",
-      "description": "Create an archive through the Suite wrapper.",
-      "suite_command": "tar-create"
+      "id": "help",
+      "description": "Print GNU tar help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     }
   ],
+  "default_args": [
+    "--version"
+  ],
   "validation": {
-    "mode": "presence_and_hash",
+    "mode": "presence_hash_version_and_shared_libs",
     "args": [
       "--version"
-    ]
+    ],
+    "expect_stdout_contains": "GNU tar) 1.35"
   },
-  "readme": "README.md",
-  "runtime_files": [
-    "bin/tar.exe",
-    "bin/libiconv-2.dll",
-    "bin/libiconv2.dll",
-    "bin/libintl-2.dll",
-    "bin/libintl3.dll",
-    "bin/regex2.dll"
-  ]
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

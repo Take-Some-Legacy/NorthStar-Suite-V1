@@ -1,5 +1,0 @@
-usage: hasher [-stripext] [-literal] filename [hashcode]
-
-filename is a list of names, one per line. Extensions may optionally be stripped with -stripext.
-
-hashcode is an optional hexadecimal hash code that the tool will try to match.

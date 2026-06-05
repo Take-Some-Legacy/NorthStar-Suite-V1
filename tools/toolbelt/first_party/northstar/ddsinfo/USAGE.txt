@@ -1,0 +1,3 @@
+ddsinfo [options] <paths>
+
+Options: --version, --help, --recurse, --dimensions, --compression, --format, --mipmaps, --strict, --filter <filter>.

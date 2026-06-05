@@ -1,0 +1,13 @@
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\bin\Release\net7.0\win-x64\ddsinfo.exe
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\bin\Release\net7.0\win-x64\ddsinfo.deps.json
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\bin\Release\net7.0\win-x64\ddsinfo.runtimeconfig.json
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\bin\Release\net7.0\win-x64\ddsinfo.dll
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\bin\Release\net7.0\win-x64\ddsinfo.pdb
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\obj\Release\net7.0\win-x64\ddsinfo.csproj.AssemblyReference.cache
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\obj\Release\net7.0\win-x64\ddsinfo.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\obj\Release\net7.0\win-x64\ddsinfo.csproj.CoreCompileInputs.cache
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\obj\Release\net7.0\win-x64\ddsinfo.dll
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\obj\Release\net7.0\win-x64\refint\ddsinfo.dll
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\obj\Release\net7.0\win-x64\ddsinfo.pdb
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\obj\Release\net7.0\win-x64\ddsinfo.genruntimeconfig.cache
+C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\obj\Release\net7.0\win-x64\ref\ddsinfo.dll

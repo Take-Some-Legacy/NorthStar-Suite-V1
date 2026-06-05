@@ -7,6 +7,7 @@ from ..logs import TeeLog, run_process
 from ..paths import rel
 from .descriptors import ToolDescriptor, discover_tools, expand_tool_args, target_exe
 from ..cargo.process import cargo_exe
+from .runtime_env import tool_runtime_env
 
 
 def build_tool_descriptor(repo_root: Path, tool: ToolDescriptor, *, release: bool, log: TeeLog) -> int:
@@ -41,7 +42,7 @@ def run_tool_validation(repo_root: Path, tool: ToolDescriptor, *, release: bool,
         args = ["doctor", "--root", "$repo_root"]
     expanded = expand_tool_args(repo_root, tool, args)
     log.emit(f"[CHECK] Running tool validation: {tool.id}")
-    return run_process([str(exe), *expanded], cwd=repo_root, log=log)
+    return run_process([str(exe), *expanded], cwd=repo_root, log=log, env=tool_runtime_env(repo_root, tool))
 
 
 def build_registered_tools(repo_root: Path, *, release: bool, only_safe: bool, validate: bool, log: TeeLog) -> int:

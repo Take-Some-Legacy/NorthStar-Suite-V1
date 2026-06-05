@@ -1,0 +1,2 @@
+{"schema":"northstar.logging.event.v1","sequence":1,"timestamp_ns":100,"level":"INFO","target":"engine.logging","message":"logger live stream opened"}
+{"schema":"northstar.logging.event.v1","sequence":2,"timestamp_ns":200,"level":"WARN","target":"engine.gateway_registry","message":"test warning"}

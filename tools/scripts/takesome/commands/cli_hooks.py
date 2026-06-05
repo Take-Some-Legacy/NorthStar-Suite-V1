@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
-from typing import Sequence, Protocol
+from types import SimpleNamespace
+from typing import Protocol, Sequence
 
 from .build_preflight_registry import run_registry_build_preflight
 from .registry_report import run_registry_report
@@ -9,6 +11,9 @@ from .observability import run_suite_observability_check
 from .suite_bridge_menu import run_suite_bridge_menu_generate
 from .suite_registry import run_suite_list_actions, run_suite_validate_actions
 from .tool_registry import run_tools_doctor, run_tools_list, run_tools_validate
+from ..suite_intelligence import suite_intelligence_command
+from ..suite_intelligence_loop import loop_args_from_env, suite_intelligence_loop_command
+from ..deepseek_smoke import run_deepseek_smoke
 
 
 class _LogLike(Protocol):
@@ -38,6 +43,23 @@ def try_handle_registry_command(argv: Sequence[str], repo_root: Path, log: _LogL
         return run_suite_validate_actions(repo_root, log=log)
     if command == "suite-bridge-menu-generate":
         return run_suite_bridge_menu_generate(repo_root, log=log)
+    if command == "suite-intelligence":
+        args = SimpleNamespace(
+            goal=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_GOAL", ""),
+            output=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_OUTPUT", ""),
+            top=int(os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_TOP", "8") or "8"),
+            json=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_JSON", "").lower() in {"1", "true", "yes"},
+            no_openai=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI", "").lower() in {"1", "true", "yes"},
+            self_check=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_SELF_CHECK", "").lower() in {"1", "true", "yes"},
+            openai_model=os.environ.get("NORTHSTAR_SUITE_OPENAI_MODEL", ""),
+        )
+        return suite_intelligence_command(repo_root, args)
+    if command == "suite-intelligence-loop":
+        return suite_intelligence_loop_command(repo_root, loop_args_from_env())
+    if command == "suite-intelligence-loop-check":
+        return suite_intelligence_loop_command(repo_root, loop_args_from_env(cycles=1))
+    if command == "suite-intelligence-smoke-deepseek":
+        return run_deepseek_smoke(repo_root, SimpleNamespace())
     if command == "tools-list":
         return run_tools_list(repo_root, log=log)
     if command == "tools-validate":
@@ -55,6 +77,10 @@ REGISTRY_COMMAND_IDS = (
     "suite-actions-list",
     "suite-actions-validate",
     "suite-bridge-menu-generate",
+    "suite-intelligence",
+    "suite-intelligence-loop",
+    "suite-intelligence-loop-check",
+    "suite-intelligence-smoke-deepseek",
     "tools-list",
     "tools-validate",
     "tools-doctor",
