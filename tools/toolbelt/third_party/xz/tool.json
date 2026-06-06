@@ -1,0 +1,56 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.msys2.gnu.xz",
+  "version": "5.8.1-msys2-usr",
+  "name": "GNU xz",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
+  "safe_to_auto_run": false,
+  "package_root": "tools/toolbelt/third_party/xz",
+  "root": "tools/toolbelt/third_party/xz",
+  "executable": "bin/xz.exe",
+  "expected_sha256": "c0cf02bce8a9421fb673778154084c6786922fd4afff3d95abd329ad6c3a6ab0",
+  "expected_size_bytes": 88564,
+  "description": "GNU/MSYS2 xz executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print xz version.",
+      "args": [
+        "--version"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print xz help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  ],
+  "default_args": [
+    "--version"
+  ],
+  "validation": {
+    "mode": "presence_hash_version_and_shared_libs",
+    "args": [
+      "--version"
+    ],
+    "expect_stdout_contains": "xz (XZ Utils) 5.8.1"
+  },
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+}

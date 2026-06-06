@@ -1,31 +1,29 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.diff",
-  "version": "2.8.7-gnuwin32",
-  "name": "GNUWin32 diff",
-  "description": "Third-party GNU diff executable packaged as an individual registry-visible tool for unified file comparison.",
+  "id": "vendor.msys2.gnu.diff",
+  "version": "3.12-msys2-usr",
+  "name": "GNU diff",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/GNU diffutils",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/diff",
-  "executable": "bin/diff.exe",
-  "install_path": "tools/toolbelt/third_party/diff/bin/diff.exe",
-  "expected_sha256": "f449ce40db50dd35c45c3dfa54bc79b6a3a4d9dc5ab0ff4d0fe91a4c9fefa310",
-  "expected_size_bytes": 150528,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "text.diff.unified",
-    "workspace.compare.files",
-    "suite.vendor.diff"
+  "package_root": "tools/toolbelt/third_party/diff",
+  "root": "tools/toolbelt/third_party/diff",
+  "executable": "bin/diff.exe",
+  "expected_sha256": "d64621f766d8910a92cb3d99bd7f23c0b1c736eece0e19dccbccead93aa81854",
+  "expected_size_bytes": 279886,
+  "description": "MSYS2 usr GNU diff executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "version",
-      "description": "Print the GNU diff version.",
+      "description": "Print GNU diff version/help.",
       "args": [
         "--version"
       ],
@@ -34,38 +32,62 @@
       "idempotentHint": true
     },
     {
-      "id": "unified-diff",
-      "description": "Compare two files using unified diff output through the Suite wrapper.",
-      "suite_command": "diff-files",
-      "args_schema": [
+      "id": "help",
+      "description": "Print GNU diff help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  ],
+  "default_args": [
+    "--version"
+  ],
+  "validation": {
+    "mode": "presence_hash_version_and_shared_libs",
+    "args": [
+      "--version"
+    ],
+    "expect_stdout_contains": "diff (GNU diffutils) 3.12"
+  },
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
+  "suite_commands": [
+    {
+      "id": "diff-files",
+      "title": "Diff files",
+      "description": "Run GNU diff as a safe unified diff wrapper.",
+      "tool_args": [
+        "-u"
+      ],
+      "args": [
         {
           "name": "left",
-          "flag": "--left",
+          "flags": [
+            "--left"
+          ],
+          "kind": "path",
           "required": true,
-          "description": "Left/before file path."
+          "help": "Left/before file path.",
+          "tool_flag": ""
         },
         {
           "name": "right",
-          "flag": "--right",
+          "flags": [
+            "--right"
+          ],
+          "kind": "path",
           "required": true,
-          "description": "Right/after file path."
+          "help": "Right/after file path.",
+          "tool_flag": ""
         }
-      ]
+      ],
+      "positional_args": [
+        "left",
+        "right"
+      ],
+      "riskTier": "read_only"
     }
-  ],
-  "validation": {
-    "mode": "presence_and_hash",
-    "args": [
-      "--version"
-    ]
-  },
-  "readme": "README.md",
-  "runtime_files": [
-    "bin/diff.exe",
-    "bin/libiconv2.dll",
-    "bin/libintl3.dll"
-  ],
-  "legacy_provider_family": "GNUWin32",
-  "legacy_status": "legacy-replace",
-  "replacement_source_policy": "Prefer pinned MSYS2 UCRT64 package or self-built mingw-w64 artifact with VENDOR.lock.json; no mixed random exe drops."
+  ]
 }

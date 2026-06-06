@@ -1,0 +1,56 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.msys2.gnu.realpath",
+  "version": "8.32-msys2-usr",
+  "name": "GNU realpath",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
+  "safe_to_auto_run": false,
+  "package_root": "tools/toolbelt/third_party/realpath",
+  "root": "tools/toolbelt/third_party/realpath",
+  "executable": "bin/realpath.exe",
+  "expected_sha256": "e780c23d5d6bf60d7e80e073586be5f4d7f91faa0a0d1f07b3088b5d710f8395",
+  "expected_size_bytes": 49576,
+  "description": "MSYS2 usr GNU realpath executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print GNU realpath version.",
+      "args": [
+        "--version"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print GNU realpath help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  ],
+  "default_args": [
+    "--version"
+  ],
+  "validation": {
+    "mode": "presence_hash_version_and_shared_libs",
+    "args": [
+      "--version"
+    ],
+    "expect_stdout_contains": "realpath (GNU coreutils) 8.32"
+  },
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+}

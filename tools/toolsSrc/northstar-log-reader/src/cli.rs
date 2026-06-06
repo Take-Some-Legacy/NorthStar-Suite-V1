@@ -5,7 +5,7 @@ use northstar_cli::ansi;
 
 pub const TOOL_NAME: &str = "northstar-log-reader";
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const ACCEPTED_INPUTS: &str = "live http:// NDJSON/SSE stream, file:// URL, local *.jsonl / *.ulog.jsonl path";
+pub const ACCEPTED_INPUTS: &str = "default http://127.0.0.1:8765/logs endpoint, live http:// NDJSON/SSE stream, file:// URL, local *.jsonl / *.ulog.jsonl path";
 pub const PRODUCED_OUTPUTS: &str = "native LIVE window app, LIVE JSONL, table text, self-contained live *.html fallback UI";
 
 pub fn dispatch(args: Vec<String>) -> Result<(), String> {
@@ -53,18 +53,18 @@ USAGE:
   northstar-log-reader doctor
 
   northstar-log-reader ui
-  northstar-log-reader ui [--url <http://host/live>]   # default: http://127.0.0.1
+  northstar-log-reader ui [--url <http://host/live>]   # default: http://127.0.0.1:8765/logs
 
-  northstar-log-reader html [--url <http://host/live>] [--out log-reader.html] [--no-open]   # default URL: http://127.0.0.1
+  northstar-log-reader html [--url <http://host/live>] [--out log-reader.html] [--no-open]   # default URL: http://127.0.0.1:8765/logs
 
-  northstar-log-reader read --url <http://host/snapshot|file://path|path> [--format table|jsonl|json] [--limit N]
-  northstar-log-reader tail --url <http://host/snapshot|file://path|path> [--count N] [--format table|jsonl|json]
-  northstar-log-reader live --url <http://host/live> [--format table|jsonl] [--max-events N]
+  northstar-log-reader read [--url <http://host/snapshot|file://path|path>] [--format table|jsonl|json] [--limit N]
+  northstar-log-reader tail [--url <http://host/snapshot|file://path|path>] [--count N] [--format table|jsonl|json]
+  northstar-log-reader live [--url <http://host/live>] [--format table|jsonl] [--max-events N]
 
 UI COMMAND:
   `ui` opens the native LogReader app window.
   No arguments are required.
-  Without --url, the live URL field is prefilled with http://127.0.0.1.
+  Without --url, commands use http://127.0.0.1:8765/logs.
   With --url, the live URL field is prefilled with the provided value.
 
 APP LAYOUT:

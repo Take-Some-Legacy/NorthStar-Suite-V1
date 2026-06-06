@@ -1,21 +1,37 @@
 @echo off
-setlocal EnableExtensions
+setlocal EnableExtensions EnableDelayedExpansion
 set "TEST_DIR=%~dp0"
 for %%I in ("%TEST_DIR%..") do set "TOOL_ROOT=%%~fI"
+for %%I in ("%TOOL_ROOT%\..\..\libraries") do set "LIB_ROOT=%%~fI"
 set "EXE=%TOOL_ROOT%\bin\diff3.exe"
+set "WORK=%TOOL_ROOT%\test\_out"
+set "RC=0"
 echo ============================================================
-echo [SMOKE] vendor.gnuwin32.diff3 smokeTest
+echo [SMOKE] vendor.msys2.gnu.diff3 functional smokeTest
 echo [INFO] root=%TOOL_ROOT%
-echo [INFO] mode=payload-version-smoke
-echo [INFO] old GNUWin32 diff3 emits Windows filename syntax errors during merge/compare smoke; this test validates executable payload only.
+echo [INFO] libraries=%LIB_ROOT%
+echo [INFO] work=%WORK%
 echo ============================================================
+if exist "%WORK%" rmdir /s /q "%WORK%" > nul 2> nul
+mkdir "%WORK%" || exit /b 1
 if not exist "%EXE%" echo [FAIL] missing executable: %EXE%& set "RC=1"& goto :done
-echo [CMD] "%EXE%" --version
-"%EXE%" --version
-set "RC=%ERRORLEVEL%"
+if not exist "%LIB_ROOT%\msys-2.0.dll" echo [FAIL] missing shared library: %LIB_ROOT%\msys-2.0.dll& set "RC=1"& goto :done
+set "PATH=%TOOL_ROOT%\bin;%LIB_ROOT%;%PATH%"
+(echo one& echo base& echo three)> "%WORK%\base.txt"
+(echo one& echo left& echo three)> "%WORK%\left.txt"
+(echo one& echo right& echo three)> "%WORK%\right.txt"
+"%EXE%" "%WORK%\left.txt" "%WORK%\base.txt" "%WORK%\right.txt" > "%WORK%\out.txt"
+set "RAW_RC=%ERRORLEVEL%"
+if "%RAW_RC%"=="1" (set "RC=0") else (set "RC=%RAW_RC%")
+type "%WORK%\out.txt"
 if not "%RC%"=="0" goto :done
-echo [PASS] vendor.gnuwin32.diff3 smokeTest passed
-goto :done
+findstr /c:"====" "%WORK%\out.txt" > nul || set "RC=1"
+findstr /c:"left" "%WORK%\out.txt" > nul || set "RC=1"
+findstr /c:"base" "%WORK%\out.txt" > nul || set "RC=1"
+findstr /c:"right" "%WORK%\out.txt" > nul || set "RC=1"
+if not "%RC%"=="0" goto :done
+echo [PASS] diff3 produced conflict output for three files
+
 :done
 echo [RESULT] smokeTest exit=%RC%
 echo ============================================================

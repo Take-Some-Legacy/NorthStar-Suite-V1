@@ -1,0 +1,19 @@
+{
+  "action_id": "fs.read_file",
+  "group": "Operator FS",
+  "title": "Read file",
+  "description": "Run ns-read-file through the read-only operator filesystem layer.",
+  "command": "ns-read-file",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal",
+  "readOnlyHint": true,
+  "destructiveHint": false,
+  "idempotentHint": true,
+  "riskTier": "read_only"
+}

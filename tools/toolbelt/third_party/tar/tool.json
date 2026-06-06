@@ -52,5 +52,102 @@
     ],
     "expect_stdout_contains": "GNU tar) 1.35"
   },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
+  "suite_commands": [
+    {
+      "id": "tar-list",
+      "title": "List tar archive",
+      "description": "List archive entries through GNU tar.",
+      "tool_args": [
+        "-tf"
+      ],
+      "args": [
+        {
+          "name": "archive",
+          "flags": [
+            "--archive"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Archive path.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "archive"
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "tar-extract",
+      "title": "Extract tar archive",
+      "description": "Extract archive through GNU tar into an output directory.",
+      "tool_args": [
+        "-xf"
+      ],
+      "args": [
+        {
+          "name": "archive",
+          "flags": [
+            "--archive"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Archive path.",
+          "tool_flag": ""
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Output directory.",
+          "tool_flag": "-C"
+        }
+      ],
+      "positional_args": [
+        "archive"
+      ],
+      "riskTier": "write"
+    },
+    {
+      "id": "tar-create",
+      "title": "Create tar archive",
+      "description": "Create archive through GNU tar from explicit inputs.",
+      "tool_args": [
+        "-cf"
+      ],
+      "args": [
+        {
+          "name": "archive",
+          "flags": [
+            "--archive"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Output archive path.",
+          "tool_flag": ""
+        },
+        {
+          "name": "inputs",
+          "flags": [
+            "inputs"
+          ],
+          "kind": "path_list",
+          "positional": true,
+          "nargs": "+",
+          "required": true,
+          "help": "Files/directories to include.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "archive",
+        "inputs"
+      ],
+      "riskTier": "write"
+    }
+  ]
 }

@@ -1,0 +1,6 @@
+alpha
+alpha
+beta
+beta
+beta
+gamma

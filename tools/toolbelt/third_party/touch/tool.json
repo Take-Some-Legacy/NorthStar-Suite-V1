@@ -52,5 +52,49 @@
     ],
     "expect_stdout_contains": "GNU coreutils) 8.32"
   },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
+  "suite_commands": [
+    {
+      "id": "touch-file",
+      "title": "Touch file",
+      "description": "Run GNU touch as a timestamp/create-file wrapper.",
+      "tool_args": [],
+      "args": [
+        {
+          "name": "path",
+          "flags": [
+            "--path"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "File to touch/create.",
+          "tool_flag": ""
+        },
+        {
+          "name": "no_create",
+          "flags": [
+            "--no-create"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Do not create the file if it does not exist.",
+          "tool_flag": "--no-create"
+        },
+        {
+          "name": "reference",
+          "flags": [
+            "--reference"
+          ],
+          "kind": "path",
+          "default": "",
+          "help": "Copy timestamp from another file.",
+          "tool_flag": "-r"
+        }
+      ],
+      "positional_args": [
+        "path"
+      ],
+      "riskTier": "write"
+    }
+  ]
 }

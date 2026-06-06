@@ -1,0 +1,56 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gitforwindows.dos2unix",
+  "version": "7.5.2-gitforwindows-usr",
+  "name": "dos2unix",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "dos2unix/Git-for-Windows",
+  "maturity": "vendor-pinned-local",
+  "safe_to_auto_run": false,
+  "package_root": "tools/toolbelt/third_party/dos2unix",
+  "root": "tools/toolbelt/third_party/dos2unix",
+  "executable": "bin/dos2unix.exe",
+  "expected_sha256": "6c99bf555cef6f00bf38fcb96932a4cebd20bdf057d79028a22d986a23b1212c",
+  "expected_size_bytes": 53862,
+  "description": "dos2unix/Git-for-Windows dos2unix executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print dos2unix version.",
+      "args": [
+        "--version"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print dos2unix help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  ],
+  "default_args": [
+    "--version"
+  ],
+  "validation": {
+    "mode": "presence_hash_version_and_shared_libs",
+    "args": [
+      "--version"
+    ],
+    "expect_stdout_contains": "dos2unix"
+  },
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+}

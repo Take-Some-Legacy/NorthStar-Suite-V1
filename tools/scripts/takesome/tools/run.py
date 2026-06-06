@@ -225,7 +225,7 @@ def _run_tool(repo_root: Path, ns: Any, *, log: TeeLog) -> int:
     if tool is None:
         log.emit(f"[ERROR] Unknown tool id: {ns.tool_id}")
         return 2
-    runnable_kinds = {"rust-cli", "external-cli", "vendor-cli"}
+    runnable_kinds = {"rust-cli", "external-cli", "vendor-cli", "dotnet-host-cli"}
     if tool.kind not in runnable_kinds:
         log.emit(f"[ERROR] Tool is not runnable by this launcher: {tool.id} kind={tool.kind}")
         return 2

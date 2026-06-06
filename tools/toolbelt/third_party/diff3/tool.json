@@ -1,52 +1,110 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.diff3",
-  "version": "2.8.7-gnuwin32",
-  "name": "GNUWin32 diff3",
-  "description": "Third-party GNU diff3 executable packaged as an individual registry-visible three-way comparison tool.",
+  "id": "vendor.msys2.gnu.diff3",
+  "version": "3.12-msys2-usr",
+  "name": "GNU diff3",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/GNU diffutils",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/diff3",
-  "executable": "bin/diff3.exe",
-  "install_path": "tools/toolbelt/third_party/diff3/bin/diff3.exe",
-  "expected_sha256": "d770ac96fa4fabc42a2da04f897febf07c6794e4a6d5e4c1b64f23b039916cf8",
-  "expected_size_bytes": 59392,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "text.diff.three_way",
-    "workspace.compare.three_way",
-    "suite.vendor.diff3"
+  "package_root": "tools/toolbelt/third_party/diff3",
+  "root": "tools/toolbelt/third_party/diff3",
+  "executable": "bin/diff3.exe",
+  "expected_sha256": "913e23ff6b2f9dc204b92a181ac993e3ce7c8c5bcd68db3f7662224a1896a975",
+  "expected_size_bytes": 60138,
+  "description": "MSYS2 usr GNU diff3 executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "version",
-      "description": "Print the GNU diff3 version.",
+      "description": "Print GNU diff3 version/help.",
       "args": [
         "--version"
       ],
       "readOnlyHint": true,
       "destructiveHint": false,
       "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print GNU diff3 help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     }
   ],
+  "default_args": [
+    "--version"
+  ],
   "validation": {
-    "mode": "presence_and_hash",
+    "mode": "presence_hash_version_and_shared_libs",
     "args": [
       "--version"
-    ]
+    ],
+    "expect_stdout_contains": "diff3 (GNU diffutils) 3.12"
   },
-  "readme": "README.md",
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries. diff3 carries diff.exe as same-bin runtime companion because GNU diff3 invokes diff by name.",
   "runtime_files": [
-    "bin/diff3.exe",
-    "bin/libiconv2.dll",
-    "bin/libintl3.dll"
+    {
+      "path": "bin/diff.exe",
+      "role": "diff3 companion executable",
+      "sha256": "d64621f766d8910a92cb3d99bd7f23c0b1c736eece0e19dccbccead93aa81854",
+      "size": 279886
+    }
   ],
-  "legacy_provider_family": "GNUWin32",
-  "legacy_status": "legacy-replace",
-  "replacement_source_policy": "Prefer pinned MSYS2 UCRT64 package or self-built mingw-w64 artifact with VENDOR.lock.json; no mixed random exe drops."
+  "suite_commands": [
+    {
+      "id": "diff3-files",
+      "title": "Three-way diff files",
+      "description": "Run GNU diff3 as a safe three-way merge report wrapper.",
+      "tool_args": [],
+      "args": [
+        {
+          "name": "base",
+          "flags": [
+            "--base"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Base/common ancestor file path.",
+          "tool_flag": ""
+        },
+        {
+          "name": "mine",
+          "flags": [
+            "--mine"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Mine/current file path.",
+          "tool_flag": ""
+        },
+        {
+          "name": "theirs",
+          "flags": [
+            "--theirs"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Theirs/incoming file path.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "mine",
+        "base",
+        "theirs"
+      ],
+      "riskTier": "read_only"
+    }
+  ]
 }

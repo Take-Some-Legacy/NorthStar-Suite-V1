@@ -2,7 +2,7 @@
   "schema": "takesome.tool.v2",
   "id": "northstar.log_reader",
   "name": "North Star LIVE Log Reader",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "kind": "first_party",
   "entry": {
     "windows": "bin/northstar-log-reader.exe"

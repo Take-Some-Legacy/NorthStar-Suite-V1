@@ -1,0 +1,56 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.msys2.gnu.head",
+  "version": "8.32-msys2-usr",
+  "name": "GNU head",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
+  "safe_to_auto_run": false,
+  "package_root": "tools/toolbelt/third_party/head",
+  "root": "tools/toolbelt/third_party/head",
+  "executable": "bin/head.exe",
+  "expected_sha256": "c82ae2ef72235a34db7007580628cd5183cb350878a10fcc98b6ef26b92a3537",
+  "expected_size_bytes": 45413,
+  "description": "MSYS2 usr GNU head executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print GNU head version.",
+      "args": [
+        "--version"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print GNU head help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  ],
+  "default_args": [
+    "--version"
+  ],
+  "validation": {
+    "mode": "presence_hash_version_and_shared_libs",
+    "args": [
+      "--version"
+    ],
+    "expect_stdout_contains": "head (GNU coreutils) 8.32"
+  },
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+}

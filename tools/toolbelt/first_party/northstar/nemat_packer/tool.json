@@ -45,5 +45,350 @@
     "validation.material_texture_refs",
     "validation.nef8_hash"
   ],
-  "sha256": "1fbc4dfdd2ca0c25937ceb6b252a94241db7c216ca86eb12b44567cf20d8e8df"
+  "sha256": "1fbc4dfdd2ca0c25937ceb6b252a94241db7c216ca86eb12b44567cf20d8e8df",
+  "suite_commands": [
+    {
+      "id": "draft-nemat",
+      "title": "Create draft NEMAT material",
+      "description": "Create draft .nemat.xml material library.",
+      "tool_args": [
+        "create-draft"
+      ],
+      "args": [
+        {
+          "name": "material",
+          "flags": [
+            "--material"
+          ],
+          "kind": "string",
+          "default": "",
+          "required": false,
+          "help": "Material entry name. Default: material.",
+          "tool_flag": "--material"
+        },
+        {
+          "name": "shader",
+          "flags": [
+            "--shader"
+          ],
+          "kind": "string",
+          "default": "",
+          "required": false,
+          "help": "Shader/material contract id.",
+          "tool_flag": "--shader"
+        },
+        {
+          "name": "blend",
+          "flags": [
+            "--blend"
+          ],
+          "kind": "string",
+          "default": "",
+          "required": false,
+          "help": "Surface blend mode.",
+          "tool_flag": "--blend"
+        },
+        {
+          "name": "two_sided",
+          "flags": [
+            "--two-sided"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Mark surface two-sided.",
+          "tool_flag": "--two-sided"
+        },
+        {
+          "name": "alpha_cutoff",
+          "flags": [
+            "--alpha-cutoff"
+          ],
+          "kind": "string",
+          "default": "",
+          "required": false,
+          "help": "Alpha cutoff for masked surfaces.",
+          "tool_flag": "--alpha-cutoff"
+        },
+        {
+          "name": "texture",
+          "flags": [
+            "--texture"
+          ],
+          "kind": "string",
+          "default": "",
+          "required": false,
+          "help": "Texture binding slot=path.ytd@entry. Can repeat.",
+          "tool_flag": "--texture",
+          "action": "append"
+        },
+        {
+          "name": "param",
+          "flags": [
+            "--param"
+          ],
+          "kind": "string",
+          "default": "",
+          "required": false,
+          "help": "Typed param name:type=value. Can repeat.",
+          "tool_flag": "--param",
+          "action": "append"
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": true,
+          "help": "Output .nemat.xml path.",
+          "tool_flag": "--output"
+        }
+      ],
+      "riskTier": "write"
+    },
+    {
+      "id": "pack-nemat",
+      "title": "Pack NEMAT material library",
+      "description": "Pack .nemat.xml to runtime .nemat.",
+      "tool_args": [
+        "pack"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": true,
+          "help": "Input .nemat.xml file.",
+          "tool_flag": "--input"
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": true,
+          "help": "Output .nemat file.",
+          "tool_flag": "--output"
+        },
+        {
+          "name": "logical_path",
+          "flags": [
+            "--logical-path"
+          ],
+          "kind": "string",
+          "default": "",
+          "required": false,
+          "help": "Logical runtime path override.",
+          "tool_flag": "--logical-path"
+        }
+      ],
+      "riskTier": "write"
+    },
+    {
+      "id": "inspect-nemat",
+      "title": "Inspect NEMAT material library",
+      "description": "Inspect a .nemat runtime material library.",
+      "tool_args": [
+        "inspect"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .nemat file. Defaults to discovered asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.nemat"
+          }
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "validate-nemat",
+      "title": "Validate NEMAT material library",
+      "description": "Validate .nemat.xml or .nemat material library.",
+      "tool_args": [
+        "validate"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .nemat.xml or .nemat file. Defaults to discovered asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.nemat"
+          }
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "dump-nemat-xml",
+      "title": "Dump NEMAT XML",
+      "description": "Dump .nemat runtime body as .nemat.xml.",
+      "tool_args": [
+        "dump-xml"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .nemat file. Defaults to discovered asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.nemat"
+          }
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Output .nemat.xml path.",
+          "tool_flag": "--output"
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "manifest-nemat",
+      "title": "Project NEMAT manifest",
+      "description": "Emit NEMAT manifest JSON projection.",
+      "tool_args": [
+        "manifest"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .nemat file. Defaults to discovered asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.nemat"
+          }
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Optional JSON output path.",
+          "tool_flag": "--output"
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "graph-nemat",
+      "title": "Project NEMAT graph",
+      "description": "Emit NEMAT dependency graph JSON projection.",
+      "tool_args": [
+        "graph"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .nemat file. Defaults to discovered asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.nemat"
+          }
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Optional JSON output path.",
+          "tool_flag": "--output"
+        }
+      ],
+      "riskTier": "read_only"
+    }
+  ]
 }

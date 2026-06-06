@@ -1,0 +1,401 @@
+[
+  [
+    "tools/toolbelt/first_party/northstar/ddsinfo",
+    "PASS",
+    0,
+    305,
+    "rthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\ddsinfo\r\n[INFO] library=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\\northstar.ddsinfo.dll\r\n[INFO] source=tools\\toolsSrc\\ddsinfo + tools\\toolsSrc\\ddsinfo_host\r\n============================================================\r\n[PASS] northstar.ddsinfo smokeTest passed\r\nexe=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\ddsinfo\\bin\\ddsinfo.exe\r\nlibrary=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\\northstar.ddsinfo.dll\r\ndata=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\ddsinfo\\testData\r\nfixture=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\ddsinfo\\testData\\test.dds\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/first_party/northstar/hasher",
+    "PASS",
+    0,
+    68,
+    "stripping output:\r\nATSTRINGHASH(\"adder\",0xb779a091)\nATSTRINGHASH(\"Adder\",0xb779a091)\nATSTRINGHASH(\"vehicle\",0xdd245b9c)\nATSTRINGHASH(\"archive.name\",0x11e66e26)\n\r\n[OK] hash filtering output:\r\nATSTRINGHASH(\"adder\",0xb779a091)\nATSTRINGHASH(\"Adder\",0xb779a091)\n\r\n\r\n[OK] northstar-hasher smoke tests passed\r\ntool=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\hasher\\test\\..\\bin\\northstar-hasher.exe\r\ndata=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\hasher\\test\\..\\testData\\names.txt\r\noutput_dir=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\hasher\\test\\..\\test\\_out\r\n\r\n[OK] All tests passed. Output files are in: C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\hasher\\test\\..\\test\\_out\r\n\u0414\u043b\u044f \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0435\u043d\u0438\u044f \u043d\u0430\u0436\u043c\u0438\u0442\u0435 \u043b\u044e\u0431\u0443\u044e \u043a\u043b\u0430\u0432\u0438\u0448\u0443 . . . \r\n"
+  ],
+  [
+    "tools/toolbelt/first_party/northstar/log_reader",
+    "PASS",
+    0,
+    2068,
+    "[OK] northstar-log-reader local test passed\r\n"
+  ],
+  [
+    "tools/toolbelt/first_party/northstar/neftd_packer",
+    "PASS",
+    0,
+    127,
+    "[OK] neftd_packer battle test passed\r\ndata=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\neftd_packer\\test\\..\\testData\r\noutput=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\neftd_packer\\test\\_out\\tt_lakes_trial.neftd\r\nextracted=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\neftd_packer\\test\\_out\\extract\\tt_lakes_neue_trial_black.fontbin\r\n"
+  ],
+  [
+    "tools/toolbelt/first_party/northstar/nemat_packer",
+    "PASS",
+    0,
+    45,
+    "[OK] nemat_packer battle test passed\r\n"
+  ],
+  [
+    "tools/toolbelt/first_party/northstar/nepak_packer",
+    "PASS",
+    0,
+    31,
+    "[OK] nepak_packer battle test passed\r\n"
+  ],
+  [
+    "tools/toolbelt/first_party/northstar/neui_packer",
+    "PASS",
+    0,
+    47,
+    "[OK] neui_packer battle test passed\r\n"
+  ],
+  [
+    "tools/toolbelt/first_party/northstar/symbol_extract",
+    "PASS",
+    0,
+    85,
+    "ssed\n\u001b[90m[\u001b[94mINFO\u001b[90m]\u001b[0m version=0.1.0\n\r\n[OK] extract payload stayed clean: C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\symbol_extract\\test\\..\\test\\_out\\symbols.txt\r\n[OK] -out wrote payload file\r\n\r\n[OK] northstar-symbol-extract smoke tests passed\r\ntool=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\symbol_extract\\test\\..\\bin\\northstar-symbol-extract.exe\r\ndata=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\symbol_extract\\test\\..\\testData\\sample-empty-pe.exe\r\noutput_dir=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\symbol_extract\\test\\..\\test\\_out\r\n\r\n[OK] All tests passed. Output files are in: C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\symbol_extract\\test\\..\\test\\_out\r\n"
+  ],
+  [
+    "tools/toolbelt/first_party/northstar/ydd_packer",
+    "PASS",
+    0,
+    91,
+    "[OK] ydd_packer battle test passed\r\n"
+  ],
+  [
+    "tools/toolbelt/first_party/northstar/ytd_packer",
+    "PASS",
+    0,
+    62,
+    "============================================================\r\n[SMOKE] northstar.ytd_packer data-driven proof-of-work\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\first_party\\northstar\\ytd_packer\r\n============================================================\r\n[PASS] northstar.ytd_packer data-driven proof-of-work passed\r\n[RESULT] smokeTest exit=\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/first_party/northstar/ytyp_packer",
+    "PASS",
+    0,
+    43,
+    "[OK] ytyp_packer battle test passed\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/awk",
+    "PASS",
+    0,
+    48,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.awk smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\awk\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] tool-specific smoke\r\n0\n[PASS] vendor.msys2.gnu.awk smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/basename",
+    "PASS",
+    0,
+    95,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.basename functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\basename\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\basename\\test\\_out\r\n============================================================\r\nfile.txt\n[PASS] basename extracted file name\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/bison",
+    "PASS",
+    0,
+    127,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.bison functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\bison\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\bison\\test\\_out\r\n============================================================\r\n[PASS] bison generated parser from grammar fixture\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/bzip2",
+    "PASS",
+    0,
+    40,
+    "lbelt\\third_party\\bzip2\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] tool-specific smoke\r\nbzip2, a block-sorting file compressor.  Version 1.0.8, 13-Jul-2019.\n   \n   Copyright (C) 1996-2019 by Julian Seward.\n   \n   This program is free software; you can redistribute it and/or modify\n   it under the terms set out in the LICENSE file, which is included\n   in the bzip2 source distribution.\n   \n   This program is distributed in the hope that it will be useful,\n   but WITHOUT ANY WARRANTY; without even the implied warranty of\n   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n   LICENSE file for more details.\n   \nBZh9\u0017rE8P\u0420\u0000\u0000\u0000\u0000[PASS] vendor.msys2.gnu.bzip2 smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/cat",
+    "PASS",
+    0,
+    85,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.cat smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\cat\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\cat\\bin\\cat.exe\" --version\r\n[CMD] tool-specific smoke\r\nalpha\r\nbeta\r\ngamma\r\n[PASS] vendor.msys2.gnu.cat smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/cp",
+    "PASS",
+    0,
+    45,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.cp functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\cp\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\cp\\test\\_out\r\n============================================================\r\n[PASS] cp copied file and content matched\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/cut",
+    "PASS",
+    0,
+    92,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.cut functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\cut\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\cut\\test\\_out\r\n============================================================\r\ntwo\n[PASS] cut extracted second CSV field\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/diff",
+    "PASS",
+    0,
+    59,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.diff smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\diff\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n--- \"C:\\\\Users\\\\Aiden\\\\Documents\\\\Take Some\\\\NorthStar-Engine\\\\tools\\\\toolbelt\\\\third_party\\\\diff\\\\test\\\\testData\\\\left.txt\"\t2026-06-03 08:08:12.609329700 +0300\n+++ \"C:\\\\Users\\\\Aiden\\\\Documents\\\\Take Some\\\\NorthStar-Engine\\\\tools\\\\toolbelt\\\\third_party\\\\diff\\\\test\\\\testData\\\\right.txt\"\t2026-06-03 08:08:12.609866000 +0300\n@@ -1,3 +1,3 @@\n alpha\n-bravo\n+bravo changed\n charlie\n[PASS] vendor.msys2.gnu.diff smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/diff3",
+    "PASS",
+    0,
+    145,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.diff3 functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\diff3\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\diff3\\test\\_out\r\n============================================================\r\n====\n1:2c\n  left\r\n2:2c\n  base\r\n3:2c\n  right\r\n[PASS] diff3 produced conflict output for three files\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/dirname",
+    "PASS",
+    0,
+    87,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.dirname functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\dirname\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\dirname\\test\\_out\r\n============================================================\r\n/tmp/northstar\n[PASS] dirname extracted directory name\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/dos2unix",
+    "PASS",
+    0,
+    140,
+    "============================================================\r\n[SMOKE] vendor.gitforwindows.dos2unix functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\dos2unix\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\dos2unix\\test\\_out\r\n============================================================\r\n[PASS] dos2unix converted CRLF to LF\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/fgrep",
+    "PASS",
+    0,
+    43,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.fgrep smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\fgrep\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n2:needle one\n"
+  ],
+  [
+    "tools/toolbelt/third_party/file",
+    "PASS",
+    0,
+    47,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.file smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\file\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] tool-specific smoke\r\nC:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\file\\tool.json: JSON text data\n[PASS] vendor.msys2.gnu.file smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/find",
+    "PASS",
+    0,
+    46,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.find smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\find\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] tool-specific smoke\r\n.\n[PASS] vendor.msys2.gnu.find smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/flex",
+    "PASS",
+    0,
+    110,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.flex smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\flex\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Temp\\nst_flex_smoke\r\n============================================================\r\n[PASS] vendor.msys2.gnu.flex smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/flexpp",
+    "PASS",
+    0,
+    92,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.flexpp smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\flexpp\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Temp\\nst_flexpp_smoke\r\n============================================================\r\n[PASS] vendor.msys2.gnu.flexpp smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/funzip",
+    "PASS",
+    0,
+    52,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.funzip smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\funzip\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\nhello funzip\n[PASS] vendor.msys2.gnu.funzip smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/gawk",
+    "PASS",
+    0,
+    41,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.gawk smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\gawk\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] tool-specific smoke\r\n0\n[PASS] vendor.msys2.gnu.gawk smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/grep",
+    "PASS",
+    0,
+    50,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.grep smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\grep\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\grep\\bin\\grep.exe\" needle \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\grep\\test\\testData\\input.txt\"\r\nneedle-one\nneedle-two\n[PASS] vendor.msys2.gnu.grep smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/gzip",
+    "PASS",
+    0,
+    76,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.gzip functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\gzip\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\gzip\\test\\_out\r\n============================================================\r\n[PASS] gzip compressed and decompressed temp file\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/head",
+    "PASS",
+    0,
+    57,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.head functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\head\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\head\\test\\_out\r\n============================================================\r\none\r\ntwo\r\n[PASS] head returned first two lines only\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/ls",
+    "PASS",
+    0,
+    57,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.ls functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\ls\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\ls\\test\\_out\r\n============================================================\r\nalpha.txt\nbeta.txt\nls.out\n[PASS] ls listed created files\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/m4",
+    "PASS",
+    0,
+    57,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.m4 smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\m4\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n\nHello NorthStar\n[PASS] vendor.msys2.gnu.m4 smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/make",
+    "PASS",
+    0,
+    46,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.make functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\make\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\make\\test\\_out\r\n============================================================\r\necho NorthStar Smoke\n[PASS] make parsed makefile and expanded recipe in dry-run\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/mkdir",
+    "PASS",
+    0,
+    40,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.mkdir functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\mkdir\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\mkdir\\test\\_out\r\n============================================================\r\n[PASS] mkdir created nested directory\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/mv",
+    "PASS",
+    0,
+    52,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.mv functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\mv\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\mv\\test\\_out\r\n============================================================\r\n[PASS] mv moved file and preserved content\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/patch",
+    "PASS",
+    0,
+    154,
+    "============================================================\r\n[SMOKE] vendor.gitforwindows.gnu.patch functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\patch\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\patch\\test\\_out\r\n============================================================\r\n[PASS] patch applied unified diff to temp file\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/printf",
+    "PASS",
+    0,
+    91,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.printf functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\printf\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\printf\\test\\_out\r\n============================================================\r\nNorthStar-007\n[PASS] printf formatted output\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/realpath",
+    "PASS",
+    0,
+    51,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.realpath functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\realpath\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\realpath\\test\\_out\r\n============================================================\r\nC:/Users/Aiden/Documents/Take Some/NorthStar-Engine/tools/toolbelt/third_party/realpath/test/_out/target.txt\n[PASS] realpath resolved temp file\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/rm",
+    "PASS",
+    0,
+    39,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.rm functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\rm\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\rm\\test\\_out\r\n============================================================\r\n[PASS] rm deleted temp file\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/sdiff",
+    "PASS",
+    0,
+    94,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.sdiff smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\sdiff\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Temp\\nst_sdiff_smoke\r\n============================================================\r\nalpha\t\t\t\t\t\t\t\talpha\nbravo\t\t\t\t\t\t\t      |\tbravo changed\ncharlie\t\t\t\t\t\t\t\tcharlie\n[PASS] vendor.msys2.gnu.sdiff smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/sed",
+    "PASS",
+    0,
+    51,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.sed smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\sed\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\sed\\bin\\sed.exe\" -e s/foo/bar/g \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\sed\\test\\testData\\input.txt\"\r\nalpha bar\nbravo bar\n[PASS] vendor.msys2.gnu.sed smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/sort",
+    "PASS",
+    0,
+    77,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.sort smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\sort\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\sort\\bin\\sort.exe\" --version\r\n[CMD] tool-specific smoke\r\nalpha\r\nbeta\r\nzeta\r\n[PASS] vendor.msys2.gnu.sort smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/tail",
+    "PASS",
+    0,
+    47,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.tail smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tail\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tail\\bin\\tail.exe\" -n 3 \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tail\\test\\testData\\input.log\"\r\nline 08\nline 09\nline 10\n[PASS] vendor.msys2.gnu.tail smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/tar",
+    "PASS",
+    0,
+    54,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.tar smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tar\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] mode=list-existing-tar-fixture-relative-path\r\n[INFO] work=C:\\Temp\\nst_msys2_tar_smoke\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tar\\bin\\tar.exe\" -tf payload.tar\r\npayload/a.txt\npayload/b.txt\n[PASS] vendor.msys2.gnu.tar smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/tee",
+    "PASS",
+    0,
+    59,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.tee functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tee\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tee\\test\\_out\r\n============================================================\r\n[PASS] tee wrote stdout and file\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/touch",
+    "PASS",
+    0,
+    50,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.touch smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\touch\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\touch\\bin\\touch.exe\" \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\touch\\test\\_out\\touched.txt\"\r\n[PASS] vendor.msys2.gnu.touch smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/tr",
+    "PASS",
+    0,
+    99,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.tr smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tr\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tr\\bin\\tr.exe\" --version\r\n[CMD] tool-specific smoke\r\nNORTH STAR\r\nAURELIA UI\r\n[PASS] vendor.msys2.gnu.tr smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/uniq",
+    "PASS",
+    0,
+    78,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.uniq smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\uniq\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\uniq\\bin\\uniq.exe\" --version\r\n[CMD] tool-specific smoke\r\nalpha\r\nbeta\r\ngamma\r\n[PASS] vendor.msys2.gnu.uniq smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/unix2dos",
+    "PASS",
+    0,
+    137,
+    "============================================================\r\n[SMOKE] vendor.gitforwindows.unix2dos functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\unix2dos\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\unix2dos\\test\\_out\r\n============================================================\r\n[PASS] unix2dos converted LF to CRLF\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/unxz",
+    "PASS",
+    0,
+    81,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.unxz functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\unxz\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\unxz\\test\\_out\r\n============================================================\r\n[PASS] unxz decompressed xz payload\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/unzstd",
+    "PASS",
+    0,
+    76,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.unzstd functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\unzstd\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\unzstd\\test\\_out\r\n============================================================\r\n[PASS] unzstd decompressed zstd payload\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/wc",
+    "PASS",
+    0,
+    78,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.wc smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\wc\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\wc\\bin\\wc.exe\" --version\r\n[CMD] tool-specific smoke\r\n4 C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\wc\\test\\testData\\input.txt\n[PASS] vendor.msys2.gnu.wc smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/xargs",
+    "PASS",
+    0,
+    197,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.xargs functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\xargs\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\xargs\\test\\_out\r\n============================================================\r\nitem:alpha\nitem:beta\n[PASS] xargs invoked echo for each input item\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/xz",
+    "PASS",
+    0,
+    83,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.xz functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\xz\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\xz\\test\\_out\r\n============================================================\r\n[PASS] xz compressed and decompressed temp file\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ],
+  [
+    "tools/toolbelt/third_party/zstd",
+    "PASS",
+    0,
+    76,
+    "============================================================\r\n[SMOKE] vendor.msys2.gnu.zstd functional smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\zstd\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\zstd\\test\\_out\r\n============================================================\r\n[PASS] zstd compressed and decompressed temp file\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n"
+  ]
+]

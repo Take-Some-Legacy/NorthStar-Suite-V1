@@ -12,16 +12,23 @@ mod win32_app {
     use std::ffi::c_void;
     use std::ptr::{null, null_mut};
     use std::sync::mpsc::{self, Receiver, Sender};
-    use std::sync::{Arc, Mutex};
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::{Arc, Mutex, OnceLock};
     use std::thread;
     use windows_sys::Win32::Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, RECT, WPARAM};
-    use windows_sys::Win32::Graphics::Gdi::{GetStockObject, DEFAULT_GUI_FONT, HBRUSH};
+    use windows_sys::Win32::Graphics::Gdi::{
+        CreateSolidBrush, DeleteObject, DrawTextW, FillRect, GetStockObject, SetBkMode,
+        SetTextColor, DEFAULT_GUI_FONT, DT_END_ELLIPSIS, DT_LEFT, DT_NOPREFIX,
+        DT_SINGLELINE, DT_VCENTER, HBRUSH, HDC, TRANSPARENT,
+    };
+    use windows_sys::Win32::UI::Controls::{DRAWITEMSTRUCT, MEASUREITEMSTRUCT};
     use windows_sys::Win32::System::LibraryLoader::GetModuleHandleW;
     use windows_sys::Win32::UI::WindowsAndMessaging::*;
 
     const WM_LOG_EVENT: u32 = WM_APP + 1;
     const WM_STREAM_ENDED: u32 = WM_APP + 2;
     const TIMER_CONNECT_SPINNER: usize = 201;
+    const TIMER_LOG_DRAIN: usize = 202;
     const SPINNER_FRAMES: [&str; 4] = ["|", "/", "-", "\\"];
     const ID_URL: i32 = 101;
     const ID_CONNECT: i32 = 102;
@@ -34,8 +41,21 @@ mod win32_app {
     const CB_ADDSTRING: u32 = 0x0143;
     const CB_GETCURSEL: u32 = 0x0147;
     const CB_SETCURSEL: u32 = 0x014E;
-    const EM_SETSEL: u32 = 0x00B1;
-    const EM_SCROLLCARET: u32 = 0x00B7;
+    const LB_ADDSTRING: u32 = 0x0180;
+    const LB_RESETCONTENT: u32 = 0x0184;
+    const LB_GETCOUNT: u32 = 0x018B;
+    const LB_SETTOPINDEX: u32 = 0x0197;
+    const LBS_OWNERDRAWFIXED: u32 = 0x0010;
+    const LBS_HASSTRINGS: u32 = 0x0040;
+    const LBS_NOINTEGRALHEIGHT: u32 = 0x0100;
+    const ODS_SELECTED_LOCAL: u32 = 0x0001;
+    const MAX_UI_BATCH_EVENTS: usize = 96;
+    const MAX_PENDING_LOG_EVENTS: usize = 4096;
+    const MAX_RETAINED_LOG_EVENTS: usize = 2000;
+    const LOG_DRAIN_INTERVAL_MS: u32 = 33;
+
+    static PENDING_LOG_EVENTS: OnceLock<Mutex<Vec<NormalizedLogEvent>>> = OnceLock::new();
+    static PENDING_LOG_POSTED: AtomicBool = AtomicBool::new(false);
 
     #[inline]
     fn style(value: i32) -> u32 {
@@ -58,6 +78,7 @@ mod win32_app {
         connecting: bool,
         spinner_index: usize,
         events: Vec<NormalizedLogEvent>,
+        visible_indices: Vec<usize>,
         stop_tx: Option<Sender<()>>,
     }
 
@@ -76,6 +97,7 @@ mod win32_app {
                 connecting: false,
                 spinner_index: 0,
                 events: Vec::new(),
+                visible_indices: Vec::new(),
                 stop_tx: None,
             }
         }
@@ -167,39 +189,36 @@ mod win32_app {
                 layout(hwnd);
                 0
             }
+            WM_MEASUREITEM => {
+                let measure = lparam as *mut MEASUREITEMSTRUCT;
+                if !measure.is_null() && (*measure).CtlID == ID_LOGS as u32 {
+                    (*measure).itemHeight = 24;
+                    return 1;
+                }
+                DefWindowProcW(hwnd, msg, wparam, lparam)
+            }
+            WM_DRAWITEM => draw_log_item(hwnd, lparam as *const DRAWITEMSTRUCT),
             WM_COMMAND => {
                 let id = (wparam & 0xffff) as i32;
                 match id {
                     ID_CONNECT => toggle_connect(hwnd),
                     ID_CLEAR => clear_history(hwnd),
-                    ID_LEVEL | ID_SEARCH => refresh_log_text(hwnd),
+                    ID_LEVEL | ID_SEARCH => rebuild_log_list(hwnd),
                     _ => {}
                 }
                 0
             }
             WM_LOG_EVENT => {
-                let event_ptr = lparam as *mut NormalizedLogEvent;
-                if !event_ptr.is_null() {
-                    let event = *Box::from_raw(event_ptr);
-                    if let Some(state) = state(hwnd) {
-                        if let Ok(mut guard) = state.0.lock() {
-                            if guard.connecting {
-                                guard.connecting = false;
-                                KillTimer(hwnd, TIMER_CONNECT_SPINNER);
-                            }
-                            guard.events.push(event);
-                            if guard.events.len() > 5000 {
-                                guard.events.remove(0);
-                            }
-                        }
-                    }
-                    refresh_log_text(hwnd);
-                }
+                drain_pending_log_events(hwnd);
                 0
             }
             WM_TIMER => {
                 if wparam == TIMER_CONNECT_SPINNER {
                     tick_connect_spinner(hwnd);
+                    return 0;
+                }
+                if wparam == TIMER_LOG_DRAIN {
+                    drain_pending_log_events(hwnd);
                     return 0;
                 }
                 DefWindowProcW(hwnd, msg, wparam, lparam)
@@ -230,9 +249,9 @@ mod win32_app {
         let connect = child(hwnd, "BUTTON", "Connect", WS_TABSTOP | style(BS_PUSHBUTTON), ID_CONNECT, hinstance);
         let logs = child(
             hwnd,
-            "EDIT",
+            "LISTBOX",
             "",
-            WS_BORDER | WS_VSCROLL | style(ES_MULTILINE) | style(ES_AUTOVSCROLL) | style(ES_READONLY),
+            WS_BORDER | WS_VSCROLL | WS_TABSTOP | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT,
             ID_LOGS,
             hinstance,
         );
@@ -345,6 +364,11 @@ mod win32_app {
                 guard.connected = false;
                 guard.connecting = false;
                 KillTimer(hwnd, TIMER_CONNECT_SPINNER);
+                KillTimer(hwnd, TIMER_LOG_DRAIN);
+                PENDING_LOG_POSTED.store(false, Ordering::Release);
+                if let Ok(mut queue) = pending_log_events().lock() {
+                    queue.clear();
+                }
                 set_window_text(guard.connect, "Connect");
                 set_window_text(guard.status, "disconnected");
             }
@@ -357,10 +381,7 @@ mod win32_app {
             if stop_rx.try_recv().is_ok() {
                 return Err("stream stopped".to_owned());
             }
-            let boxed = Box::new(event.clone());
-            let ptr = Box::into_raw(boxed);
-            // SAFETY: ptr is converted back to Box in WM_LOG_EVENT handler on the UI thread.
-            unsafe { PostMessageW(hwnd, WM_LOG_EVENT, 0, ptr as LPARAM) };
+            queue_log_event(hwnd, event.clone());
             Ok(())
         });
 
@@ -393,6 +414,8 @@ mod win32_app {
                 guard.connecting = false;
                 guard.stop_tx = None;
                 KillTimer(hwnd, TIMER_CONNECT_SPINNER);
+                KillTimer(hwnd, TIMER_LOG_DRAIN);
+                PENDING_LOG_POSTED.store(false, Ordering::Release);
                 set_window_text(guard.connect, "Connect");
                 if failed {
                     set_window_text(guard.status, "stream ended");
@@ -407,42 +430,276 @@ mod win32_app {
         if let Some(state) = state(hwnd) {
             if let Ok(mut guard) = state.0.lock() {
                 guard.events.clear();
-                set_window_text(guard.logs, "");
+                guard.visible_indices.clear();
+                SendMessageW(guard.logs, LB_RESETCONTENT, 0, 0);
                 set_window_text(guard.status, "history cleared");
             }
         }
     }
 
-    unsafe fn refresh_log_text(hwnd: HWND) {
-        let Some(state) = state(hwnd) else { return; };
-        if let Ok(guard) = state.0.lock() {
-            let min_level = selected_level(guard.level);
-            let query = get_window_text(guard.search).to_lowercase();
-            let mut rendered = String::new();
-            let mut visible = 0usize;
-            for event in guard.events.iter() {
-                if level_rank(&event.level) < level_rank(&min_level) {
-                    continue;
-                }
-                let haystack = format!("{} {} {} {} {}", event.timestamp, event.level, event.target, event.event_id, event.message).to_lowercase();
-                if !query.is_empty() && !haystack.contains(&query) {
-                    continue;
-                }
-                visible += 1;
-                rendered.push_str(&format!(
-                    "{} {:>5} {:<36} {}\r\n",
-                    event.timestamp,
-                    event.level,
-                    truncate(&event.target, 36),
-                    event.message.replace('\n', " ")
-                ));
+    fn pending_log_events() -> &'static Mutex<Vec<NormalizedLogEvent>> {
+        PENDING_LOG_EVENTS.get_or_init(|| Mutex::new(Vec::new()))
+    }
+
+    fn queue_log_event(hwnd: HWND, event: NormalizedLogEvent) {
+        if let Ok(mut queue) = pending_log_events().lock() {
+            queue.push(event);
+            if queue.len() > MAX_PENDING_LOG_EVENTS {
+                let overflow = queue.len() - MAX_PENDING_LOG_EVENTS;
+                queue.drain(0..overflow);
             }
-            set_window_text(guard.logs, &rendered);
-            set_window_text(guard.status, &format!("{visible}/{} visible", guard.events.len()));
-            let len = GetWindowTextLengthW(guard.logs);
-            SendMessageW(guard.logs, EM_SETSEL, len as WPARAM, len as LPARAM);
-            SendMessageW(guard.logs, EM_SCROLLCARET, 0, 0);
+        }
+        schedule_log_batch(hwnd);
+    }
+
+    fn schedule_log_batch(hwnd: HWND) {
+        if !PENDING_LOG_POSTED.swap(true, Ordering::AcqRel) {
+            // SAFETY: posts one wake-up; continued draining is timer-paced to keep input/drag responsive.
+            unsafe { PostMessageW(hwnd, WM_LOG_EVENT, 0, 0) };
+        }
+    }
+
+    unsafe fn drain_pending_log_events(hwnd: HWND) {
+        let events = if let Ok(mut queue) = pending_log_events().lock() {
+            let take = queue.len().min(MAX_UI_BATCH_EVENTS);
+            queue.drain(..take).collect::<Vec<_>>()
+        } else {
+            Vec::new()
         };
+
+        if !events.is_empty() {
+            append_event_batch(hwnd, events);
+        }
+
+        let has_more = pending_log_events()
+            .lock()
+            .map(|queue| !queue.is_empty())
+            .unwrap_or(false);
+
+        if has_more {
+            // Do not immediately PostMessage again: that starves normal window input and causes "Not responding".
+            SetTimer(hwnd, TIMER_LOG_DRAIN, LOG_DRAIN_INTERVAL_MS, None);
+            PENDING_LOG_POSTED.store(true, Ordering::Release);
+        } else {
+            KillTimer(hwnd, TIMER_LOG_DRAIN);
+            PENDING_LOG_POSTED.store(false, Ordering::Release);
+        }
+    }
+
+    unsafe fn append_event_batch(hwnd: HWND, events: Vec<NormalizedLogEvent>) {
+        if events.is_empty() {
+            return;
+        }
+        let Some(state) = state(hwnd) else { return; };
+
+        let (level_hwnd, search_hwnd, logs_hwnd, status_hwnd) = if let Ok(guard) = state.0.lock() {
+            (guard.level, guard.search, guard.logs, guard.status)
+        } else {
+            return;
+        };
+        let min_level = selected_level(level_hwnd);
+        let query = get_window_text(search_hwnd).to_lowercase();
+
+        let mut list_reset = false;
+        let mut rows_to_add = 0usize;
+        let status_text = if let Ok(mut guard) = state.0.lock() {
+            if guard.connecting {
+                guard.connecting = false;
+                KillTimer(hwnd, TIMER_CONNECT_SPINNER);
+            }
+
+            let start_index = guard.events.len();
+            guard.events.extend(events);
+
+            if guard.events.len() > MAX_RETAINED_LOG_EVENTS {
+                let overflow = guard.events.len() - MAX_RETAINED_LOG_EVENTS;
+                guard.events.drain(0..overflow);
+                guard.visible_indices = compute_visible_indices(&guard.events, &min_level, &query);
+                list_reset = true;
+                rows_to_add = guard.visible_indices.len();
+            } else {
+                for index in start_index..guard.events.len() {
+                    if event_matches(&guard.events[index], &min_level, &query) {
+                        guard.visible_indices.push(index);
+                        rows_to_add += 1;
+                    }
+                }
+            }
+
+            status_line_text(&guard)
+        } else {
+            return;
+        };
+
+        if list_reset {
+            SendMessageW(logs_hwnd, LB_RESETCONTENT, 0, 0);
+        }
+        add_listbox_rows(logs_hwnd, rows_to_add);
+        set_window_text(status_hwnd, &status_text);
+    }
+
+    unsafe fn add_listbox_rows(logs_hwnd: HWND, rows: usize) {
+        let text = wstr("");
+        for _ in 0..rows {
+            SendMessageW(logs_hwnd, LB_ADDSTRING, 0, text.as_ptr() as LPARAM);
+        }
+        let count = SendMessageW(logs_hwnd, LB_GETCOUNT, 0, 0) as i32;
+        if count > 0 {
+            SendMessageW(logs_hwnd, LB_SETTOPINDEX, (count - 1) as WPARAM, 0);
+        }
+    }
+
+    unsafe fn rebuild_log_list(hwnd: HWND) {
+        let Some(state) = state(hwnd) else { return; };
+        let (level_hwnd, search_hwnd, logs_hwnd, status_hwnd) = if let Ok(guard) = state.0.lock() {
+            (guard.level, guard.search, guard.logs, guard.status)
+        } else {
+            return;
+        };
+        let min_level = selected_level(level_hwnd);
+        let query = get_window_text(search_hwnd).to_lowercase();
+
+        let (rows, status_text) = if let Ok(mut guard) = state.0.lock() {
+            guard.visible_indices = compute_visible_indices(&guard.events, &min_level, &query);
+            (guard.visible_indices.len(), status_line_text(&guard))
+        } else {
+            return;
+        };
+
+        SendMessageW(logs_hwnd, LB_RESETCONTENT, 0, 0);
+        add_listbox_rows(logs_hwnd, rows);
+        set_window_text(status_hwnd, &status_text);
+    }
+
+    fn compute_visible_indices(events: &[NormalizedLogEvent], min_level: &str, query: &str) -> Vec<usize> {
+        events
+            .iter()
+            .enumerate()
+            .filter_map(|(index, event)| event_matches(event, min_level, query).then_some(index))
+            .collect()
+    }
+
+    fn status_line_text(guard: &AppState) -> String {
+        let mode = if guard.connected {
+            if guard.connecting { "LIVE connecting" } else { "LIVE connected" }
+        } else {
+            "disconnected"
+        };
+        format!("{mode} · {}/{} visible", guard.visible_indices.len(), guard.events.len())
+    }
+
+    fn event_matches(event: &NormalizedLogEvent, min_level: &str, query: &str) -> bool {
+        if level_rank(&event.level) < level_rank(min_level) {
+            return false;
+        }
+        if query.is_empty() {
+            return true;
+        }
+        let haystack = format!(
+            "{} {} {} {} {}",
+            event.timestamp, event.level, event.target, event.event_id, event.message
+        )
+        .to_lowercase();
+        haystack.contains(query)
+    }
+
+    unsafe fn draw_log_item(hwnd: HWND, draw: *const DRAWITEMSTRUCT) -> LRESULT {
+        if draw.is_null() {
+            return 0;
+        }
+        let draw = &*draw;
+        if draw.CtlID != ID_LOGS as u32 || draw.itemID == u32::MAX {
+            return 0;
+        }
+
+        let Some(state) = state(hwnd) else { return 1; };
+        let event = if let Ok(guard) = state.0.lock() {
+            guard
+                .visible_indices
+                .get(draw.itemID as usize)
+                .and_then(|index| guard.events.get(*index))
+                .cloned()
+        } else {
+            None
+        };
+        let Some(event) = event else { return 1; };
+
+        let selected = (draw.itemState & ODS_SELECTED_LOCAL) != 0;
+        let bg = if selected { rgb(39, 68, 103) } else { level_background(&event.level) };
+        let brush = CreateSolidBrush(bg);
+        FillRect(draw.hDC, &draw.rcItem, brush);
+        DeleteObject(brush as _);
+        SetBkMode(draw.hDC, TRANSPARENT as i32);
+
+        let mut rect = draw.rcItem;
+        rect.left += 8;
+        rect.right -= 8;
+        rect.top += 2;
+        rect.bottom -= 2;
+
+        let width = rect.right - rect.left;
+        let time_w = width.min(220);
+        let level_w = 62;
+        let target_w = (width - time_w - level_w - 24).max(160).min(360);
+
+        let mut time_rect = rect;
+        time_rect.right = time_rect.left + time_w;
+        draw_text(draw.hDC, &mut time_rect, &event.timestamp, rgb(146, 166, 192));
+
+        let mut level_rect = rect;
+        level_rect.left = time_rect.right + 8;
+        level_rect.right = level_rect.left + level_w;
+        draw_text(draw.hDC, &mut level_rect, &event.level, level_color(&event.level));
+
+        let mut target_rect = rect;
+        target_rect.left = level_rect.right + 8;
+        target_rect.right = (target_rect.left + target_w).min(rect.right);
+        draw_text(draw.hDC, &mut target_rect, &event.target, rgb(186, 208, 235));
+
+        let mut msg_rect = rect;
+        msg_rect.left = target_rect.right + 8;
+        if msg_rect.left < msg_rect.right {
+            draw_text(draw.hDC, &mut msg_rect, &event.message.replace('\n', " "), rgb(220, 231, 245));
+        }
+        1
+    }
+
+    unsafe fn draw_text(hdc: HDC, rect: &mut RECT, text: &str, color: u32) {
+        SetTextColor(hdc, color);
+        let text = wstr(text);
+        DrawTextW(
+            hdc,
+            text.as_ptr(),
+            -1,
+            rect,
+            DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX | DT_END_ELLIPSIS,
+        );
+    }
+
+    fn level_color(level: &str) -> u32 {
+        match level.to_ascii_uppercase().as_str() {
+            "ERROR" => rgb(255, 107, 107),
+            "WARN" => rgb(255, 209, 102),
+            "INFO" => rgb(142, 202, 230),
+            "DEBUG" => rgb(167, 201, 87),
+            "TRACE" => rgb(157, 141, 241),
+            _ => rgb(216, 226, 240),
+        }
+    }
+
+    fn level_background(level: &str) -> u32 {
+        match level.to_ascii_uppercase().as_str() {
+            "ERROR" => rgb(42, 17, 24),
+            "WARN" => rgb(38, 31, 13),
+            "INFO" => rgb(10, 18, 29),
+            "DEBUG" => rgb(14, 28, 18),
+            "TRACE" => rgb(22, 18, 36),
+            _ => rgb(10, 16, 25),
+        }
+    }
+
+    const fn rgb(r: u8, g: u8, b: u8) -> u32 {
+        (r as u32) | ((g as u32) << 8) | ((b as u32) << 16)
     }
 
     unsafe fn selected_level(level_hwnd: HWND) -> String {
@@ -465,16 +722,6 @@ mod win32_app {
             "TRACE" | "Trace" | "trace" => 1,
             _ => 3,
         }
-    }
-
-    fn truncate(value: &str, width: usize) -> String {
-        let chars: Vec<char> = value.chars().collect();
-        if chars.len() <= width {
-            return value.to_owned();
-        }
-        let mut out = chars.into_iter().take(width.saturating_sub(1)).collect::<String>();
-        out.push('…');
-        out
     }
 
     unsafe fn child(hwnd: HWND, class: &str, text: &str, style: u32, id: i32, hinstance: HINSTANCE) -> HWND {

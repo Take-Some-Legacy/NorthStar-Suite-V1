@@ -12,7 +12,10 @@ if not exist "%OUT%" mkdir "%OUT%"
 "%TOOL%" tail --url "%DATA%" --count 1 --format table > "%OUT%\tail.txt" || exit /b 1
 "%TOOL%" live --url http://127.0.0.1:9/logs/live --max-events 1 > "%OUT%\live_unavailable.txt" 2> "%OUT%\live_unavailable.err"
 "%TOOL%" html --no-open --out "%OUT%\log-reader-empty.html" > "%OUT%\html-empty.txt" || exit /b 1
-"%TOOL%" html --no-open --url http://127.0.0.1:4319/logs/live --out "%OUT%\log-reader-prefilled.html" > "%OUT%\html-prefilled.txt" || exit /b 1
+"%TOOL%" html --no-open --url http://127.0.0.1:8765/logs --out "%OUT%\log-reader-prefilled.html" > "%OUT%\html-prefilled.txt" || exit /b 1
+
+findstr /C:"source_url=http://127.0.0.1:8765/logs" "%OUT%\html-empty.txt" >nul || exit /b 1
+findstr /C:"source_url=http://127.0.0.1:8765/logs" "%OUT%\html-prefilled.txt" >nul || exit /b 1
 
 echo [OK] northstar-log-reader local test passed
 exit /b 0

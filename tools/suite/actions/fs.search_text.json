@@ -1,0 +1,19 @@
+{
+  "action_id": "fs.search_text",
+  "group": "Operator FS",
+  "title": "Search text",
+  "description": "Run ns-search-text through the read-only operator filesystem layer.",
+  "command": "ns-search-text",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal",
+  "readOnlyHint": true,
+  "destructiveHint": false,
+  "idempotentHint": true,
+  "riskTier": "read_only"
+}

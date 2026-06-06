@@ -12,9 +12,24 @@
       "size": 3359873
     },
     {
-      "path": "msys-intl-8.dll",
-      "sha256": "fc7dd3f6305b07f01073e49683e104e224b83802d983260ee8ed87878c1c108f",
-      "size": 111181
+      "path": "msys-bz2-1.dll",
+      "sha256": "9bf74cca0017539b8736533ba3b54e04c7de52515a70d81fd89fd495c0520d4d",
+      "size": 67277
+    },
+    {
+      "path": "msys-crypt-2.dll",
+      "sha256": "b91527bcb15bb0825ff2dd6f22b39b4f20022298154eda4de098ae8a4e6da1bc",
+      "size": 219319
+    },
+    {
+      "path": "msys-gcc_s-seh-1.dll",
+      "sha256": "995f74475cd41c1de75c6134fc61ef04d8027d75a1ec68687cebdc758ed7a4f9",
+      "size": 142049
+    },
+    {
+      "path": "msys-gmp-10.dll",
+      "sha256": "0cac1e8220be58918611ac4026814098db5bfa10594b5529477bd551b75fa415",
+      "size": 605220
     },
     {
       "path": "msys-iconv-2.dll",
@@ -22,9 +37,59 @@
       "size": 1098126
     },
     {
+      "path": "msys-intl-8.dll",
+      "sha256": "fc7dd3f6305b07f01073e49683e104e224b83802d983260ee8ed87878c1c108f",
+      "size": 111181
+    },
+    {
+      "path": "msys-lzma-5.dll",
+      "sha256": "e1e82e1cf7bf3735b4238277cd19b9c83ae4af5752be3698cf1e87ef9f9d49b2",
+      "size": 176762
+    },
+    {
+      "path": "msys-magic-1.dll",
+      "sha256": "e435167c597908e6da97b2c66db1bc578be4fc77231d872cb569d5a493e73fd0",
+      "size": 160362
+    },
+    {
+      "path": "msys-mpfr-6.dll",
+      "sha256": "94ea66b719914939a0cd8df3c4e7005896fc751ce6fbe422dfac2bc79bfe8481",
+      "size": 652490
+    },
+    {
+      "path": "msys-ncursesw6.dll",
+      "sha256": "b0f7983230bc5ea4f49b440004bc7cb715e1a691c5a691b2dafc17c6279dc385",
+      "size": 341312
+    },
+    {
       "path": "msys-pcre-1.dll",
       "sha256": "9542997f0ea6b4a7057529e4cfa966a55ddfe2e080792d0854725c5e7588924a",
       "size": 289270
+    },
+    {
+      "path": "msys-pcre2-8-0.dll",
+      "sha256": "b30dd5e9e5445aa0fc25dc6b245e8bafdd36107ed43faaf583c2c1efc9afe089",
+      "size": 443825
+    },
+    {
+      "path": "msys-readline8.dll",
+      "sha256": "527ee1ce5b932008cae566f7a5655adf3ac92e13eabe8d3be294183940c94709",
+      "size": 287391
+    },
+    {
+      "path": "msys-stdc++-6.dll",
+      "sha256": "bd6aa6bec88f4efce9eac9250bbf339c58dfd1e3feb0110874a3b0130f07a4e8",
+      "size": 2336864
+    },
+    {
+      "path": "msys-z.dll",
+      "sha256": "35df869fd70d2f607ea79eda1120024fae0b6f214fe5ac395e3cf2045f730dc2",
+      "size": 88576
+    },
+    {
+      "path": "msys-zstd-1.dll",
+      "sha256": "a75273b3dc3b0c8d70452cf12ea8d3f69ee5a331de58c9401c707ad617a83b8f",
+      "size": 1136580
     }
   ]
 }

@@ -52,5 +52,39 @@
     ],
     "expect_stdout_contains": "GNU coreutils) 8.32"
   },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
+  "suite_commands": [
+    {
+      "id": "tail-file",
+      "title": "Tail file",
+      "description": "Run GNU tail as a bounded last-lines reader.",
+      "tool_args": [],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Input text file.",
+          "tool_flag": ""
+        },
+        {
+          "name": "lines",
+          "flags": [
+            "--lines"
+          ],
+          "kind": "string",
+          "default": "80",
+          "help": "Number of lines to read, clamped by caller policy.",
+          "tool_flag": "-n"
+        }
+      ],
+      "positional_args": [
+        "input"
+      ],
+      "riskTier": "read_only"
+    }
+  ]
 }

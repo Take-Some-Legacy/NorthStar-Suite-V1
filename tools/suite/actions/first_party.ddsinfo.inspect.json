@@ -1,0 +1,26 @@
+{
+  "action_id": "first_party.ddsinfo.inspect",
+  "group": "Textures",
+  "title": "Inspect DDS metadata",
+  "description": "Run first-party North Star ddsinfo through ToolRegistry against the bundled smoke DDS fixture.",
+  "command": "tools",
+  "args": [
+    "run",
+    "northstar.ddsinfo",
+    "--",
+    "--library",
+    "$repo_root/tools/toolbelt/libraries/northstar.ddsinfo.dll",
+    "--dimensions",
+    "--compression",
+    "$repo_root/tools/toolbelt/first_party/northstar/ddsinfo/testData/test.dds"
+  ],
+  "requires_tools": [
+    "northstar.ddsinfo"
+  ],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

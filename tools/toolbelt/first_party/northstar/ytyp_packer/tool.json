@@ -39,5 +39,127 @@
     }
   ],
   "capabilities": [],
-  "sha256": "3c186bfa2cace3674180930772f202fb60afc80b2bfca10d8cdba6247fba4351"
+  "sha256": "3c186bfa2cace3674180930772f202fb60afc80b2bfca10d8cdba6247fba4351",
+  "suite_commands": [
+    {
+      "id": "build-ytyp",
+      "title": "Build YTYP metadata",
+      "description": "Compile XML-first .ytyp.xml metadata sources into NEF8 .ytyp runtime assets.",
+      "tool_args": [
+        "compile",
+        "--root",
+        "."
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Single .ytyp.xml source. Defaults to --all.",
+          "tool_flag": "--input"
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Output .ytyp path for a single input.",
+          "tool_flag": "--output"
+        },
+        {
+          "name": "check",
+          "flags": [
+            "--check"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Validate and print planned outputs without writing .ytyp files.",
+          "tool_flag": "--check"
+        }
+      ],
+      "auto_flags_if_empty": [
+        {
+          "name": "input",
+          "flags": [
+            "--all"
+          ]
+        }
+      ],
+      "riskTier": "write"
+    },
+    {
+      "id": "inspect-ytyp",
+      "title": "Inspect YTYP metadata",
+      "description": "Inspect a NEF8 .ytyp generic XML metadata file and print JSON.",
+      "tool_args": [
+        "inspect"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .ytyp file. Defaults to first discovered metadata asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.ytyp"
+          }
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "validate-ytyp",
+      "title": "Validate YTYP metadata",
+      "description": "Validate .ytyp.xml and .ytyp generic metadata assets.",
+      "tool_args": [
+        "validate",
+        "--root",
+        "."
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Single .ytyp.xml or .ytyp file. Defaults to discovered metadata assets.",
+          "tool_flag": "--input"
+        }
+      ],
+      "auto_flags_if_empty": [
+        {
+          "name": "input",
+          "flags": [
+            "--all"
+          ]
+        }
+      ],
+      "riskTier": "read_only"
+    }
+  ]
 }

@@ -39,5 +39,216 @@
     }
   ],
   "capabilities": [],
-  "sha256": "826a4fe2fb7561a4bdf4664376dccd28710cba58f64eaa5bc89ad6e42d97e811"
+  "sha256": "826a4fe2fb7561a4bdf4664376dccd28710cba58f64eaa5bc89ad6e42d97e811",
+  "suite_commands": [
+    {
+      "id": "build-ytd",
+      "title": "Build YTD texture dictionary",
+      "description": "Build XML-free NEF8 .ytd texture dictionaries from source images.",
+      "tool_args": [
+        "pack"
+      ],
+      "args": [
+        {
+          "name": "input_dir",
+          "flags": [
+            "--input-dir"
+          ],
+          "kind": "path",
+          "default": "",
+          "help": "Directory with png/jpg/tga/bmp/webp source textures.",
+          "tool_flag": "--input-dir"
+        },
+        {
+          "name": "texture",
+          "flags": [
+            "--texture"
+          ],
+          "kind": "string",
+          "action": "append",
+          "default": [],
+          "help": "Texture source as name=path or path. Can be repeated.",
+          "tool_flag": "--texture"
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": true,
+          "help": "Output .ytd path.",
+          "tool_flag": "--output"
+        },
+        {
+          "name": "linear",
+          "flags": [
+            "--linear"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Mark packed textures as linear RGBA8 instead of sRGB.",
+          "tool_flag": "--linear"
+        },
+        {
+          "name": "no_mips",
+          "flags": [
+            "--no-mips"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Pack only base mip.",
+          "tool_flag": "--no-mips"
+        },
+        {
+          "name": "raw_data",
+          "flags": [
+            "--raw-data"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Store NETD data region raw instead of compressed storage.",
+          "tool_flag": "--raw-data"
+        }
+      ],
+      "requires_any": [
+        [
+          "input_dir",
+          "texture"
+        ]
+      ],
+      "riskTier": "write"
+    },
+    {
+      "id": "inspect-ytd",
+      "title": "Inspect YTD texture dictionary",
+      "description": "Inspect a NEF8 .ytd / NETD texture dictionary.",
+      "tool_args": [
+        "inspect"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [
+              "EngineRepo/NewEngine/neocore2/assets/ui/icons/builtin_icons.ytd",
+              "EngineRepo/NewEngine/neocore2/assets/loading/loading_ui.ytd",
+              "NewEngine/neocore2/assets/ui/icons/builtin_icons.ytd",
+              "NewEngine/neocore2/assets/loading/loading_ui.ytd"
+            ],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.ytd"
+          },
+          "help": "Input .ytd file. Defaults to a discovered asset.",
+          "tool_flag": "--input"
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "validate-ytd",
+      "title": "Validate YTD texture dictionary",
+      "description": "Validate a NEF8 .ytd / NETD texture dictionary.",
+      "tool_args": [
+        "validate"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [
+              "EngineRepo/NewEngine/neocore2/assets/ui/icons/builtin_icons.ytd",
+              "EngineRepo/NewEngine/neocore2/assets/loading/loading_ui.ytd",
+              "NewEngine/neocore2/assets/ui/icons/builtin_icons.ytd",
+              "NewEngine/neocore2/assets/loading/loading_ui.ytd"
+            ],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.ytd"
+          },
+          "help": "Input .ytd file. Defaults to a discovered asset.",
+          "tool_flag": "--input"
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "extract-ytd",
+      "title": "Extract YTD texture dictionary",
+      "description": "Extract .ytd texture entries as DDS files.",
+      "tool_args": [
+        "extract"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [
+              "EngineRepo/NewEngine/neocore2/assets/ui/icons/builtin_icons.ytd",
+              "EngineRepo/NewEngine/neocore2/assets/loading/loading_ui.ytd",
+              "NewEngine/neocore2/assets/ui/icons/builtin_icons.ytd",
+              "NewEngine/neocore2/assets/loading/loading_ui.ytd"
+            ],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.ytd"
+          },
+          "help": "Input .ytd file. Defaults to a discovered asset.",
+          "tool_flag": "--input"
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": ".takesome/extract/ytd",
+          "help": "Output directory. Defaults to .takesome/extract/ytd.",
+          "tool_flag": "--output"
+        },
+        {
+          "name": "entry",
+          "flags": [
+            "--entry"
+          ],
+          "kind": "string",
+          "default": "",
+          "help": "Optional texture entry name to extract.",
+          "tool_flag": "--entry"
+        }
+      ],
+      "riskTier": "write"
+    }
+  ]
 }

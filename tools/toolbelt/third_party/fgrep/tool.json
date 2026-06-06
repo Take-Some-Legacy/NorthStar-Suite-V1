@@ -1,52 +1,113 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.fgrep",
-  "version": "2.5.4-gnuwin32",
-  "name": "GNUWin32 fgrep",
-  "description": "Third-party GNU fgrep executable packaged as an individual registry-visible fixed-string search tool.",
+  "id": "vendor.msys2.gnu.fgrep",
+  "version": "3.0-msys2-usr-compat",
+  "name": "GNU fgrep compatibility wrapper",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/GNU grep",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/fgrep",
-  "executable": "bin/fgrep.exe",
-  "install_path": "tools/toolbelt/third_party/fgrep/bin/fgrep.exe",
-  "expected_sha256": "a3936f34f15a7debcca2d02807bee120922de3169c42adf129c46bc29661e492",
-  "expected_size_bytes": 55296,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local-compat",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "text.search.fixed_string",
-    "workspace.search.files",
-    "suite.vendor.fgrep"
+  "package_root": "tools/toolbelt/third_party/fgrep",
+  "root": "tools/toolbelt/third_party/fgrep",
+  "executable": "bin/fgrep.bat",
+  "expected_sha256": "983500d85ef594969f9aca161e07c69ae2a7f37fe007b7cf5fa853eb09ffb362",
+  "expected_size_bytes": 218,
+  "description": "Compatibility fgrep wrapper implemented as vendored MSYS2 GNU grep -F.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "version",
-      "description": "Print the GNU fgrep version.",
       "args": [
         "--version"
       ],
       "readOnlyHint": true,
       "destructiveHint": false,
       "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     }
   ],
+  "default_args": [
+    "--version"
+  ],
   "validation": {
-    "mode": "presence_and_hash",
+    "mode": "presence_hash_version_and_shared_libs",
     "args": [
       "--version"
-    ]
+    ],
+    "expect_stdout_contains": "grep (GNU grep) 3.0"
   },
-  "readme": "README.md",
-  "runtime_files": [
-    "bin/fgrep.exe",
-    "bin/libiconv2.dll",
-    "bin/libintl3.dll"
-  ],
-  "legacy_provider_family": "GNUWin32",
-  "legacy_status": "legacy-replace",
-  "replacement_source_policy": "Prefer pinned MSYS2 UCRT64 package or self-built mingw-w64 artifact with VENDOR.lock.json; no mixed random exe drops."
+  "layout_note": "fgrep compatibility wrapper over grep -F; no separate fgrep.exe exists in MSYS2 usr.",
+  "suite_commands": [
+    {
+      "id": "fgrep-files",
+      "title": "Fixed-string search files",
+      "description": "Run GNU fgrep as a safe fixed-string search wrapper.",
+      "tool_args": [
+        "-n"
+      ],
+      "args": [
+        {
+          "name": "pattern",
+          "flags": [
+            "--pattern"
+          ],
+          "kind": "string",
+          "required": true,
+          "help": "Fixed string to search for.",
+          "tool_flag": ""
+        },
+        {
+          "name": "ignore_case",
+          "flags": [
+            "--ignore-case"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Case-insensitive search.",
+          "tool_flag": "-i"
+        },
+        {
+          "name": "word",
+          "flags": [
+            "--word"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Match whole words only.",
+          "tool_flag": "-w"
+        },
+        {
+          "name": "files",
+          "flags": [
+            "files"
+          ],
+          "kind": "path_list",
+          "positional": true,
+          "nargs": "+",
+          "required": true,
+          "help": "Files to search.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "pattern",
+        "files"
+      ],
+      "riskTier": "read_only"
+    }
+  ]
 }

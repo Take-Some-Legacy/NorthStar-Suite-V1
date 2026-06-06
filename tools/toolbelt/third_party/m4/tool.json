@@ -1,51 +1,56 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.m4",
-  "version": "1.4.13-gnuwin32",
-  "name": "GNUWin32 m4",
-  "description": "Third-party GNUWin32 m4.exe executable packaged as an individual self-contained registry-visible tool.",
+  "id": "vendor.msys2.gnu.m4",
+  "version": "1.4.19-msys2-usr",
+  "name": "GNU M4",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/GNU m4",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/m4",
-  "executable": "bin/m4.exe",
-  "install_path": "tools/toolbelt/third_party/m4/bin/m4.exe",
-  "expected_sha256": "f5caf93e4d101722a7d58f30b5e69acada6aea59fb639eee1173f341a3896645",
-  "expected_size_bytes": 179200,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "macro.process",
-    "workspace.text.macro",
-    "suite.vendor.m4"
+  "package_root": "tools/toolbelt/third_party/m4",
+  "root": "tools/toolbelt/third_party/m4",
+  "executable": "bin/m4.exe",
+  "expected_sha256": "204cc820650b970b479b5e8329e31cfa89ef6b8d44ddf218dc1f795c3d70e074",
+  "expected_size_bytes": 263912,
+  "description": "MSYS2 usr GNU M4 executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "version",
-      "description": "Print the GNU m4 version.",
+      "description": "Print GNU M4 version/help.",
       "args": [
         "--version"
       ],
       "readOnlyHint": true,
       "destructiveHint": false,
       "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print GNU M4 help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     }
   ],
+  "default_args": [
+    "--version"
+  ],
   "validation": {
-    "mode": "presence_and_hash",
+    "mode": "presence_hash_version_and_shared_libs",
     "args": [
       "--version"
-    ]
+    ],
+    "expect_stdout_contains": "m4 (GNU M4) 1.4.19"
   },
-  "readme": "README.md",
-  "runtime_files": [
-    "bin/m4.exe",
-    "bin/regex2.dll"
-  ],
-  "legacy_provider_family": "GNUWin32",
-  "legacy_status": "legacy-replace",
-  "replacement_source_policy": "Prefer pinned MSYS2 UCRT64 package or self-built mingw-w64 artifact with VENDOR.lock.json; no mixed random exe drops."
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

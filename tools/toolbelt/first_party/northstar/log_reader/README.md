@@ -10,19 +10,19 @@ The UI can be launched with one command:
 northstar-log-reader ui
 ```
 
-No arguments are required. The live URL field is prefilled with `http://127.0.0.1` and can be edited inside the UI.
+No arguments are required. The live URL field is prefilled with `http://127.0.0.1:8765/logs` and can be edited inside the UI.
 
 Optional arguments prefill or override the UI launch:
 
 ```powershell
-northstar-log-reader ui --url http://127.0.0.1:4319/logs/live
-northstar-log-reader ui --url http://127.0.0.1:4319/logs/live --out log-reader.html
+northstar-log-reader ui --url http://127.0.0.1:8765/logs
+northstar-log-reader html --url http://127.0.0.1:8765/logs --out log-reader.html
 northstar-log-reader ui --no-open
 ```
 
 Behavior:
 
-- without `--url`: URL field is prefilled with `http://127.0.0.1`
+- without `--url`: URL field is prefilled with `http://127.0.0.1:8765/logs`
 - with `--url`: URL field is prefilled
 - without `--out`: HTML is written next to the executable
 - without `--no-open`: generated UI opens automatically
@@ -30,6 +30,8 @@ Behavior:
 ## Live CLI
 
 ```powershell
+northstar-log-reader live --format table
+northstar-log-reader live --format jsonl > live_logs.jsonl
 northstar-log-reader live --url http://127.0.0.1:4319/logs/live --format table
 northstar-log-reader live --url http://127.0.0.1:4319/logs/live --format jsonl > live_logs.jsonl
 ```
@@ -37,6 +39,8 @@ northstar-log-reader live --url http://127.0.0.1:4319/logs/live --format jsonl >
 ## Snapshot CLI
 
 ```powershell
+northstar-log-reader read --format table
+northstar-log-reader tail --count 50 --format jsonl
 northstar-log-reader read --url file://logs/live.ulog.jsonl --format table
 northstar-log-reader tail --url file://logs/live.ulog.jsonl --count 50 --format jsonl
 ```

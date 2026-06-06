@@ -1,9 +1,9 @@
 {
-  "action_id": "vendor.gnuwin32.doctor",
+  "action_id": "toolbelt.third_party.test_all",
   "group": "Vendor Tools",
-  "title": "Validate GNUWin32 vendor tools",
-  "description": "Validate self-contained third-party GNUWin32 binaries and SHA-256 hashes under tools/toolbelt/third_party/<tool>/bin.",
-  "command": "vendor-gnuwin32-doctor",
+  "title": "Run third-party toolbelt smoke tests",
+  "description": "Run descriptor-driven third-party package smoke tests under tools/toolbelt/third_party.",
+  "command": "third-party-test-all",
   "args": [],
   "requires_tools": [],
   "requires_workspace": [

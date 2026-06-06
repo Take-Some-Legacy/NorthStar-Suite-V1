@@ -1,0 +1,56 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.msys2.gnu.bzip2",
+  "version": "1.0.8-msys2-usr",
+  "name": "GNU bzip2",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
+  "safe_to_auto_run": false,
+  "package_root": "tools/toolbelt/third_party/bzip2",
+  "root": "tools/toolbelt/third_party/bzip2",
+  "executable": "bin/bzip2.exe",
+  "expected_sha256": "ac027e648f7d4bb8172d13a1bc27ac71784d193109aa48e76eff703aeb0f520d",
+  "expected_size_bytes": 92176,
+  "description": "GNU/MSYS2 bzip2 executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print bzip2 version.",
+      "args": [
+        "-V"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print bzip2 help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  ],
+  "default_args": [
+    "-V"
+  ],
+  "validation": {
+    "mode": "presence_hash_version_and_shared_libs",
+    "args": [
+      "-V"
+    ],
+    "expect_stdout_contains": "bzip2, a block-sorting file compressor.  Version 1.0.8"
+  },
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+}

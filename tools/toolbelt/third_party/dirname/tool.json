@@ -1,0 +1,56 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.msys2.gnu.dirname",
+  "version": "8.32-msys2-usr",
+  "name": "GNU dirname",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
+  "safe_to_auto_run": false,
+  "package_root": "tools/toolbelt/third_party/dirname",
+  "root": "tools/toolbelt/third_party/dirname",
+  "executable": "bin/dirname.exe",
+  "expected_sha256": "53896fda354605a1a1d1f5e6802daba5ba6c05961f3074b892194e068aa82772",
+  "expected_size_bytes": 34830,
+  "description": "MSYS2 usr GNU dirname executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print GNU dirname version.",
+      "args": [
+        "--version"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print GNU dirname help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  ],
+  "default_args": [
+    "--version"
+  ],
+  "validation": {
+    "mode": "presence_hash_version_and_shared_libs",
+    "args": [
+      "--version"
+    ],
+    "expect_stdout_contains": "dirname (GNU coreutils) 8.32"
+  },
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+}

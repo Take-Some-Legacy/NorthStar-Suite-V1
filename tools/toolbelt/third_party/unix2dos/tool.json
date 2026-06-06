@@ -1,0 +1,56 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.gitforwindows.unix2dos",
+  "version": "7.5.2-gitforwindows-usr",
+  "name": "unix2dos",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "dos2unix/Git-for-Windows",
+  "maturity": "vendor-pinned-local",
+  "safe_to_auto_run": false,
+  "package_root": "tools/toolbelt/third_party/unix2dos",
+  "root": "tools/toolbelt/third_party/unix2dos",
+  "executable": "bin/unix2dos.exe",
+  "expected_sha256": "e2b5ada1f7434022e8e65a668ff831b564372f5c762a07c84c0ca23fd8dc4998",
+  "expected_size_bytes": 53862,
+  "description": "dos2unix/Git-for-Windows unix2dos executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print unix2dos version.",
+      "args": [
+        "--version"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print unix2dos help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  ],
+  "default_args": [
+    "--version"
+  ],
+  "validation": {
+    "mode": "presence_hash_version_and_shared_libs",
+    "args": [
+      "--version"
+    ],
+    "expect_stdout_contains": "unix2dos"
+  },
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+}

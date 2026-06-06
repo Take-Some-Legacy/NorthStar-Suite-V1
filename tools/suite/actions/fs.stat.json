@@ -1,0 +1,19 @@
+{
+  "action_id": "fs.stat",
+  "group": "Operator FS",
+  "title": "Stat files",
+  "description": "Run ns-file-stat through the read-only operator filesystem layer.",
+  "command": "ns-file-stat",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal",
+  "readOnlyHint": true,
+  "destructiveHint": false,
+  "idempotentHint": true,
+  "riskTier": "read_only"
+}

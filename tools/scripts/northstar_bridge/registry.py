@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from . import bridge_restart, dataset, memory, operator_tools, repo, status, workflow
+from . import bridge_restart, dataset, memory, operator_fs, operator_tools, repo, status, workflow
 from .tool_registry import build_project_tool_specs
 from .auth import forget_key, openai_env, openai_status
 from .contracts import BridgeContext, ToolSpec
@@ -18,6 +18,12 @@ def build_tools(ctx: BridgeContext) -> Dict[str, ToolSpec]:
         return lambda args: fn(ctx, args)
 
     specs = {
+        "northstar.operator_fs_list_dir": ("Read-only bounded directory listing through the operator filesystem layer.", schema({"path": {"type": "string"}, "limit": {"type": "integer"}, "include_skipped": {"type": "boolean"}}), operator_fs.list_dir),
+        "northstar.operator_fs_read_file": ("Read-only bounded UTF-8 text file read through the operator filesystem layer.", schema({"path": {"type": "string"}, "max_bytes": {"type": "integer"}, "offset": {"type": "integer"}}, ["path"]), operator_fs.read_file),
+        "northstar.operator_fs_search_text": ("Read-only bounded text search through the operator filesystem layer.", schema({"query": {"type": "string"}, "roots": {"type": "array", "items": {"type": "string"}}, "root": {"type": "array", "items": {"type": "string"}}, "glob": {"type": "array", "items": {"type": "string"}}, "limit": {"type": "integer"}, "regex": {"type": "boolean"}, "case_sensitive": {"type": "boolean"}}, ["query"]), operator_fs.search_text),
+        "northstar.operator_fs_file_stat": ("Read-only file stat through the operator filesystem layer.", schema({"paths": {"type": "array", "items": {"type": "string"}}}, ["paths"]), operator_fs.file_stat),
+        "northstar.operator_fs_tree": ("Read-only bounded tree listing through the operator filesystem layer.", schema({"path": {"type": "string"}, "depth": {"type": "integer"}, "limit": {"type": "integer"}}), operator_fs.tree),
+        "northstar.operator_fs_count_lines": ("Read-only bounded source line counter through the operator filesystem layer.", schema({"roots": {"type": "array", "items": {"type": "string"}}, "root": {"type": "array", "items": {"type": "string"}}, "glob": {"type": "array", "items": {"type": "string"}}, "limit": {"type": "integer"}}), operator_fs.count_lines),
         "northstar.repo_status": ("Return git status as structured diagnostics.", schema({"timeout_sec": {"type": "integer"}}), operator_tools.repo_status),
         "northstar.repo_diff": ("Return bounded git diff output, optionally scoped to paths.", schema({"paths": {"type": "array", "items": {"type": "string"}}, "max_bytes": {"type": "integer"}, "timeout_sec": {"type": "integer"}}), operator_tools.repo_diff),
         "northstar.repo_changed_files": ("Return changed and untracked repository files.", schema({"include_untracked": {"type": "boolean"}}), operator_tools.repo_changed_files),

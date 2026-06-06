@@ -52,5 +52,64 @@
     ],
     "expect_stdout_contains": "GNU sed) 4.9"
   },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
+  "suite_commands": [
+    {
+      "id": "sed-file",
+      "title": "Transform text file with sed",
+      "description": "Run GNU sed on one file through a bounded wrapper.",
+      "tool_args": [
+        "-e"
+      ],
+      "args": [
+        {
+          "name": "script",
+          "flags": [
+            "--script"
+          ],
+          "kind": "string",
+          "required": true,
+          "help": "sed -e script.",
+          "tool_flag": ""
+        },
+        {
+          "name": "input",
+          "flags": [
+            "--input"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Input text file.",
+          "tool_flag": ""
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Output text file.",
+          "tool_flag": ""
+        },
+        {
+          "name": "check",
+          "flags": [
+            "--check"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Print transformed output but do not write the output file.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "script",
+        "input"
+      ],
+      "output_redirect_arg": "output",
+      "check_suppresses_output_redirect": true,
+      "riskTier": "write"
+    }
+  ]
 }

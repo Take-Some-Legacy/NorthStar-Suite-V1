@@ -4,10 +4,18 @@ use crate::{app, http, input, output, ui};
 use northstar_cli::ansi;
 use std::{env, fs, path::{Path, PathBuf}, process::Command};
 
-const DEFAULT_LIVE_URL: &str = "http://127.0.0.1";
+const DEFAULT_LOG_URL: &str = "http://127.0.0.1:8765/logs";
+const VALUE_FLAGS: &[&str] = &[
+    "--url",
+    "--format",
+    "--limit",
+    "--count",
+    "--max-events",
+    "--out",
+];
 
 pub fn cmd_read(args: &[String]) -> Result<(), String> {
-    let input = required_arg(args, "--url", "read")?;
+    let input = input_or_default(args, "--url");
     let format = arg_value(args, "--format").unwrap_or_else(|| "table".to_owned());
     let limit = arg_value(args, "--limit").and_then(|v| v.parse::<usize>().ok());
     let events = input::load_events_from_input(&input)?;
@@ -16,7 +24,7 @@ pub fn cmd_read(args: &[String]) -> Result<(), String> {
 }
 
 pub fn cmd_tail(args: &[String]) -> Result<(), String> {
-    let input = required_arg(args, "--url", "tail")?;
+    let input = input_or_default(args, "--url");
     let format = arg_value(args, "--format").unwrap_or_else(|| "table".to_owned());
     let count = arg_value(args, "--count").and_then(|v| v.parse::<usize>().ok()).unwrap_or(50);
     let events = input::load_events_from_input(&input)?;
@@ -25,7 +33,7 @@ pub fn cmd_tail(args: &[String]) -> Result<(), String> {
 }
 
 pub fn cmd_live(args: &[String]) -> Result<(), String> {
-    let input = required_arg(args, "--url", "live")?;
+    let input = input_or_default(args, "--url");
     let format = arg_value(args, "--format").unwrap_or_else(|| "table".to_owned());
     let max_events = arg_value(args, "--max-events").and_then(|v| v.parse::<usize>().ok());
 
@@ -37,7 +45,7 @@ pub fn cmd_live(args: &[String]) -> Result<(), String> {
 }
 
 pub fn cmd_ui(args: &[String]) -> Result<(), String> {
-    let input = arg_value(args, "--url").unwrap_or_else(|| DEFAULT_LIVE_URL.to_owned());
+    let input = input_or_default(args, "--url");
     if !input.starts_with("http://") {
         return Err("native app currently supports http:// live URLs; leave --url empty and edit inside UI or pass http://...".to_owned());
     }
@@ -45,7 +53,7 @@ pub fn cmd_ui(args: &[String]) -> Result<(), String> {
 }
 
 pub fn cmd_html(args: &[String]) -> Result<(), String> {
-    let input = arg_value(args, "--url").unwrap_or_else(|| DEFAULT_LIVE_URL.to_owned());
+    let input = input_or_default(args, "--url");
     if !input.starts_with("http://") && !input.starts_with("https://") {
         return Err("--url must be an HTTP(S) streaming URL when provided".to_owned());
     }
@@ -115,10 +123,24 @@ fn open_ui_file(path: &Path) -> Result<(), String> {
     Err(format!("open ui is not supported on this platform; file={}", path.display()))
 }
 
-fn required_arg(args: &[String], name: &str, command: &str) -> Result<String, String> {
+fn input_or_default(args: &[String], name: &str) -> String {
     arg_value(args, name)
-        .or_else(|| args.iter().find(|arg| !arg.starts_with('-')).cloned())
-        .ok_or_else(|| format!("{command} requires {name} <value>"))
+        .or_else(|| positional_input(args))
+        .unwrap_or_else(|| DEFAULT_LOG_URL.to_owned())
+}
+
+fn positional_input(args: &[String]) -> Option<String> {
+    args.iter().enumerate().find_map(|(index, arg)| {
+        if arg.starts_with('-') {
+            return None;
+        }
+
+        if index > 0 && VALUE_FLAGS.contains(&args[index - 1].as_str()) {
+            return None;
+        }
+
+        Some(arg.clone())
+    })
 }
 
 fn arg_value(args: &[String], name: &str) -> Option<String> {

@@ -1,0 +1,122 @@
+[
+  {
+    "name": "bison",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 52,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.bison smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\bison\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\nbison (GNU Bison) 3.8.2\nWritten by Robert Corbett and Richard Stallman.\n\nCopyright (C) 2021 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n[PASS] vendor.msys2.gnu.bison smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "diff",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 55,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.diff smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\diff\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n--- \"C:\\\\Users\\\\Aiden\\\\Documents\\\\Take Some\\\\NorthStar-Engine\\\\tools\\\\toolbelt\\\\third_party\\\\diff\\\\test\\\\testData\\\\left.txt\"\t2026-06-03 08:08:12.609329700 +0300\n+++ \"C:\\\\Users\\\\Aiden\\\\Documents\\\\Take Some\\\\NorthStar-Engine\\\\tools\\\\toolbelt\\\\third_party\\\\diff\\\\test\\\\testData\\\\right.txt\"\t2026-06-03 08:08:12.609866000 +0300\n@@ -1,3 +1,3 @@\n alpha\n-bravo\n+bravo changed\n charlie\n[PASS] vendor.msys2.gnu.diff smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "diff3",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 67,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.diff3 smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\diff3\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\ndiff3 (GNU diffutils) 3.12\nCopyright (C) 2025 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by Randy Smith.\n[PASS] vendor.msys2.gnu.diff3 smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "fgrep",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 39,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.fgrep smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\fgrep\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n2:needle one\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "flex",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 109,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.flex smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\flex\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Temp\\nst_flex_smoke\r\n============================================================\r\n[PASS] vendor.msys2.gnu.flex smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "flexpp",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 108,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.flexpp smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\flexpp\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Temp\\nst_flexpp_smoke\r\n============================================================\r\n[PASS] vendor.msys2.gnu.flexpp smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "funzip",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 50,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.funzip smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\funzip\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\nhello funzip\n[PASS] vendor.msys2.gnu.funzip smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "grep",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 44,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.grep smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\grep\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\grep\\bin\\grep.exe\" needle \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\grep\\test\\testData\\input.txt\"\r\nneedle-one\nneedle-two\n[PASS] vendor.msys2.gnu.grep smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "m4",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 62,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.m4 smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\m4\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n\nHello NorthStar\n[PASS] vendor.msys2.gnu.m4 smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "make",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 46,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.make smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\make\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] mode=version-only-no-unvendored-shell\r\n============================================================\r\nGNU Make 4.4.1\nBuilt for x86_64-pc-msys\nCopyright (C) 1988-2023 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n[PASS] vendor.msys2.gnu.make smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "sdiff",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 89,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.sdiff smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\sdiff\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] work=C:\\Temp\\nst_sdiff_smoke\r\n============================================================\r\nalpha\t\t\t\t\t\t\t\talpha\nbravo\t\t\t\t\t\t\t      |\tbravo changed\ncharlie\t\t\t\t\t\t\t\tcharlie\n[PASS] vendor.msys2.gnu.sdiff smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "sed",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 51,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.sed smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\sed\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\sed\\bin\\sed.exe\" -e s/foo/bar/g \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\sed\\test\\testData\\input.txt\"\r\nalpha bar\nbravo bar\n[PASS] vendor.msys2.gnu.sed smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "tail",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 46,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.tail smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tail\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tail\\bin\\tail.exe\" -n 3 \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tail\\test\\testData\\input.log\"\r\nline 08\nline 09\nline 10\n[PASS] vendor.msys2.gnu.tail smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "tar",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 54,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.tar smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tar\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n[INFO] mode=list-existing-tar-fixture-relative-path\r\n[INFO] work=C:\\Temp\\nst_msys2_tar_smoke\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\tar\\bin\\tar.exe\" -tf payload.tar\r\npayload/a.txt\npayload/b.txt\n[PASS] vendor.msys2.gnu.tar smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  },
+  {
+    "name": "touch",
+    "status": "PASS",
+    "rc": 0,
+    "elapsed_ms": 47,
+    "stdout_tail": "============================================================\r\n[SMOKE] vendor.msys2.gnu.touch smokeTest\r\n[INFO] root=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\touch\r\n[INFO] libraries=C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\libraries\r\n============================================================\r\n[CMD] \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\touch\\bin\\touch.exe\" \"C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Engine\\tools\\toolbelt\\third_party\\touch\\test\\_out\\touched.txt\"\r\n[PASS] vendor.msys2.gnu.touch smokeTest passed\r\n[RESULT] smokeTest exit=0\r\n============================================================\r\n",
+    "stderr_tail": ""
+  }
+]

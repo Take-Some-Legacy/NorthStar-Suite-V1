@@ -46,5 +46,241 @@
     "model.import.glb",
     "model.import.fbx.placeholder"
   ],
-  "sha256": "70a448722e24910f7e130b6fd303ca4ab13e93ac2099990180f4b731469a20fc"
+  "sha256": "70a448722e24910f7e130b6fd303ca4ab13e93ac2099990180f4b731469a20fc",
+  "suite_commands": [
+    {
+      "id": "pack-ydd",
+      "title": "Pack YDD drawable dictionary",
+      "description": "Build resident NEF8 .ydd drawable dictionary from model sources.",
+      "tool_args": [
+        "pack"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": [],
+          "required": false,
+          "help": "Source model path. May repeat.",
+          "tool_flag": "--input",
+          "action": "append"
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": true,
+          "help": "Output .ydd path.",
+          "tool_flag": "--output"
+        },
+        {
+          "name": "entry",
+          "flags": [
+            "--entry"
+          ],
+          "kind": "string",
+          "default": "",
+          "required": false,
+          "help": "Override resident entry name for a single source only.",
+          "tool_flag": "--entry"
+        },
+        {
+          "name": "material",
+          "flags": [
+            "--material"
+          ],
+          "kind": "string",
+          "default": "",
+          "required": false,
+          "help": "Fallback .nemat or .nemat@entry material ref.",
+          "tool_flag": "--material"
+        },
+        {
+          "name": "scale",
+          "flags": [
+            "--scale"
+          ],
+          "kind": "string",
+          "default": "",
+          "required": false,
+          "help": "Position scale applied on import. Default: 1.0.",
+          "tool_flag": "--scale"
+        },
+        {
+          "name": "flip_v",
+          "flags": [
+            "--flip-v"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Flip imported V coordinate.",
+          "tool_flag": "--flip-v"
+        },
+        {
+          "name": "no_triangulate",
+          "flags": [
+            "--no-triangulate"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Reject non-triangle topology instead of triangulating/trimming.",
+          "tool_flag": "--no-triangulate"
+        }
+      ],
+      "requires_any": [
+        [
+          "input"
+        ]
+      ],
+      "riskTier": "write"
+    },
+    {
+      "id": "inspect-ydd",
+      "title": "Inspect YDD drawable dictionary",
+      "description": "Inspect a .ydd resident drawable dictionary.",
+      "tool_args": [
+        "inspect"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .ydd file. Defaults to discovered asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.ydd"
+          }
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "list-ydd",
+      "title": "List YDD drawable dictionary",
+      "description": "List entries in a .ydd resident drawable dictionary.",
+      "tool_args": [
+        "list"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .ydd file. Defaults to discovered asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.ydd"
+          }
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "validate-ydd",
+      "title": "Validate YDD drawable dictionary",
+      "description": "Validate a .ydd resident drawable dictionary.",
+      "tool_args": [
+        "validate"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .ydd file. Defaults to discovered asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.ydd"
+          }
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "dump-ydd-body",
+      "title": "Dump YDD body",
+      "description": "Dump .ydd decoded body bytes.",
+      "tool_args": [
+        "dump-body"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .ydd file. Defaults to discovered asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets",
+              "NewEngine/neocore2/assets"
+            ],
+            "glob": "*.ydd"
+          }
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": true,
+          "help": "Output .yddbody path.",
+          "tool_flag": "--output"
+        }
+      ],
+      "riskTier": "write"
+    }
+  ]
 }

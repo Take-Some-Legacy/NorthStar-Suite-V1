@@ -1,2 +1,2 @@
 [90m[[92mOK[90m][0m wrote LIVE LogReader HTML UI: C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolbelt\first_party\northstar\log_reader\test\out\log-reader-prefilled.html
-[90m[[94mINFO[90m][0m source_url=http://127.0.0.1:4319/logs/live
+[90m[[94mINFO[90m][0m source_url=http://127.0.0.1:8765/logs

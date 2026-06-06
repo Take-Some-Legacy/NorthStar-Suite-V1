@@ -1,31 +1,39 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.funzip",
-  "version": "5.51-gnuwin32",
-  "name": "GNUWin32 funzip",
-  "description": "Third-party GNUWin32 funzip.exe executable packaged as an individual self-contained registry-visible tool.",
+  "id": "vendor.msys2.gnu.funzip",
+  "version": "6.0-msys2-usr",
+  "name": "Info-ZIP funzip",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/Info-ZIP",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/funzip",
-  "executable": "bin/funzip.exe",
-  "install_path": "tools/toolbelt/third_party/funzip/bin/funzip.exe",
-  "expected_sha256": "4cc730d499facea248ed155098a1ac0489ebb30e8d4904ed6e494f64bec2a15b",
-  "expected_size_bytes": 24576,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "Info-ZIP/MSYS2",
+  "maturity": "vendor-pinned-local",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "archive.zip.stream_extract",
-    "workspace.archive.inspect",
-    "suite.vendor.funzip"
+  "package_root": "tools/toolbelt/third_party/funzip",
+  "root": "tools/toolbelt/third_party/funzip",
+  "executable": "bin/funzip.exe",
+  "expected_sha256": "45e648bd3be4fee5c7c05b7a758b85fc6d284a027ec504a80f687483a7335fb6",
+  "expected_size_bytes": 28476,
+  "description": "MSYS2 usr Info-ZIP funzip executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "help",
-      "description": "Print funzip help output.",
+      "description": "Print Info-ZIP funzip version/help.",
+      "args": [
+        "-h"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print Info-ZIP funzip help.",
       "args": [
         "--help"
       ],
@@ -34,17 +42,15 @@
       "idempotentHint": true
     }
   ],
-  "validation": {
-    "mode": "presence_and_hash",
-    "args": [
-      "--help"
-    ]
-  },
-  "readme": "README.md",
-  "runtime_files": [
-    "bin/funzip.exe"
+  "default_args": [
+    "-h"
   ],
-  "legacy_provider_family": "GNUWin32",
-  "legacy_status": "legacy-replace",
-  "replacement_source_policy": "Prefer pinned MSYS2 UCRT64 package or self-built mingw-w64 artifact with VENDOR.lock.json; no mixed random exe drops."
+  "validation": {
+    "mode": "presence_hash_version_and_shared_libs",
+    "args": [
+      "-h"
+    ],
+    "expect_stdout_contains": "funzip"
+  },
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

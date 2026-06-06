@@ -3,21 +3,18 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
-import subprocess
 import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any
 
 from .paths import rel
-from .cargo.process import cargo_exe
+from .tool_descriptor_cli import dispatch_tool_descriptor_command, discover_suite_command_descriptors
 
 ENGINE_REL = Path("EngineRepo") / "NewEngine" / "neocore2"
 IMPORTER_DESCRIPTOR = ENGINE_REL / "config" / "importers" / "importer_descriptors.v1.json"
 PIPELINE_GRAPH = ENGINE_REL / "config" / "assets" / "import_pipeline.generated_graph.v1.json"
 INVALIDATION_PLAN = ENGINE_REL / "config" / "assets" / "import_pipeline.invalidation_plan.v1.json"
-NEUI_PACKER_MANIFEST = Path("tools") / "northstar" / "neui_packer" / "Cargo.toml"
 
 
 @dataclass(frozen=True)
@@ -145,39 +142,21 @@ def load_manifest_contexts(root: Path) -> list[ImportManifestContext]:
     return contexts
 
 
-def neui_packer_exe(root: Path) -> Path | None:
-    name = "northstar-neui-packer.exe" if os.name == "nt" else "northstar-neui-packer"
-    candidates = [
-        root / "tools" / "exe" / name,
-        root / "tools" / "northstar" / "neui_packer" / "target" / "debug" / name,
-        root / "tools" / "northstar" / "neui_packer" / "target" / "release" / name,
-    ]
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
-    return None
+def run_neui_descriptor_command(root: Path, check: bool = False) -> int:
+    class _Ns:
+        pass
 
-
-def run_neui_packer(root: Path, check: bool = False) -> int:
-    exe = neui_packer_exe(root)
-    if exe is not None:
-        cmd = [str(exe), "--root", str(root), "--all"]
-        if check:
-            cmd.append("--check")
-    else:
-        manifest = root / NEUI_PACKER_MANIFEST
-        if not manifest.exists():
-            print(f"[ERROR] NEUI packer manifest missing: {rel(root, manifest)}")
-            return 2
-        cmd = [cargo_exe() or "cargo", "run", "--manifest-path", str(manifest), "--", "--root", str(root), "--all"]
-        if check:
-            cmd.append("--check")
-    print("[CMD] " + " ".join(cmd))
-    try:
-        return subprocess.call(cmd, cwd=root)
-    except FileNotFoundError as exc:
-        print(f"[ERROR] NEUI packer requires cargo or a built northstar-neui-packer executable: {exc}")
-        return 127
+    ns = _Ns()
+    ns.command = "build-ui"
+    ns.input = ""
+    ns.output = ""
+    ns.check = bool(check)
+    descriptors = discover_suite_command_descriptors(root)
+    result = dispatch_tool_descriptor_command("build-ui", root, ns, descriptors)
+    if result is None:
+        print("[ERROR] build-ui descriptor command was not found in toolbelt suite_commands")
+        return 2
+    return int(result)
 
 
 def build_runtime_graph(root: Path) -> dict[str, Any]:
@@ -404,4 +383,4 @@ def import_pipeline_command(root: Path, ns: argparse.Namespace) -> int:
     if getattr(ns, "skip_neui", False):
         print("[SKIP] .neui packing skipped by request")
         return 0
-    return run_neui_packer(root, check=check)
+    return run_neui_descriptor_command(root, check=check)

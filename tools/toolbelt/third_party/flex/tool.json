@@ -1,50 +1,56 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.flex",
-  "version": "2.5.4-gnuwin32",
-  "name": "GNUWin32 flex",
-  "description": "Third-party GNU flex executable packaged as an individual registry-visible lexical scanner generator.",
+  "id": "vendor.msys2.gnu.flex",
+  "version": "2.6.4-msys2-usr",
+  "name": "GNU flex",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/GNU flex",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/flex",
-  "executable": "bin/flex.exe",
-  "install_path": "tools/toolbelt/third_party/flex/bin/flex.exe",
-  "expected_sha256": "5f985f95c4c02e31aa130149d1b8174000de82d9739f26375fcbf6215b6c6af7",
-  "expected_size_bytes": 170496,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "lexer.generate",
-    "grammar.lex",
-    "suite.vendor.flex"
+  "package_root": "tools/toolbelt/third_party/flex",
+  "root": "tools/toolbelt/third_party/flex",
+  "executable": "bin/flex.exe",
+  "expected_sha256": "068c6bf3c60da00a2757a63bd009abf751236979c905e0b266411a8cd9a966c3",
+  "expected_size_bytes": 350049,
+  "description": "MSYS2 usr GNU flex executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "version",
-      "description": "Print the GNU flex version.",
+      "description": "Print GNU flex version/help.",
       "args": [
         "--version"
       ],
       "readOnlyHint": true,
       "destructiveHint": false,
       "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print GNU flex help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     }
   ],
+  "default_args": [
+    "--version"
+  ],
   "validation": {
-    "mode": "presence_and_hash",
+    "mode": "presence_hash_version_and_shared_libs",
     "args": [
       "--version"
-    ]
+    ],
+    "expect_stdout_contains": "flex 2.6.4"
   },
-  "readme": "README.md",
-  "runtime_files": [
-    "bin/flex.exe"
-  ],
-  "legacy_provider_family": "GNUWin32",
-  "legacy_status": "legacy-replace",
-  "replacement_source_policy": "Prefer pinned MSYS2 UCRT64 package or self-built mingw-w64 artifact with VENDOR.lock.json; no mixed random exe drops."
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

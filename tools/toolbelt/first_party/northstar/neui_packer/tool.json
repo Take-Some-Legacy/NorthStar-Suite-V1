@@ -39,5 +39,127 @@
     }
   ],
   "capabilities": [],
-  "sha256": "c3a3bfb73d701063ec4cfc229c52d524427008d56892de27bbe9d802902fca73"
+  "sha256": "c3a3bfb73d701063ec4cfc229c52d524427008d56892de27bbe9d802902fca73",
+  "suite_commands": [
+    {
+      "id": "build-ui",
+      "title": "Build NEUI dictionary",
+      "description": "Compile XML-first .neui.xml sources into NEF8 .neui runtime assets.",
+      "tool_args": [
+        "compile",
+        "--root",
+        "."
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Single .neui.xml source. Defaults to --all.",
+          "tool_flag": "--input"
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output",
+            "-o"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Output .neui path for a single input.",
+          "tool_flag": "--output"
+        },
+        {
+          "name": "check",
+          "flags": [
+            "--check"
+          ],
+          "kind": "bool",
+          "action": "store_true",
+          "help": "Validate and print planned outputs without writing .neui files.",
+          "tool_flag": "--check"
+        }
+      ],
+      "auto_flags_if_empty": [
+        {
+          "name": "input",
+          "flags": [
+            "--all"
+          ]
+        }
+      ],
+      "riskTier": "write"
+    },
+    {
+      "id": "inspect-ui",
+      "title": "Inspect NEUI dictionary",
+      "description": "Inspect a NEF8 .neui file and print a readable JSON summary.",
+      "tool_args": [
+        "inspect"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Input .neui file. Defaults to first discovered UI asset.",
+          "tool_flag": "--input",
+          "default_discover": {
+            "kind": "first_existing_or_glob",
+            "paths": [],
+            "glob_roots": [
+              "EngineRepo/NewEngine/neocore2/assets/ui",
+              "NewEngine/neocore2/assets/ui"
+            ],
+            "glob": "*.neui"
+          }
+        }
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "validate-ui",
+      "title": "Validate NEUI dictionary",
+      "description": "Validate .neui.xml and .neui assets through the native NEUI packer.",
+      "tool_args": [
+        "validate",
+        "--root",
+        "."
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input",
+            "-i"
+          ],
+          "kind": "path",
+          "default": "",
+          "required": false,
+          "help": "Single .neui.xml or .neui file. Defaults to all UI assets.",
+          "tool_flag": "--input"
+        }
+      ],
+      "auto_flags_if_empty": [
+        {
+          "name": "input",
+          "flags": [
+            "--all"
+          ]
+        }
+      ],
+      "riskTier": "read_only"
+    }
+  ]
 }

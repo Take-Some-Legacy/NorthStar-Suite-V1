@@ -1,52 +1,56 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "vendor.gnuwin32.make",
-  "version": "3.81-gnuwin32",
-  "name": "GNUWin32 make",
-  "description": "Third-party GNUWin32 make.exe executable packaged as an individual self-contained registry-visible tool.",
+  "id": "vendor.msys2.gnu.make",
+  "version": "4.4.1-msys2-usr",
+  "name": "GNU Make",
   "kind": "external-cli",
   "source_type": "third_party",
-  "owner": "GNUWin32/GNU Make",
-  "root": ".",
-  "package_root": "tools/toolbelt/third_party/make",
-  "executable": "bin/make.exe",
-  "install_path": "tools/toolbelt/third_party/make/bin/make.exe",
-  "expected_sha256": "19e41b7f9b99773b5c6f2b93426cc525f6b63c461cc034a17f6b6263d8d54557",
-  "expected_size_bytes": 175104,
-  "safe_for_build": false,
-  "build_validation": false,
+  "owner": "GNU/MSYS2",
+  "maturity": "vendor-pinned-local",
   "safe_to_auto_run": false,
-  "maturity": "vendor-provisional",
-  "capabilities": [
-    "build.make",
-    "workspace.build.external",
-    "suite.vendor.make"
+  "package_root": "tools/toolbelt/third_party/make",
+  "root": "tools/toolbelt/third_party/make",
+  "executable": "bin/make.exe",
+  "expected_sha256": "2d3b9fca575be8e93c10ab74348055fa127a65cf628d52e9218ac76065cc6d22",
+  "expected_size_bytes": 229856,
+  "description": "MSYS2 usr GNU Make executable packaged as a shared-runtime descriptor tool.",
+  "shared_libs": [
+    {
+      "id": "vendor.msys2.runtime.usr",
+      "path": "tools/toolbelt/libraries"
+    }
   ],
   "commands": [
     {
       "id": "version",
-      "description": "Print the GNU make version.",
+      "description": "Print GNU Make version/help.",
       "args": [
         "--version"
       ],
       "readOnlyHint": true,
       "destructiveHint": false,
       "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print GNU Make help.",
+      "args": [
+        "--help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
     }
   ],
+  "default_args": [
+    "--version"
+  ],
   "validation": {
-    "mode": "presence_and_hash",
+    "mode": "presence_hash_version_and_shared_libs",
     "args": [
       "--version"
-    ]
+    ],
+    "expect_stdout_contains": "GNU Make 4.4.1"
   },
-  "readme": "README.md",
-  "runtime_files": [
-    "bin/libiconv2.dll",
-    "bin/libintl3.dll",
-    "bin/make.exe"
-  ],
-  "legacy_provider_family": "GNUWin32",
-  "legacy_status": "legacy-replace",
-  "replacement_source_policy": "Prefer pinned MSYS2 UCRT64 package or self-built mingw-w64 artifact with VENDOR.lock.json; no mixed random exe drops."
+  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }
