@@ -85,7 +85,7 @@ for /d %%D in ("%FIRST_PARTY_ROOT%\northstar\*") do (
 
   if /i "!NAME!"=="nemat_packer" set "EXE=!PKG!\bin\northstar-nemat-packer.exe"
 
-  if /i "!NAME!"=="nepak_packer" set "EXE=!PKG!\bin\northstar-nepak-packer.exe"
+  if /i "!NAME!"=="nepak_packer" set "EXE=!PKG!\bin\northstar-nepak-manager.exe"
 
   if /i "!NAME!"=="neui_packer" set "EXE=!PKG!\bin\northstar-neui-packer.exe"
 

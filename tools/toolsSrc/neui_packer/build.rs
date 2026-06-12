@@ -6,6 +6,6 @@ fn main() {
         internal_name: "northstar-neui-packer",
         original_filename: "northstar-neui-packer.exe",
         file_description: "North Star NEUI Packer",
-        icon_path: Some("../icons/northstar-neui-packer.ico"),
+        icon_path: Some("../icons/AppIcon.ico"),
     });
 }

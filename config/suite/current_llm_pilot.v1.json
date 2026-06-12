@@ -5,7 +5,7 @@
   "status": "ready",
   "assigned_role": "suite-intelligence-current-pilot",
   "runtime": "pytorch-transformers",
-  "python": "D:/TakeSomeData/venvs/northstar-llm-pilot/Scripts/python.exe",
+  "python": "auto",
   "model_family": "DeepSeek-R1-Distill-Qwen-7B",
   "model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
   "model_root": "D:/LLM/DeepSeek-R1-Distill-Qwen-7B-PyTorch",
@@ -42,5 +42,6 @@
     "may_execute_actions": false,
     "requires_operator_approval": true,
     "approval_file": ".takesome/intelligence/operator-response.md"
-  }
+  },
+  "python_resolution": "current process or PATH fallback; dedicated venv is optional and not required by the site worker"
 }

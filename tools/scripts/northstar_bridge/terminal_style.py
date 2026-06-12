@@ -49,9 +49,54 @@ def enable_windows_ansi() -> None:
         pass
 
 
-def disable_windows_quick_edit() -> None:
-    """Prevent Windows console selection mode from freezing live log output."""
+def _console_selection_policy(value: object | None = None) -> str:
+    raw = str(
+        value
+        or os.environ.get("NORTHSTAR_CONSOLE_SELECTION_MODE")
+        or os.environ.get("NORTHSTAR_BRIDGE_CONSOLE_SELECTION_MODE")
+        or "allow"
+    ).strip().lower().replace("-", "_")
+    aliases = {
+        "": "allow",
+        "1": "allow",
+        "true": "allow",
+        "yes": "allow",
+        "on": "allow",
+        "enable": "allow",
+        "enabled": "allow",
+        "quickedit": "allow",
+        "quick_edit": "allow",
+        "select": "allow",
+        "selectable": "allow",
+        "copy": "allow",
+        "copy_friendly": "allow",
+        "0": "disable_quick_edit",
+        "false": "disable_quick_edit",
+        "no": "disable_quick_edit",
+        "off": "disable_quick_edit",
+        "disable": "disable_quick_edit",
+        "disabled": "disable_quick_edit",
+        "no_freeze": "disable_quick_edit",
+        "freeze_safe": "disable_quick_edit",
+        "preserve": "preserve",
+        "system": "preserve",
+        "default": "preserve",
+    }
+    return aliases.get(raw, raw)
+
+
+def configure_windows_console_selection(policy: object | None = None) -> None:
+    """Apply operator-console selection policy.
+
+    Policy is intentionally config/env driven.  `allow` enables QuickEdit so an
+    operator can select/copy text from a classic Windows console.  `preserve`
+    leaves the host terminal untouched.  `disable_quick_edit` keeps the old
+    freeze-safe behavior for long unattended log sessions.
+    """
     if os.name != "nt":
+        return
+    selected = _console_selection_policy(policy)
+    if selected in {"preserve", "inherit", "unchanged"}:
         return
     try:
         import ctypes
@@ -64,10 +109,20 @@ def disable_windows_quick_edit() -> None:
         enable_extended_flags = 0x0080
         quick_edit_mode = 0x0040
         insert_mode = 0x0020
-        new_mode = (mode.value | enable_extended_flags) & ~quick_edit_mode & ~insert_mode
+        if selected in {"allow", "enable_quick_edit"}:
+            new_mode = mode.value | enable_extended_flags | quick_edit_mode
+        elif selected in {"disable_quick_edit", "freeze_safe"}:
+            new_mode = (mode.value | enable_extended_flags) & ~quick_edit_mode & ~insert_mode
+        else:
+            return
         kernel32.SetConsoleMode(stdin, new_mode)
     except Exception:
         pass
+
+
+def disable_windows_quick_edit() -> None:
+    """Backward-compatible freeze-safe helper for older callers."""
+    configure_windows_console_selection("disable_quick_edit")
 
 
 def ansi_allowed() -> bool:

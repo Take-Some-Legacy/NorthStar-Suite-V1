@@ -32,10 +32,10 @@
       "idempotentHint": true
     },
     {
-      "id": "help",
-      "description": "Print Info-ZIP funzip help.",
+      "id": "version",
+      "description": "Print Info-ZIP funzip version information.",
       "args": [
-        "--help"
+        "-v"
       ],
       "readOnlyHint": true,
       "destructiveHint": false,

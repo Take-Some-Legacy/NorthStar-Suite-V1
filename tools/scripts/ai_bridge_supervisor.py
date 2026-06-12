@@ -25,16 +25,35 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
+from northstar_bridge.mcp_routes import McpRouteProfile, load_mcp_route_profile
+from northstar_bridge.workspace_config import apply_workspace_environment, load_workspace_config, resolve_tool_root, resolve_workspace_root
 from northstar_bridge.terminal_style import (
     LOG_LEVEL_COLORS,
     bracket as _bracket,
     color,
     enable_windows_ansi as _enable_windows_ansi,
-    disable_windows_quick_edit as _disable_windows_quick_edit,
     level_color as _level_color,
     strip_ansi as _strip_ansi,
     style,
 )
+
+try:
+    from northstar_bridge.terminal_style import (
+        configure_windows_console_selection as _configure_windows_console_selection,
+    )
+except ImportError:  # compatibility with partially patched local trees
+    try:
+        from northstar_bridge.terminal_style import disable_windows_quick_edit as _legacy_disable_windows_quick_edit
+    except ImportError:
+        _legacy_disable_windows_quick_edit = None
+
+    def _configure_windows_console_selection(policy: object | None = None) -> None:
+        selected = str(policy or "allow").strip().lower().replace("-", "_")
+        if selected in {"disable", "disabled", "disable_quick_edit", "freeze_safe"} and _legacy_disable_windows_quick_edit:
+            _legacy_disable_windows_quick_edit()
+        # Old terminal_style has no safe way to force-enable QuickEdit; leave the
+        # terminal untouched until terminal_style.py from this patch is applied.
+        return None
 from northstar_bridge.supervisor_footer import (
     bind as _footer_bind,
     clear as _footer_clear_locked,
@@ -49,8 +68,29 @@ from northstar_bridge.supervisor_footer import (
 LOCAL_HOST = "127.0.0.1"
 LOCAL_PORT = 8797
 LOCAL_ORIGIN = f"http://{LOCAL_HOST}:{LOCAL_PORT}"
-LOCAL_MCP = f"{LOCAL_ORIGIN}/mcp"
 LOCAL_HEALTH = f"{LOCAL_ORIGIN}/health"
+
+
+
+def _mcp_path(routes: McpRouteProfile | None = None) -> str:
+    return (routes.endpoint if routes is not None else "/mcp") or "/mcp"
+
+
+def _origin_endpoint(origin: str, routes: McpRouteProfile | None = None) -> str:
+    return origin.rstrip("/") + _mcp_path(routes)
+
+
+def _public_origin_from_endpoint(endpoint: str, routes: McpRouteProfile | None = None) -> str:
+    value = str(endpoint or "").strip().rstrip("/")
+    if not value:
+        return ""
+    path = _mcp_path(routes)
+    if value.endswith(path):
+        return value[: -len(path)].rstrip("/")
+    parsed = urllib.parse.urlparse(value)
+    if parsed.scheme and parsed.netloc:
+        return urllib.parse.urlunparse((parsed.scheme, parsed.netloc, "", "", "", "")).rstrip("/")
+    return value
 BRIDGE_CONFIG_REL = Path("config") / "suite" / "ai_bridge.v1.json"
 BRIDGE_PUBLIC_ORIGIN_CONFIG_REL = Path("config") / "suite" / "bridge_public_origin.v1.json"
 URL_RE = re.compile(r"https://[-a-zA-Z0-9]+\.trycloudflare\.com")
@@ -60,6 +100,165 @@ QUICK_ROUTE_TERMINAL_PATTERNS = (
     "register tunnel error from server side",
 )
 QUICK_ROUTE_TERMINAL_ERROR_THRESHOLD = 2
+
+
+def _truthy_env(name: str, default: bool = False) -> bool:
+    raw = os.environ.get(name)
+    if raw is None or str(raw).strip() == "":
+        return default
+    return str(raw).strip().lower() in {"1", "true", "yes", "y", "on", "force", "sudo"}
+
+
+def _site_worker_mode() -> bool:
+    workspace_kind = os.environ.get("NORTHSTAR_SUITE_WORKSPACE_KIND", "").strip().lower()
+    exposure_mode = os.environ.get("NORTHSTAR_BRIDGE_EXPOSURE_MODE", "").strip().lower()
+    return workspace_kind in {"site", "web", "spa", "landing"} or exposure_mode == "operator"
+
+
+def should_skip_origin_preflight() -> bool:
+    # serverBridge is now the Take Some LLC site/operator bridge.  In that mode
+    # the expensive `northstar_ai_bridge.py --hello` child preflight is not a
+    # correctness gate: the real origin still has to pass /health readiness after
+    # startup.  Keeping this gate enabled caused hidden trust prompts/timeouts
+    # before the worker ever reached the site loop.
+    return _truthy_env("NORTHSTAR_AI_BRIDGE_SKIP_ORIGIN_PREFLIGHT", default=_site_worker_mode())
+
+
+def _read_json_file(path: Path) -> dict[str, Any]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+    except Exception:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _expand_config_path(root: Path, value: object) -> str:
+    text = str(value or "").strip().strip("'\"")
+    if not text:
+        return ""
+    text = os.path.expandvars(text)
+    path = Path(text).expanduser()
+    if not path.is_absolute():
+        path = (root / path).resolve()
+    return str(path)
+
+
+def _cloudflare_section(data: dict[str, Any]) -> dict[str, Any]:
+    section = data.get("cloudflare") if isinstance(data, dict) else {}
+    return section if isinstance(section, dict) else {}
+
+
+def _first_config_value(data: dict[str, Any], section: dict[str, Any], *names: str) -> object:
+    for name in names:
+        if name in data and data.get(name) not in (None, ""):
+            return data.get(name)
+        if name in section and section.get(name) not in (None, ""):
+            return section.get(name)
+    return ""
+
+
+def _resolve_named_tunnel_auth(root: Path, data: dict[str, Any]) -> tuple[str, str, bool]:
+    section = _cloudflare_section(data)
+    credentials_file = _expand_config_path(
+        root,
+        _first_config_value(
+            data,
+            section,
+            "credentials_file",
+            "credentials-file",
+            "cloudflare_credentials_file",
+        ),
+    )
+    origin_cert = _expand_config_path(
+        root,
+        _first_config_value(
+            data,
+            section,
+            "origin_cert",
+            "origincert",
+            "origin_certificate",
+            "cloudflare_origin_cert",
+        ),
+    )
+    require_named = _bool_config(
+        _first_config_value(
+            data,
+            section,
+            "require_named_tunnel",
+            "require_named",
+            "production_requires_named_tunnel",
+        ),
+        False,
+    )
+    return credentials_file, origin_cert, require_named
+
+
+def _existing_path_or_empty(value: str) -> str:
+    return value if value and Path(value).exists() else ""
+
+
+def _validate_named_tunnel_auth(cfg: "StableTunnelConfig") -> None:
+    credentials_file = cfg.credentials_file.strip()
+    origin_cert = cfg.origin_cert.strip()
+    env_origin_cert = os.environ.get("TUNNEL_ORIGIN_CERT", "").strip()
+
+    missing: list[str] = []
+    if credentials_file and not Path(credentials_file).exists():
+        missing.append(f"credentials_file={credentials_file}")
+    if origin_cert and not Path(origin_cert).exists():
+        missing.append(f"origin_cert={origin_cert}")
+
+    if missing:
+        raise SupervisorError(
+            "Cloudflare named tunnel auth file is configured but missing: "
+            + "; ".join(missing)
+            + ". Fix config/suite/bridge_public_origin.v1.json or restore the Cloudflare credential files."
+        )
+
+    if not credentials_file and not origin_cert and not env_origin_cert:
+        raise SupervisorError(
+            "Cloudflare named tunnel auth is missing. "
+            "Set cloudflare.credentials_file and/or cloudflare.origin_cert in "
+            "config/suite/bridge_public_origin.v1.json, or set TUNNEL_ORIGIN_CERT. "
+            "Without this, cloudflared cannot run https://suite.kaylas-systems.ru/mcp-v2 as a named tunnel."
+        )
+
+
+def _resolve_python_candidate(candidate: str) -> tuple[str, str]:
+    raw = str(candidate or "").strip().strip('"')
+    if not raw or raw.lower() == "auto":
+        return sys.executable, "auto/current-process"
+    path = Path(raw)
+    try:
+        if path.exists():
+            return str(path), "configured-path"
+    except OSError:
+        pass
+    if not any(sep in raw for sep in ("/", "\\")):
+        found = shutil.which(raw)
+        if found:
+            return found, "PATH"
+    return sys.executable, f"configured-unavailable:{raw};fallback=current-process"
+
+
+def resolve_suite_llm_pilot_python(root: Path) -> tuple[str, str]:
+    env_value = os.environ.get("NORTHSTAR_SUITE_LLM_PYTHON", "").strip()
+    if env_value:
+        return _resolve_python_candidate(env_value)
+    pilot = _read_json_file(root / "config" / "suite" / "current_llm_pilot.v1.json")
+    configured = str(pilot.get("python") or "").strip()
+    if configured:
+        return _resolve_python_candidate(configured)
+    return sys.executable, "default/current-process"
+
+
+def resolve_suite_llm_model_root(root: Path) -> str:
+    env_value = os.environ.get("NORTHSTAR_LOCAL_MODEL_ROOT", "").strip()
+    if env_value:
+        return env_value
+    pilot = _read_json_file(root / "config" / "suite" / "current_llm_pilot.v1.json")
+    configured = str(pilot.get("model_root") or "").strip()
+    return configured or ""
 
 
 def _json_syntax_highlight(raw: str) -> str:
@@ -219,7 +418,7 @@ def emit(level: str, message: str, **fields: object) -> None:
 
 
 _enable_windows_ansi()
-_disable_windows_quick_edit()
+
 
 
 @dataclass
@@ -235,10 +434,14 @@ class StableTunnelConfig:
     quick_protocol: str = "quic"
     quick_fallback_protocols: tuple[str, ...] = ("auto", "http2")
     quick_tunnel_fallback: bool = True
+    mcp_endpoint_path: str = "/mcp"
+    credentials_file: str = ""
+    origin_cert: str = ""
+    require_named_tunnel: bool = False
 
     @property
     def public_url(self) -> str:
-        return self.public_endpoint.rsplit("/mcp", 1)[0].rstrip("/") if self.public_endpoint else ""
+        return _public_origin_from_endpoint(self.public_endpoint, McpRouteProfile(endpoint=self.mcp_endpoint_path)) if self.public_endpoint else ""
 
 
 
@@ -268,13 +471,17 @@ def read_json(path: Path) -> dict:
         return {}
 
 
-def _as_endpoint(hostname_or_endpoint: str) -> str:
+def _as_endpoint(hostname_or_endpoint: str, routes: McpRouteProfile | None = None) -> str:
     value = (hostname_or_endpoint or "").strip().rstrip("/")
     if not value:
         return ""
+    endpoint_path = _mcp_path(routes)
     if value.startswith("http://") or value.startswith("https://"):
-        return value if value.endswith("/mcp") else value + "/mcp"
-    return "https://" + value + "/mcp"
+        parsed = urllib.parse.urlparse(value)
+        if parsed.path and parsed.path != "/":
+            return value
+        return value + endpoint_path
+    return "https://" + value + endpoint_path
 
 
 def _protocol_list(value: object) -> tuple[str, ...]:
@@ -321,19 +528,20 @@ def _as_origin(value: object, default: str = LOCAL_ORIGIN) -> str:
     return default
 
 
-def _hostname_from_endpoint(endpoint: str) -> str:
+def _hostname_from_endpoint(endpoint: str, routes: McpRouteProfile | None = None) -> str:
     try:
-        return urllib.parse.urlparse(endpoint.rsplit("/mcp", 1)[0]).hostname or ""
+        return urllib.parse.urlparse(_public_origin_from_endpoint(endpoint, routes)).hostname or ""
     except Exception:
         return ""
 
 
-def load_declared_tunnel_config(root: Path) -> StableTunnelConfig:
+def load_declared_tunnel_config(root: Path, routes: McpRouteProfile) -> StableTunnelConfig:
     public_data = read_json(root / BRIDGE_PUBLIC_ORIGIN_CONFIG_REL)
     if public_data:
         mode = str(public_data.get("mode") or "").strip().lower()
         if mode in {"cloudflare_named_tunnel", "named", "stable", "named_tunnel", "named-tunnel"}:
-            public_endpoint = _as_endpoint(str(public_data.get("public_origin") or public_data.get("public_endpoint") or ""))
+            public_endpoint = _as_endpoint(str(public_data.get("public_endpoint") or public_data.get("public_origin") or ""), routes)
+            credentials_file, origin_cert, require_named_tunnel = _resolve_named_tunnel_auth(root, public_data)
             return StableTunnelConfig(
                 tunnel_name=str(public_data.get("tunnel_name") or public_data.get("tunnel_id") or ""),
                 tunnel_id=str(public_data.get("tunnel_id") or ""),
@@ -346,6 +554,10 @@ def load_declared_tunnel_config(root: Path) -> StableTunnelConfig:
                 quick_protocol=str(public_data.get("quick_protocol") or "quic").lower() if str(public_data.get("quick_protocol") or "quic").lower() in {"auto", "http2", "quic"} else "quic",
                 quick_fallback_protocols=_protocol_list(public_data.get("quick_fallback_protocols")) or ("auto", "http2"),
                 quick_tunnel_fallback=_bool_config(public_data.get("quick_tunnel_fallback"), True),
+                mcp_endpoint_path=routes.endpoint,
+                credentials_file=credentials_file,
+                origin_cert=origin_cert,
+                require_named_tunnel=require_named_tunnel,
             )
         if mode in {"quick", "quick_tunnel", "cloudflare_route", "trycloudflare"}:
             return StableTunnelConfig(
@@ -353,17 +565,18 @@ def load_declared_tunnel_config(root: Path) -> StableTunnelConfig:
                 source=str(BRIDGE_PUBLIC_ORIGIN_CONFIG_REL).replace(chr(92), "/"),
                 local_origin=_as_origin(public_data.get("local_origin"), LOCAL_ORIGIN),
                 quick_tunnel_fallback=_bool_config(public_data.get("quick_tunnel_fallback"), True),
+                mcp_endpoint_path=routes.endpoint,
             )
 
     data = read_json(root / BRIDGE_CONFIG_REL)
     tunnel = data.get("cloudflare_tunnel") if isinstance(data, dict) else None
     if not isinstance(tunnel, dict) or tunnel.get("enabled") is False:
-        return StableTunnelConfig(route_mode="quick")
+        return StableTunnelConfig(route_mode="quick", mcp_endpoint_path=routes.endpoint)
 
     route_mode = _normalize_route_mode(tunnel.get("route_mode") or tunnel.get("mode") or "named")
 
     hostname = str(tunnel.get("hostname") or "")
-    endpoint = _as_endpoint(str(tunnel.get("public_endpoint") or hostname))
+    endpoint = _as_endpoint(str(tunnel.get("public_endpoint") or hostname), routes)
     protocol = str(tunnel.get("protocol") or "quic").lower()
     if protocol not in {"auto", "http2", "quic"}:
         protocol = "quic"
@@ -373,6 +586,7 @@ def load_declared_tunnel_config(root: Path) -> StableTunnelConfig:
     if quick_protocol not in {"auto", "http2", "quic"}:
         quick_protocol = "quic"
     quick_fallbacks = _protocol_list(tunnel.get("quick_fallback_protocols")) or ("auto", "http2")
+    credentials_file, origin_cert, require_named_tunnel = _resolve_named_tunnel_auth(root, tunnel)
 
     return StableTunnelConfig(
         tunnel_name=str(tunnel.get("tunnel_name") or ""),
@@ -386,6 +600,10 @@ def load_declared_tunnel_config(root: Path) -> StableTunnelConfig:
         quick_protocol=quick_protocol,
         quick_fallback_protocols=quick_fallbacks,
         quick_tunnel_fallback=_bool_config(tunnel.get("quick_tunnel_fallback"), True),
+        mcp_endpoint_path=routes.endpoint,
+        credentials_file=credentials_file,
+        origin_cert=origin_cert,
+        require_named_tunnel=require_named_tunnel,
     )
 
 
@@ -398,7 +616,7 @@ def state_paths(root: Path) -> tuple[Path, Path, Path]:
     return base / "state" / "endpoint.json", base / "reports" / "CONNECT_CHATGPT.md", base / "state" / "stable-tunnel.json"
 
 
-def write_endpoint_state(root: Path, endpoint: str, mode: str, write_enabled: bool, tunnel_kind: str, tunnel_name: str = "", protocol: str = "") -> None:
+def write_endpoint_state(root: Path, endpoint: str, mode: str, write_enabled: bool, tunnel_kind: str, tunnel_name: str = "", protocol: str = "", routes: McpRouteProfile | None = None) -> None:
     state_path, report_path, _ = state_paths(root)
     state_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -413,6 +631,7 @@ def write_endpoint_state(root: Path, endpoint: str, mode: str, write_enabled: bo
         "logs_directory": ".takesome/ai-bridge/logs",
         "state_file": ".takesome/ai-bridge/state/endpoint.json",
         "report_file": ".takesome/ai-bridge/reports/CONNECT_CHATGPT.md",
+        "mcp_route": {"endpoint": _mcp_path(routes)},
         "tunnel": {"kind": tunnel_kind, "name": tunnel_name, "target": LOCAL_ORIGIN, "protocol": protocol},
     }
     state_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -423,7 +642,7 @@ def write_endpoint_state(root: Path, endpoint: str, mode: str, write_enabled: bo
 **Write enabled:** {str(write_enabled).lower()}
 **Tunnel:** {tunnel_kind if not tunnel_name else tunnel_kind + ':' + tunnel_name}
 **Tunnel transport:** {protocol or 'default'}
-**Local origin:** {LOCAL_MCP}
+**Local origin:** {_origin_endpoint(LOCAL_ORIGIN, routes)}
 **Updated at:** {payload['updated_at']}
 
 ## How to run
@@ -511,10 +730,18 @@ def start_process(name: str, cmd: list[str], cwd: Path, env: dict[str, str], q: 
     return proc
 
 
-def preflight_origin(root: Path, *, sudo: bool = False) -> None:
-    bridge = root / "tools" / "scripts" / "northstar_ai_bridge.py"
+def preflight_origin(root: Path, tool_root: Path, *, sudo: bool = False) -> None:
+    bridge = tool_root / "tools" / "scripts" / "northstar_ai_bridge.py"
     if not bridge.exists():
         raise SupervisorError(f"missing bridge entrypoint: {bridge}")
+    if should_skip_origin_preflight():
+        emit(
+            "STATE",
+            "virtual MCP origin preflight skipped",
+            reason="site/operator worker mode",
+            env="NORTHSTAR_AI_BRIDGE_SKIP_ORIGIN_PREFLIGHT",
+        )
+        return
     env = os.environ.copy()
     env.update({
         "PYTHONUTF8": "1",
@@ -535,6 +762,7 @@ def preflight_origin(root: Path, *, sudo: bool = False) -> None:
         text=True,
         encoding="utf-8",
         errors="replace",
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         shell=False,
@@ -552,11 +780,11 @@ def preflight_origin(root: Path, *, sudo: bool = False) -> None:
     emit("OK", "virtual MCP origin preflight passed")
 
 
-def spawn_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> subprocess.Popen[str]:
-    bridge = root / "tools" / "scripts" / "northstar_ai_bridge.py"
+def spawn_origin(root: Path, tool_root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> subprocess.Popen[str]:
+    bridge = tool_root / "tools" / "scripts" / "northstar_ai_bridge.py"
     if not bridge.exists():
         raise SupervisorError(f"missing bridge entrypoint: {bridge}")
-    preflight_origin(root, sudo=sudo)
+    preflight_origin(root, tool_root, sudo=sudo)
     env = os.environ.copy()
     env.update({
         "PYTHONUTF8": "1",
@@ -572,11 +800,11 @@ def spawn_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, 
         env["NORTHSTAR_AI_BRIDGE_WRITE"] = "1"
     else:
         env.setdefault("NORTHSTAR_AI_BRIDGE_WRITE", "0")
-    cmd = [sys.executable, str(bridge), "--root", str(root), "--http"]
+    cmd = [sys.executable, str(bridge), "--root", str(root), "--workspace-config", os.environ.get("NORTHSTAR_SUITE_WORKSPACE_CONFIG", ""), "--http"]
     if sudo:
         cmd.append("-sudo")
-    emit("INFO", "starting local MCP origin", endpoint=LOCAL_MCP, write=write, sudo=sudo)
-    proc = start_process("origin", cmd, root, env, q)
+    emit("INFO", "starting local MCP origin", endpoint=_origin_endpoint(LOCAL_ORIGIN, load_mcp_route_profile(root)), write=write, sudo=sudo)
+    proc = start_process("origin", cmd, tool_root, env, q)
     deadline = time.time() + 30
     while time.time() < deadline:
         if proc.poll() is not None:
@@ -590,18 +818,18 @@ def spawn_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, 
     raise SupervisorError(f"local origin did not become ready at {LOCAL_HEALTH}")
 
 
-def start_origin(root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> Optional[subprocess.Popen[str]]:
+def start_origin(root: Path, tool_root: Path, write: bool, q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> Optional[subprocess.Popen[str]]:
     if probe(LOCAL_HEALTH, timeout=1.0):
         emit("OK", "local origin already responds", url=LOCAL_HEALTH)
         emit("STATE", "external local origin adopted; supervisor will restart it if health is lost", url=LOCAL_HEALTH)
         return None
-    return spawn_origin(root, write, q, sudo=sudo)
+    return spawn_origin(root, tool_root, write, q, sudo=sudo)
 
 
-def ensure_origin_alive(root: Path, write: bool, origin: Optional[subprocess.Popen[str]], q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> Optional[subprocess.Popen[str]]:
+def ensure_origin_alive(root: Path, tool_root: Path, write: bool, origin: Optional[subprocess.Popen[str]], q: "queue.Queue[tuple[str, str]]", *, sudo: bool = False) -> Optional[subprocess.Popen[str]]:
     if origin is not None and origin.poll() is not None:
         emit("WARN", "owned local origin exited; restarting", exit_code=origin.returncode)
-        return spawn_origin(root, write, q, sudo=sudo)
+        return spawn_origin(root, tool_root, write, q, sudo=sudo)
 
     if probe(LOCAL_HEALTH, timeout=1.0):
         return origin
@@ -611,7 +839,7 @@ def ensure_origin_alive(root: Path, write: bool, origin: Optional[subprocess.Pop
         stop_processes([origin])
     else:
         emit("WARN", "adopted local origin stopped responding; starting owned origin", url=LOCAL_HEALTH)
-    return spawn_origin(root, write, q, sudo=sudo)
+    return spawn_origin(root, tool_root, write, q, sudo=sudo)
 
 
 def suite_intelligence_enabled() -> bool:
@@ -629,16 +857,18 @@ def suite_env_file(root: Path) -> Path:
     return root / ".takesome" / "script-env.cmd"
 
 
-def spawn_suite_intelligence(root: Path, q: "queue.Queue[tuple[str, str]]") -> Optional[subprocess.Popen[str]]:
+def spawn_suite_intelligence(root: Path, tool_root: Path, q: "queue.Queue[tuple[str, str]]") -> Optional[subprocess.Popen[str]]:
     if not suite_intelligence_enabled():
         emit("STATE", "Suite Intelligence autostart disabled", env="NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART")
         return None
-    takesome = root / "tools" / "scripts" / "takesome.py"
+    takesome = tool_root / "tools" / "scripts" / "takesome.py"
     if not takesome.exists():
         emit("WARN", "Suite Intelligence autostart skipped; takesome.py is missing", path=takesome)
         return None
     state_dir = root / ".takesome" / "intelligence"
     state_dir.mkdir(parents=True, exist_ok=True)
+    pilot_python, pilot_python_source = resolve_suite_llm_pilot_python(tool_root)
+    local_model_root = resolve_suite_llm_model_root(tool_root)
     env = os.environ.copy()
     env.update({
         "PYTHONUTF8": "1",
@@ -646,41 +876,57 @@ def spawn_suite_intelligence(root: Path, q: "queue.Queue[tuple[str, str]]") -> O
         "PYTHONIOENCODING": "utf-8",
         "NORTHSTAR_SUITE_STDIO_ENCODING": "utf-8",
         "NORTHSTAR_SUITE_STDIO_ERRORS": "replace",
-        "NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI": os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI", "0"),
+        "NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI": os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI", "1"),
         "NORTHSTAR_SUITE_INTELLIGENCE_INTERVAL_SEC": os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_INTERVAL_SEC", "30"),
         "NORTHSTAR_SUITE_INTELLIGENCE_OPENAI_EVERY": os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_OPENAI_EVERY", "1"),
-        "NORTHSTAR_SUITE_LLM_PROVIDER": os.environ.get("NORTHSTAR_SUITE_LLM_PROVIDER", "auto"),
-        "NORTHSTAR_LOCAL_MODEL_ROOT": os.environ.get("NORTHSTAR_LOCAL_MODEL_ROOT", r"D:\LLM\DeepSeek-R1-Distill-Qwen-7B-PyTorch"),
-        "NORTHSTAR_SUITE_LLM_PYTHON": os.environ.get("NORTHSTAR_SUITE_LLM_PYTHON", r"D:\TakeSomeData\venvs\northstar-llm-pilot\Scripts\python.exe"),
+        "NORTHSTAR_SUITE_LLM_PROVIDER": os.environ.get("NORTHSTAR_SUITE_LLM_PROVIDER", ""),
+        "NORTHSTAR_SUITE_WORKSPACE_KIND": os.environ.get("NORTHSTAR_SUITE_WORKSPACE_KIND", ""),
+        "NORTHSTAR_LOCAL_MODEL_ROOT": local_model_root,
+        "NORTHSTAR_SUITE_LLM_PYTHON": pilot_python,
+        "NORTHSTAR_SUITE_LLM_PYTHON_SOURCE": pilot_python_source,
+        "NORTHSTAR_WORKSPACE_ROOT": str(root),
+        "NORTHSTAR_SUITE_WORKSPACE_ROOT": str(root),
+        "TAKESOME_WORKSPACE_ROOT": str(root),
+        "NORTHSTAR_TOOL_ROOT": str(tool_root),
+        "NORTHSTAR_SUITE_TOOL_ROOT": str(tool_root),
+        "TAKESOME_TOOL_ROOT": str(tool_root),
+        "NEWENGINE_PROJECT_ROOT": str(root),
+        "NEWENGINE_REPO_ROOT": str(tool_root),
     })
     env_file = suite_env_file(root)
     env["NEWENGINE_SCRIPT_ENV_FILE"] = str(env_file)
-    cmd = [sys.executable, str(takesome), "suite", "--run", "suite.intelligence.loop"]
+    # Direct command intentionally bypasses `takesome.py suite --run`, because the
+    # resident site/operator worker must not be blocked by Script Env / engine-root
+    # preflight while only monitoring the web workspace and local DeepSeek pilot.
+    cmd = [sys.executable, str(takesome), "suite-intelligence-loop"]
     emit(
         "INFO",
         "starting Suite Intelligence resident loop",
-        command="takesome.py suite --run suite.intelligence.loop",
-        mode="safe-monitoring",
+        command="takesome.py suite-intelligence-loop",
+        mode="site-operator-monitoring",
+        llm_provider=env.get("NORTHSTAR_SUITE_LLM_PROVIDER"),
+        pilot_python=pilot_python,
+        pilot_python_source=pilot_python_source,
+        model_root=local_model_root,
         openai="disabled" if env.get("NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI") == "1" else "enabled",
         env_file=env_file,
     )
-    proc = start_process("suite-intelligence", cmd, root, env, q)
+    proc = start_process("suite-intelligence", cmd, tool_root, env, q)
     (state_dir / "resident-loop.pid").write_text(str(proc.pid) + "\n", encoding="utf-8")
     return proc
 
-
-def ensure_suite_intelligence_alive(root: Path, proc: Optional[subprocess.Popen[str]], q: "queue.Queue[tuple[str, str]]") -> Optional[subprocess.Popen[str]]:
+def ensure_suite_intelligence_alive(root: Path, tool_root: Path, proc: Optional[subprocess.Popen[str]], q: "queue.Queue[tuple[str, str]]") -> Optional[subprocess.Popen[str]]:
     if not suite_intelligence_enabled():
         return proc
     if proc is not None and proc.poll() is None:
         return proc
     if proc is not None:
         emit("WARN", "Suite Intelligence resident loop exited; restarting", exit_code=proc.returncode)
-    return spawn_suite_intelligence(root, q)
+    return spawn_suite_intelligence(root, tool_root, q)
 
 
-def load_stable_tunnel(root: Path) -> StableTunnelConfig:
-    declared = load_declared_tunnel_config(root)
+def load_stable_tunnel(root: Path, routes: McpRouteProfile) -> StableTunnelConfig:
+    declared = load_declared_tunnel_config(root, routes)
     _, _, stable_path = state_paths(root)
     data = read_json(stable_path)
 
@@ -705,7 +951,7 @@ def load_stable_tunnel(root: Path) -> StableTunnelConfig:
         protocol = "quic"
 
     tunnel_name = str(os.environ.get("NORTHSTAR_CLOUDFLARE_TUNNEL") or declared.tunnel_name or data.get("tunnel_name") or "")
-    public_endpoint = _as_endpoint(str(os.environ.get("NORTHSTAR_PUBLIC_MCP_ENDPOINT") or declared.public_endpoint or data.get("public_endpoint") or ""))
+    public_endpoint = _as_endpoint(str(os.environ.get("NORTHSTAR_PUBLIC_MCP_ENDPOINT") or declared.public_endpoint or data.get("public_endpoint") or ""), routes)
     source = "environment" if os.environ.get("NORTHSTAR_CLOUDFLARE_TUNNEL") or os.environ.get("NORTHSTAR_PUBLIC_MCP_ENDPOINT") or os.environ.get("NORTHSTAR_CLOUDFLARE_ROUTE_MODE") else (declared.source or ("local-state" if data else ""))
 
     quick_protocol = str(os.environ.get("NORTHSTAR_CLOUDFLARED_QUICK_PROTOCOL") or declared.quick_protocol or data.get("quick_protocol") or protocol or "quic").lower()
@@ -713,15 +959,27 @@ def load_stable_tunnel(root: Path) -> StableTunnelConfig:
         quick_protocol = "quic"
     quick_fallbacks = _protocol_list(os.environ.get("NORTHSTAR_CLOUDFLARED_QUICK_FALLBACK_PROTOCOLS")) or declared.quick_fallback_protocols or _protocol_list(data.get("quick_fallback_protocols")) or ("auto", "http2")
 
+    state_credentials_file, state_origin_cert, state_require_named = _resolve_named_tunnel_auth(root, data)
+    credentials_file = _expand_config_path(root, os.environ.get("NORTHSTAR_CLOUDFLARE_CREDENTIALS_FILE")) or declared.credentials_file or state_credentials_file
+    origin_cert = _expand_config_path(root, os.environ.get("NORTHSTAR_CLOUDFLARE_ORIGIN_CERT")) or declared.origin_cert or state_origin_cert or _expand_config_path(root, os.environ.get("TUNNEL_ORIGIN_CERT"))
+    require_named_tunnel = _bool_config(os.environ.get("NORTHSTAR_REQUIRE_NAMED_TUNNEL"), declared.require_named_tunnel or state_require_named)
+
     return StableTunnelConfig(
         tunnel_name=tunnel_name,
+        tunnel_id=str(declared.tunnel_id or data.get("tunnel_id") or ""),
         public_endpoint=public_endpoint,
+        local_origin=declared.local_origin,
         protocol=protocol,
         fallback_protocols=fallbacks,
         source=source,
         route_mode=route_mode,
         quick_protocol=quick_protocol,
         quick_fallback_protocols=quick_fallbacks,
+        quick_tunnel_fallback=declared.quick_tunnel_fallback,
+        mcp_endpoint_path=routes.endpoint,
+        credentials_file=credentials_file,
+        origin_cert=origin_cert,
+        require_named_tunnel=require_named_tunnel,
     )
 
 
@@ -827,7 +1085,7 @@ def prompt_text(prompt: str, default: str = "") -> str:
     return value or default
 
 
-def setup_named_tunnel_interactive(root: Path, cloudflared: str) -> StableTunnelConfig | None:
+def setup_named_tunnel_interactive(root: Path, cloudflared: str, routes: McpRouteProfile) -> StableTunnelConfig | None:
     emit("WARN", "stable named tunnel is not configured", config=".takesome/ai-bridge/state/stable-tunnel.json")
     print()
     print("North Star can create a stable Cloudflare named tunnel now.")
@@ -850,7 +1108,7 @@ def setup_named_tunnel_interactive(root: Path, cloudflared: str) -> StableTunnel
     if not hostname or not _looks_like_hostname(hostname):
         emit("WARN", "valid hostname was not provided; quick tunnel fallback will be used", hostname=hostname or "<empty>")
         return None
-    public_endpoint = "https://" + hostname.rstrip("/") + "/mcp"
+    public_endpoint = "https://" + hostname.rstrip("/") + routes.endpoint
 
     rc, output = run_capture([cloudflared, "tunnel", "create", tunnel_name], root)
     already_exists = "already exists" in output.lower() or "tunnel with name" in output.lower()
@@ -884,7 +1142,7 @@ def setup_named_tunnel_interactive(root: Path, cloudflared: str) -> StableTunnel
     }
     stable_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     emit("OK", "stable named tunnel config saved", endpoint=public_endpoint, tunnel=tunnel_name)
-    return StableTunnelConfig(tunnel_name=tunnel_name, public_endpoint=public_endpoint, local_origin=LOCAL_ORIGIN, protocol="quic", fallback_protocols=("auto", "http2"), source="interactive-setup")
+    return StableTunnelConfig(tunnel_name=tunnel_name, public_endpoint=public_endpoint, local_origin=LOCAL_ORIGIN, protocol="quic", fallback_protocols=("auto", "http2"), source="interactive-setup", mcp_endpoint_path=routes.endpoint)
 
 
 def _protocol_sequence(primary: str, fallbacks: Iterable[str]) -> list[str]:
@@ -914,7 +1172,7 @@ def write_named_tunnel_ingress_config(root: Path, cfg: StableTunnelConfig) -> Pa
     tunnel mode while preserving quick_tunnel_fallback as emergency fallback.
     """
 
-    hostname = _hostname_from_endpoint(cfg.public_endpoint)
+    hostname = _hostname_from_endpoint(cfg.public_endpoint, McpRouteProfile(endpoint=cfg.mcp_endpoint_path))
     tunnel_ref = cfg.tunnel_id or cfg.tunnel_name
     if not tunnel_ref:
         raise SupervisorError("named tunnel config requires tunnel_id or tunnel_name")
@@ -926,12 +1184,18 @@ def write_named_tunnel_ingress_config(root: Path, cfg: StableTunnelConfig) -> Pa
     path = config_dir / "named-tunnel.yml"
     lines = [
         f"tunnel: {_yaml_scalar(tunnel_ref)}",
+    ]
+    if cfg.credentials_file:
+        lines.append(f"credentials-file: {_yaml_scalar(cfg.credentials_file)}")
+    if cfg.origin_cert:
+        lines.append(f"origincert: {_yaml_scalar(cfg.origin_cert)}")
+    lines.extend([
         "ingress:",
         f"  - hostname: {_yaml_scalar(hostname)}",
         f"    service: {_yaml_scalar(local_origin)}",
         "  - service: http_status:404",
         "",
-    ]
+    ])
     path.write_text("\n".join(lines), encoding="utf-8")
     emit("INFO", "named tunnel ingress config ready", config=path, hostname=hostname, service=local_origin)
     return path
@@ -952,18 +1216,22 @@ def start_named_tunnel_once(root: Path, cloudflared: str, cfg: StableTunnelConfi
         service=cfg.local_origin,
     )
     env = os.environ.copy()
+    if cfg.origin_cert:
+        env["TUNNEL_ORIGIN_CERT"] = cfg.origin_cert
     cmd = [cloudflared, "tunnel", "--config", str(ingress_config), "--protocol", protocol, "run", tunnel_ref]
     proc = start_process("cloudflared", cmd, root, env, q)
-    write_endpoint_state(root, cfg.public_endpoint, "http", True, "named", tunnel_ref, protocol=protocol)
+    write_endpoint_state(root, cfg.public_endpoint, "http", True, "named", tunnel_ref, protocol=protocol, routes=McpRouteProfile(endpoint=cfg.mcp_endpoint_path))
     return proc
 
 
 def start_named_tunnel(root: Path, cloudflared: str, cfg: StableTunnelConfig, q: "queue.Queue[tuple[str, str]]") -> tuple[subprocess.Popen[str], str]:
     if not (cfg.tunnel_name or cfg.tunnel_id) or not cfg.public_endpoint:
         raise SupervisorError("stable tunnel config requires tunnel_name and public_endpoint")
+    _validate_named_tunnel_auth(cfg)
     health = cfg.public_url + "/health" if cfg.public_url else ""
     emit("INFO", "Bridge local origin:", endpoint=cfg.local_origin)
-    emit("INFO", "Bridge public origin:", endpoint=cfg.public_endpoint.rsplit("/mcp", 1)[0])
+    emit("INFO", "Bridge public origin:", endpoint=cfg.public_url)
+    emit("INFO", "Bridge public MCP endpoint:", endpoint=cfg.public_endpoint)
     emit("INFO", "Tunnel mode:", mode="cloudflare_named_tunnel")
     emit("INFO", "Tunnel id:", tunnel=cfg.tunnel_id or cfg.tunnel_name)
     protocols = _protocol_sequence(cfg.protocol, cfg.fallback_protocols)
@@ -1032,7 +1300,7 @@ def _isolated_quick_env(root: Path) -> dict[str, str]:
     return env
 
 
-def start_quick_tunnel_once(root: Path, cloudflared: str, q: "queue.Queue[tuple[str, str]]", protocol: str = "quic") -> tuple[subprocess.Popen[str], str, list[SuspendedCloudflaredConfig]]:
+def start_quick_tunnel_once(root: Path, cloudflared: str, q: "queue.Queue[tuple[str, str]]", routes: McpRouteProfile, protocol: str = "quic") -> tuple[subprocess.Popen[str], str, list[SuspendedCloudflaredConfig]]:
     emit("INFO", "requesting Cloudflare quick tunnel domain", target=LOCAL_ORIGIN, protocol=protocol)
     env = _isolated_quick_env(root)
     suspended_configs = suspend_default_cloudflared_configs_for_quick_tunnel()
@@ -1052,7 +1320,7 @@ def start_quick_tunnel_once(root: Path, cloudflared: str, q: "queue.Queue[tuple[
             match = URL_RE.search(line)
             if match:
                 url = match.group(0).rstrip("/")
-                endpoint = url + "/mcp"
+                endpoint = url + routes.endpoint
                 # Keep the operator's default cloudflared config hidden while
                 # the quick tunnel process is alive. Restoring it immediately
                 # after URL allocation lets cloudflared finish startup with the
@@ -1070,9 +1338,9 @@ def _line_has_quick_route_terminal_error(line: str) -> bool:
     return any(pattern in clean for pattern in QUICK_ROUTE_TERMINAL_PATTERNS)
 
 
-def _verify_public_route(root: Path, public_url: str, protocol: str, q: "queue.Queue[tuple[str, str]]", timeout_sec: float = 120.0) -> bool:
+def _verify_public_route(root: Path, public_url: str, protocol: str, q: "queue.Queue[tuple[str, str]]", routes: McpRouteProfile, timeout_sec: float = 120.0) -> bool:
     health = public_url.rstrip("/") + "/health"
-    endpoint = public_url.rstrip("/") + "/mcp"
+    endpoint = public_url.rstrip("/") + routes.endpoint
     deadline = time.time() + timeout_sec
     announced_wait = False
     terminal_error_count = 0
@@ -1090,7 +1358,7 @@ def _verify_public_route(root: Path, public_url: str, protocol: str, q: "queue.Q
             )
             return False
         if probe(health, timeout=3.0):
-            write_endpoint_state(root, endpoint, "http", True, "quick", "", protocol=protocol)
+            write_endpoint_state(root, endpoint, "http", True, "quick", "", protocol=protocol, routes=routes)
             emit("OK", "public MCP endpoint verified and written", endpoint=endpoint, protocol=protocol)
             return True
         if not announced_wait:
@@ -1101,14 +1369,14 @@ def _verify_public_route(root: Path, public_url: str, protocol: str, q: "queue.Q
     # as the timeout expires. Do not do it when Cloudflare has already rejected
     # the quick connector, because that hostname is not usable.
     if terminal_error_count < QUICK_ROUTE_TERMINAL_ERROR_THRESHOLD and probe(health, timeout=5.0):
-        write_endpoint_state(root, endpoint, "http", True, "quick", "", protocol=protocol)
+        write_endpoint_state(root, endpoint, "http", True, "quick", "", protocol=protocol, routes=routes)
         emit("OK", "public MCP endpoint verified and written", endpoint=endpoint, protocol=protocol)
         return True
     emit("WARN", "quick route was allocated but public health did not verify", endpoint=endpoint, protocol=protocol)
     return False
 
 
-def start_quick_tunnel(root: Path, cloudflared: str, q: "queue.Queue[tuple[str, str]]", primary: str = "quic", fallbacks: Iterable[str] = ("auto", "http2")) -> tuple[subprocess.Popen[str], str, str, list[SuspendedCloudflaredConfig]]:
+def start_quick_tunnel(root: Path, cloudflared: str, q: "queue.Queue[tuple[str, str]]", routes: McpRouteProfile, primary: str = "quic", fallbacks: Iterable[str] = ("auto", "http2")) -> tuple[subprocess.Popen[str], str, str, list[SuspendedCloudflaredConfig]]:
     protocols = _protocol_sequence(primary, fallbacks)
     last_error = ""
     verify_timeout = quick_verify_timeout(120.0)
@@ -1116,9 +1384,9 @@ def start_quick_tunnel(root: Path, cloudflared: str, q: "queue.Queue[tuple[str, 
         proc: Optional[subprocess.Popen[str]] = None
         suspended_configs: list[SuspendedCloudflaredConfig] = []
         try:
-            proc, public_url, suspended_configs = start_quick_tunnel_once(root, cloudflared, q, protocol=protocol)
-            endpoint = public_url.rstrip("/") + "/mcp"
-            if _verify_public_route(root, public_url, protocol, q, timeout_sec=verify_timeout):
+            proc, public_url, suspended_configs = start_quick_tunnel_once(root, cloudflared, q, routes, protocol=protocol)
+            endpoint = public_url.rstrip("/") + routes.endpoint
+            if _verify_public_route(root, public_url, protocol, q, routes, timeout_sec=verify_timeout):
                 emit("STATE", "Cloudflare quick route selected", endpoint=endpoint, protocol=protocol)
                 emit("INFO", "Temporary public origin:", endpoint=public_url.rstrip("/"))
                 return proc, public_url, protocol, suspended_configs
@@ -1187,8 +1455,8 @@ def drain_logs(q: "queue.Queue[tuple[str, str]]", nonblocking: bool = False) -> 
     drain_logs_collect(q, nonblocking=nonblocking)
 
 
-def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subprocess.Popen[str], public_url: str, quick: bool, q: "queue.Queue[tuple[str, str]]", write: bool, suspended_configs: Optional[list[SuspendedCloudflaredConfig]] = None, *, sudo: bool = False, suite_intelligence: Optional[subprocess.Popen[str]] = None, intelligence_enabled: bool = True) -> int:
-    endpoint = public_url.rstrip("/") + "/mcp" if public_url else ""
+def monitor(root: Path, tool_root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subprocess.Popen[str], public_url: str, quick: bool, q: "queue.Queue[tuple[str, str]]", write: bool, suspended_configs: Optional[list[SuspendedCloudflaredConfig]] = None, *, sudo: bool = False, suite_intelligence: Optional[subprocess.Popen[str]] = None, intelligence_enabled: bool = True, routes: McpRouteProfile | None = None) -> int:
+    endpoint = public_url.rstrip("/") + _mcp_path(routes) if public_url else ""
     _footer_bind(root, endpoint=endpoint, write=write)
     health = public_url.rstrip("/") + "/health" if public_url else ""
     if public_url:
@@ -1213,7 +1481,7 @@ def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subproc
                 next_origin_check = now + 2.0
                 try:
                     before = origin
-                    origin = ensure_origin_alive(root, write, origin, q, sudo=sudo)
+                    origin = ensure_origin_alive(root, tool_root, write, origin, q, sudo=sudo)
                     if origin is not before:
                         restart_times = [t for t in restart_times if now - t < 120]
                         restart_times.append(now)
@@ -1225,7 +1493,7 @@ def monitor(root: Path, origin: Optional[subprocess.Popen[str]], tunnel: subproc
                     return 1
             if intelligence_enabled and now >= next_intelligence_check:
                 next_intelligence_check = now + 10.0
-                suite_intelligence = ensure_suite_intelligence_alive(root, suite_intelligence, q)
+                suite_intelligence = ensure_suite_intelligence_alive(root, tool_root, suite_intelligence, q)
             if tunnel.poll() is not None:
                 emit("ERROR", "cloudflared tunnel exited", exit_code=tunnel.returncode)
                 return int(tunnel.returncode or 1)
@@ -1264,7 +1532,8 @@ def stop_processes(processes: Iterable[Optional[subprocess.Popen[str]]]) -> None
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="One-window North Star MCP origin + tunnel supervisor")
-    parser.add_argument("--root", default=".")
+    parser.add_argument("--root", default="auto")
+    parser.add_argument("--workspace-config", default="")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--prefer-named", action="store_true")
     parser.add_argument("--setup-named", action="store_true", help="Interactively create a Cloudflare named tunnel when stable config is missing.")
@@ -1273,7 +1542,18 @@ def main(argv: list[str]) -> int:
     parser.add_argument("-sudo", action="store_true", help="Run operator sudo mode for Suite-owned confirmations and skip interactive tunnel setup prompts.")
     args = parser.parse_args(argv)
 
-    root = Path(args.root).resolve()
+    launch_root = Path.cwd().resolve()
+    workspace_config = load_workspace_config(launch_root, args.workspace_config)
+    if workspace_config.get("_config_path"):
+        os.environ["NORTHSTAR_SUITE_WORKSPACE_CONFIG"] = str(workspace_config["_config_path"])
+    root = resolve_workspace_root(launch_root, args.root, workspace_config)
+    tool_root = resolve_tool_root(launch_root, workspace_config)
+    apply_workspace_environment(root, workspace_config, tool_root)
+    selection_mode = os.environ.get("NORTHSTAR_CONSOLE_SELECTION_MODE", "allow")
+    _configure_windows_console_selection(selection_mode)
+    emit("INFO", "Console selection policy applied", mode=selection_mode)
+    routes = load_mcp_route_profile(tool_root)
+    os.environ.setdefault("NORTHSTAR_MCP_ENDPOINT_PATH", routes.endpoint)
     if args.sudo:
         os.environ["NORTHSTAR_SUITE_SUDO"] = "1"
         os.environ["NORTHSTAR_SUITE_SUDO_REASON"] = "serverBridge"
@@ -1282,21 +1562,22 @@ def main(argv: list[str]) -> int:
     bridge_write = bool(args.write or args.sudo)
     q: "queue.Queue[tuple[str, str]]" = queue.Queue()
     _footer_bind(root, write=bridge_write)
+    emit("INFO", "Workspace/tool roots resolved", workspace=str(root), tool_root=str(tool_root))
     origin: Optional[subprocess.Popen[str]] = None
     tunnel: Optional[subprocess.Popen[str]] = None
     suspended_configs: list[SuspendedCloudflaredConfig] = []
     suite_intelligence: Optional[subprocess.Popen[str]] = None
     try:
-        origin = start_origin(root, bridge_write, q, sudo=args.sudo)
+        origin = start_origin(root, tool_root, bridge_write, q, sudo=args.sudo)
         intelligence_enabled = not args.no_intelligence
         if intelligence_enabled:
-            suite_intelligence = spawn_suite_intelligence(root, q)
+            suite_intelligence = spawn_suite_intelligence(root, tool_root, q)
         else:
             emit("INFO", "Suite Intelligence resident loop disabled by startup option")
         cloudflared = find_cloudflared()
-        cfg = load_stable_tunnel(root)
+        cfg = load_stable_tunnel(tool_root, routes)
         if args.prefer_named and cfg.route_mode == "named" and not (cfg.tunnel_name and cfg.public_endpoint) and args.setup_named and not args.sudo:
-            created = setup_named_tunnel_interactive(root, cloudflared)
+            created = setup_named_tunnel_interactive(root, cloudflared, routes)
             if created is not None:
                 cfg = created
         if args.prefer_named and cfg.route_mode == "named" and (cfg.tunnel_name or cfg.tunnel_id) and cfg.public_endpoint:
@@ -1304,10 +1585,10 @@ def main(argv: list[str]) -> int:
                 tunnel, active_protocol = start_named_tunnel(root, cloudflared, cfg, q)
                 public_url = cfg.public_url
                 emit("STATE", "named tunnel selected", endpoint=cfg.public_endpoint, protocol=active_protocol)
-                return monitor(root, origin, tunnel, public_url, quick=False, q=q, write=bridge_write, sudo=args.sudo, suite_intelligence=suite_intelligence, intelligence_enabled=intelligence_enabled)
+                return monitor(root, tool_root, origin, tunnel, public_url, quick=False, q=q, write=bridge_write, sudo=args.sudo, suite_intelligence=suite_intelligence, intelligence_enabled=intelligence_enabled, routes=routes)
             except SupervisorError as exc:
                 emit("WARN", "Named Cloudflare Tunnel failed.", error=str(exc))
-                if not cfg.quick_tunnel_fallback:
+                if cfg.require_named_tunnel or not cfg.quick_tunnel_fallback:
                     raise
                 emit("WARN", "quick_tunnel_fallback=true, starting emergency quick tunnel.")
                 emit("WARN", "Quick Tunnel is not canonical Suite URL.")
@@ -1318,8 +1599,8 @@ def main(argv: list[str]) -> int:
         elif args.prefer_named:
             emit("WARN", "stable named tunnel is not configured; falling back to quick Cloudflare route", config=".takesome/ai-bridge/state/stable-tunnel.json")
         protocol = args.quick_protocol if args.quick_protocol != "auto" else cfg.quick_protocol
-        tunnel, public_url, active_protocol, suspended_configs = start_quick_tunnel(root, cloudflared, q, primary=protocol, fallbacks=cfg.quick_fallback_protocols)
-        return monitor(root, origin, tunnel, public_url, quick=True, q=q, write=bridge_write, suspended_configs=suspended_configs, sudo=args.sudo, suite_intelligence=suite_intelligence, intelligence_enabled=intelligence_enabled)
+        tunnel, public_url, active_protocol, suspended_configs = start_quick_tunnel(root, cloudflared, q, routes, primary=protocol, fallbacks=cfg.quick_fallback_protocols)
+        return monitor(root, tool_root, origin, tunnel, public_url, quick=True, q=q, write=bridge_write, suspended_configs=suspended_configs, sudo=args.sudo, suite_intelligence=suite_intelligence, intelligence_enabled=intelligence_enabled, routes=routes)
     except KeyboardInterrupt:
         emit("INFO", "stopping serverBridge")
         stop_processes([tunnel, origin, suite_intelligence])

@@ -1,3 +1,29 @@
-# North Star NEPAK Packer
+# North Star NEPAK Manager
 
-Generic `.nepak` container tool. Stores opaque byte entries by normalized package path. Nested `.nepak` files are allowed. Commands: pack, extract, inspect, validate.
+Clean `.nepak` VFS package manager.
+
+Commands:
+
+```text
+pack
+inspect
+manifest
+list
+verify
+extract
+mount-test
+diff
+version
+accepted-inputs
+doctor
+```
+
+Format rules:
+
+```text
+.nepak = VFS package only
+NEF8/ListFile = semantic asset dictionaries
+AssetManager = bytes/ranges/streams only
+Domain gateways = meaning
+Writer = explicit assets.container.nepak.writer capability
+```

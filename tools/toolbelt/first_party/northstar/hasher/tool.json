@@ -17,17 +17,64 @@
     "windows": "tools/toolbelt/first_party/northstar/hasher/bin/northstar-hasher.exe"
   },
   "commands": {
-    "help": { "args": ["--help"], "mutating": false },
-    "version": { "args": ["version"], "mutating": false },
-    "accepted-inputs": { "args": ["accepted-inputs"], "mutating": false },
-    "doctor": { "args": ["doctor"], "mutating": false },
-    "hash": { "args": ["<filename>", "[hashcode]"], "mutating": false }
+    "help": {
+      "args": [
+        "--help"
+      ],
+      "mutating": false
+    },
+    "version": {
+      "args": [
+        "version"
+      ],
+      "mutating": false
+    },
+    "accepted-inputs": {
+      "args": [
+        "accepted-inputs"
+      ],
+      "mutating": false
+    },
+    "doctor": {
+      "args": [
+        "doctor"
+      ],
+      "mutating": false
+    },
+    "hash": {
+      "args": [
+        "<filename>",
+        "[hashcode]"
+      ],
+      "mutating": false
+    }
   },
-  "accepted_inputs": ["*.txt", "newline-separated name lists"],
-  "produced_outputs": ["stdout ATSTRINGHASH/ATLITERALSTRINGHASH lines"],
+  "accepted_inputs": [
+    "*.txt",
+    "newline-separated name lists"
+  ],
+  "produced_outputs": [
+    "stdout ATSTRINGHASH/ATLITERALSTRINGHASH lines"
+  ],
   "legacy_compatibility": {
     "replaces": "tools/toolbelt/third_party/hasher/bin/hasher.exe",
-    "legacy_options": ["-stripext", "-literal", "filename", "hashcode"],
-    "adds": ["--help", "-h", "/?", "help", "version", "--version", "-V", "accepted-inputs", "doctor"]
-  }
+    "legacy_options": [
+      "-stripext",
+      "-literal",
+      "filename",
+      "hashcode"
+    ],
+    "adds": [
+      "--help",
+      "-h",
+      "/?",
+      "help",
+      "version",
+      "--version",
+      "-V",
+      "accepted-inputs",
+      "doctor"
+    ]
+  },
+  "cargo_manifest": "tools/toolsSrc/northstar_hasher/Cargo.toml"
 }

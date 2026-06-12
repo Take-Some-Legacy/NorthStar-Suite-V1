@@ -6,6 +6,6 @@ fn main() {
         internal_name: "northstar-ytyp-packer",
         original_filename: "northstar-ytyp-packer.exe",
         file_description: "North Star YTYP Packer",
-        icon_path: Some("../icons/northstar-ytyp-packer.ico"),
+        icon_path: Some("../icons/AppIcon.ico"),
     });
 }

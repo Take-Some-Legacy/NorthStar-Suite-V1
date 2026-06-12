@@ -5,6 +5,7 @@ import json
 import math
 import os
 import re
+import shutil
 import subprocess
 import sys
 import urllib.error
@@ -88,6 +89,30 @@ _TAG_WEIGHT = {
 
 _MAX_OPENAI_CONTEXT_CHARS = 18000
 _OPENAI_TIMEOUT_SEC = 45
+
+
+
+def resolve_python_executable(python_executable: str) -> tuple[str, str]:
+    """Resolve an optional LLM pilot Python without requiring a dedicated venv.
+
+    Historical builds hard-coded D:\\TakeSomeData\\venvs\\northstar-llm-pilot.
+    For the Take Some LLC site worker, that path is optional: "auto", missing,
+    or unavailable configured paths fall back to the current interpreter.
+    """
+    raw = str(python_executable or "").strip().strip('"')
+    if not raw or raw.lower() == "auto":
+        return sys.executable, "auto/current-process"
+    path = Path(raw)
+    try:
+        if path.exists():
+            return str(path), "configured-path"
+    except OSError:
+        pass
+    if not any(sep in raw for sep in ("/", "\\")):
+        found = shutil.which(raw)
+        if found:
+            return found, "PATH"
+    return sys.executable, f"configured-unavailable:{raw};fallback=current-process"
 
 
 def suite_intelligence_command(root: Path, args: argparse.Namespace) -> int:
@@ -205,9 +230,9 @@ def detect_torch_status() -> TorchStatus:
 
 
 def detect_torch_status_for_python(python_executable: str) -> TorchStatus:
-    exe = str(python_executable or "").strip()
+    exe, _source = resolve_python_executable(python_executable)
     if not exe:
-        return TorchStatus(available=False, error="NORTHSTAR_SUITE_LLM_PYTHON is not configured")
+        return TorchStatus(available=False, error="no Python executable could be resolved")
     code = (
         "import json, torch; "
         "print(json.dumps({"
@@ -243,12 +268,11 @@ def detect_torch_status_for_python(python_executable: str) -> TorchStatus:
 
 def detect_external_torch_status(python_exe: str) -> dict[str, object]:
     """Probe the Suite/tool-plane LLM pilot Python without importing it into this process."""
-    python_exe = str(python_exe or "").strip()
-    if not python_exe:
-        return {"available": False, "configured": False, "error": "NORTHSTAR_SUITE_LLM_PYTHON is not set"}
-    exe_path = Path(python_exe)
-    if not exe_path.exists():
-        return {"available": False, "configured": True, "python": python_exe, "error": "pilot python does not exist"}
+    raw_python = str(python_exe or "").strip()
+    resolved_python, source = resolve_python_executable(raw_python)
+    if not resolved_python:
+        return {"available": False, "configured": bool(raw_python), "source": source, "error": "no Python executable could be resolved"}
+    exe_path = Path(resolved_python)
     probe = (
         "import json, sys\n"
         "try:\n"
@@ -272,17 +296,20 @@ def detect_external_torch_status(python_exe: str) -> dict[str, object]:
     try:
         completed = subprocess.run([str(exe_path), "-c", probe], text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=45)
     except Exception as exc:
-        return {"available": False, "configured": True, "python": python_exe, "error": f"{type(exc).__name__}: {exc}"}
+        return {"available": False, "configured": bool(raw_python), "python": resolved_python, "configured_python": raw_python, "source": source, "error": f"{type(exc).__name__}: {exc}"}
     if completed.returncode != 0:
-        return {"available": False, "configured": True, "python": python_exe, "error": (completed.stderr or completed.stdout or f"exit_code={completed.returncode}")[-1000:]}
+        return {"available": False, "configured": bool(raw_python), "python": resolved_python, "configured_python": raw_python, "source": source, "error": (completed.stderr or completed.stdout or f"exit_code={completed.returncode}")[-1000:]}
     try:
         data = json.loads((completed.stdout or "").strip().splitlines()[-1])
     except Exception as exc:
-        return {"available": False, "configured": True, "python": python_exe, "error": f"invalid probe output: {type(exc).__name__}: {(completed.stdout or '')[-500:]}"}
+        return {"available": False, "configured": bool(raw_python), "python": resolved_python, "configured_python": raw_python, "source": source, "error": f"invalid probe output: {type(exc).__name__}: {(completed.stdout or '')[-500:]}"}
     if isinstance(data, dict):
+        data.setdefault("configured", bool(raw_python))
+        data.setdefault("configured_python", raw_python)
+        data.setdefault("python", resolved_python)
+        data.setdefault("source", source)
         return data
-    return {"available": False, "configured": True, "python": python_exe, "error": "probe returned non-object JSON"}
-
+    return {"available": False, "configured": bool(raw_python), "python": resolved_python, "configured_python": raw_python, "source": source, "error": "probe returned non-object JSON"}
 
 def collect_context_logs(root: Path) -> tuple[str, list[Path]]:
     candidates: list[Path] = []
@@ -341,6 +368,8 @@ def scan_suite_workspace(root: Path) -> dict[str, int | str]:
 
 def run_self_checks(root: Path, *, registry_actions: list[str], torch_status: TorchStatus) -> list[dict[str, object]]:
     checks: list[dict[str, object]] = []
+    workspace_kind = os.environ.get("NORTHSTAR_SUITE_WORKSPACE_KIND", "").strip().lower()
+    site_mode = workspace_kind in {"site", "web", "operator-site", "take-some-site"}
     cli_path = root / "tools" / "scripts" / "takesome.py"
     checks.append(_check("takesome.py exists", cli_path.exists(), rel(root, cli_path)))
     checks.append(_check("suite-intelligence registry hook registered", "suite-intelligence" in _read_text(root / "tools" / "scripts" / "takesome" / "commands" / "cli_hooks.py"), "registry command hook should exist"))
@@ -349,15 +378,25 @@ def run_self_checks(root: Path, *, registry_actions: list[str], torch_status: To
     engine_root = root / "EngineRepo" / "NewEngine" / "neocore2"
     if not engine_root.exists():
         engine_root = root / "NewEngine" / "neocore2"
-    checks.append(_check("engine root exists", engine_root.exists(), rel(root, engine_root)))
-    checks.append(_check("engine Cargo.toml exists", (engine_root / "Cargo.toml").exists(), rel(root, engine_root / "Cargo.toml")))
+    if site_mode:
+        checks.append(_check("engine root optional in site workspace", True, f"workspace_kind={workspace_kind}; engine_root={rel(root, engine_root)}"))
+        checks.append(_check("engine Cargo.toml optional in site workspace", True, f"workspace_kind={workspace_kind}; cargo={rel(root, engine_root / 'Cargo.toml')}"))
+    else:
+        checks.append(_check("engine root exists", engine_root.exists(), rel(root, engine_root)))
+        checks.append(_check("engine Cargo.toml exists", (engine_root / "Cargo.toml").exists(), rel(root, engine_root / "Cargo.toml")))
     checks.append(_check("plugin build actions registered", any(action.startswith("plugins.build") for action in registry_actions), "plugins.build.* actions should exist"))
-    checks.append(_check("runtime run action registered", any(action.startswith("runtime.run") for action in registry_actions), "runtime.run.* actions should exist"))
+    if site_mode:
+        checks.append(_check("runtime run action optional in site workspace", True, f"workspace_kind={workspace_kind}"))
+    else:
+        checks.append(_check("runtime run action registered", any(action.startswith("runtime.run") for action in registry_actions), "runtime.run.* actions should exist"))
     checks.append(_check("PyTorch import path checked", True, _torch_line(torch_status)))
-    key, source = read_openai_key(root)
-    checks.append(_check("OpenAI key configured", bool(key), f"source={source}" if key else "OPENAI_API_KEY or suite secret cache is missing"))
+    no_openai = os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI", "").strip().lower() in {"1", "true", "yes", "on"}
+    if no_openai:
+        checks.append(_check("OpenAI key optional in local DeepSeek mode", True, "NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI=1"))
+    else:
+        key, source = read_openai_key(root)
+        checks.append(_check("OpenAI key configured", bool(key), f"source={source}" if key else "OPENAI_API_KEY or suite secret cache is missing"))
     return checks
-
 
 def classify_signals(goal: str, log_text: str) -> dict[str, int]:
     corpus = f"{goal}\n{log_text}"

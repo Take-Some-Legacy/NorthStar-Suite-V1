@@ -153,7 +153,7 @@ Valid examples:
 
 ```powershell
 northstar-hasher names.txt > hashes.txt
-northstar-nepak-packer manifest archive.nepak > manifest.json
+northstar-nepak-manager manifest archive.nepak > manifest.json
 northstar-ytd-packer inspect car.ytd > report.json
 ```
 

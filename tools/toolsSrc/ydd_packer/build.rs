@@ -6,6 +6,6 @@ fn main() {
         internal_name: "northstar-ydd-packer",
         original_filename: "northstar-ydd-packer.exe",
         file_description: "North Star YDD NEF8 drawable dictionary importer",
-        icon_path: Some("../icons/northstar-ydd-packer.ico"),
+        icon_path: Some("../icons/AppIcon.ico"),
     });
 }

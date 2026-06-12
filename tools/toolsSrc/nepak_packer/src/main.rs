@@ -1,9 +1,9 @@
 fn main() {
     let raw_args: Vec<String> = std::env::args().skip(1).collect();
     let command = raw_args.first().cloned().unwrap_or_else(|| "help".to_owned());
-    let telemetry = northstar_cli::ulog::ToolRunInstrumentation::start("northstar-nepak-packer", command, &raw_args);
+    let telemetry = northstar_cli::ulog::ToolRunInstrumentation::start("northstar-nepak-manager", command, &raw_args);
     let args = northstar_cli::ulog::strip_ulog_args(raw_args);
-    match northstar_nepak_packer::commands::dispatch(args) {
+    match northstar_nepak_manager::commands::dispatch(args) {
         Ok(()) => telemetry.complete(),
         Err(err) => {
             telemetry.failed(&err);

@@ -14,6 +14,8 @@ from .auth import forget_key, openai_env, openai_status, write_cached_key
 from .console import emit
 from .contracts import BRIDGE_VERSION, DEFAULT_HTTP_HOST, DEFAULT_HTTP_PORT, BridgeContext, BridgeError
 from .paths import find_root
+from .mcp_routes import load_mcp_route_profile
+from .workspace_config import apply_workspace_environment, load_workspace_config, resolve_tool_root, resolve_workspace_root
 from .registry import build_tools
 from .rpc import handle_rpc
 from .server import Handler, run_http
@@ -129,7 +131,8 @@ def run_hello(ctx: BridgeContext) -> int:
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="North Star AI Bridge split-package CLI")
-    parser.add_argument("--root", default=".")
+    parser.add_argument("--root", default="auto")
+    parser.add_argument("--workspace-config", default="")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("-sudo", action="store_true", help="Run in sudo mode: enable bridge writes and Suite-owned confirmations.")
     parser.add_argument("--read-only", action="store_true")
@@ -180,6 +183,11 @@ def _confirm_trusted_connection(root: Path, *, requested_write: bool, interactiv
     if access.token_path(root).exists():
         token = access.ensure_token(root)
         print(f"[OK] Trusted bridge token found: {access.token_fingerprint(token)}")
+        return True
+    auto_trust = _truthy_value(os.environ.get("NORTHSTAR_BRIDGE_AUTO_TRUST"))
+    if auto_trust:
+        token = access.ensure_token(root)
+        print(f"[OK] Trusted bridge token auto-created for local operator session: {access.token_fingerprint(token)}")
         return True
     if not interactive:
         print("[WARN] Bridge write/sudo requested but no trusted token exists and stdin is not interactive; write mode disabled.")
@@ -258,7 +266,16 @@ def _console_command_loop(ctx: BridgeContext) -> None:
 
 
 def make_context(ns: argparse.Namespace) -> BridgeContext:
-    root = find_root(Path(ns.root))
+    launch_root = Path.cwd().resolve()
+    workspace_config = load_workspace_config(launch_root, getattr(ns, "workspace_config", ""))
+    resolved_root = resolve_workspace_root(launch_root, getattr(ns, "root", "auto"), workspace_config)
+    resolved_tool_root = resolve_tool_root(launch_root, workspace_config)
+    apply_workspace_environment(resolved_root, workspace_config, resolved_tool_root)
+    root = find_root(resolved_root)
+    tool_root = find_root(resolved_tool_root)
+    route_root = tool_root
+    mcp_routes = load_mcp_route_profile(route_root)
+    os.environ.setdefault("NORTHSTAR_MCP_ENDPOINT_PATH", mcp_routes.endpoint)
     config = _load_bridge_config(root)
     env_write = os.environ.get("NORTHSTAR_AI_BRIDGE_WRITE") == "1"
     env_read = os.environ.get("NORTHSTAR_AI_BRIDGE_READ_ONLY") == "1"
@@ -277,7 +294,7 @@ def make_context(ns: argparse.Namespace) -> BridgeContext:
     write_enabled = requested_write and trusted_connection
     if bool(ns.read_only or env_read):
         write_enabled = False
-    return BridgeContext(root=root, write_enabled=write_enabled, python_cmd=[sys.executable], interactive=interactive, sudo=sudo and trusted_connection)
+    return BridgeContext(root=root, write_enabled=write_enabled, python_cmd=[sys.executable], interactive=interactive, sudo=sudo and trusted_connection, mcp_routes=mcp_routes, tool_root=tool_root)
 
 
 def main(argv: List[str]) -> int:

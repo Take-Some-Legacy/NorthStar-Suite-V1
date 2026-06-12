@@ -6,6 +6,6 @@ fn main() {
         internal_name: "northstar-symbol-extract",
         original_filename: "northstar-symbol-extract.exe",
         file_description: "North Star Symbol Extract",
-        icon_path: None,
+        icon_path: Some("../icons/AppIcon.ico"),
     });
 }

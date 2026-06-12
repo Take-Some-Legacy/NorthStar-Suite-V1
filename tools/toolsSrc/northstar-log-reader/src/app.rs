@@ -10,6 +10,7 @@ mod win32_app {
     use crate::event::NormalizedLogEvent;
     use crate::http;
     use std::ffi::c_void;
+    use std::fs;
     use std::ptr::{null, null_mut};
     use std::sync::mpsc::{self, Receiver, Sender};
     use std::sync::atomic::{AtomicBool, Ordering};
@@ -17,11 +18,16 @@ mod win32_app {
     use std::thread;
     use windows_sys::Win32::Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, RECT, WPARAM};
     use windows_sys::Win32::Graphics::Gdi::{
-        CreateSolidBrush, DeleteObject, DrawTextW, FillRect, GetStockObject, SetBkMode,
-        SetTextColor, DEFAULT_GUI_FONT, DT_END_ELLIPSIS, DT_LEFT, DT_NOPREFIX,
-        DT_SINGLELINE, DT_VCENTER, HBRUSH, HDC, TRANSPARENT,
+        CreateSolidBrush, DeleteObject, DrawTextW, FillRect, GetStockObject, RedrawWindow,
+        SetBkMode, SetTextColor, DEFAULT_GUI_FONT, DT_END_ELLIPSIS, DT_LEFT,
+        DT_NOPREFIX, DT_SINGLELINE, DT_VCENTER, HDC, RDW_INVALIDATE, RDW_NOCHILDREN,
+        RDW_NOERASE, TRANSPARENT,
     };
     use windows_sys::Win32::UI::Controls::{DRAWITEMSTRUCT, MEASUREITEMSTRUCT};
+    use windows_sys::Win32::UI::Controls::Dialogs::{
+        GetOpenFileNameW, GetSaveFileNameW, OPENFILENAMEW, OFN_FILEMUSTEXIST,
+        OFN_HIDEREADONLY, OFN_NOCHANGEDIR, OFN_OVERWRITEPROMPT, OFN_PATHMUSTEXIST,
+    };
     use windows_sys::Win32::System::LibraryLoader::GetModuleHandleW;
     use windows_sys::Win32::UI::WindowsAndMessaging::*;
 
@@ -37,18 +43,26 @@ mod win32_app {
     const ID_SEARCH: i32 = 105;
     const ID_CLEAR: i32 = 106;
     const ID_STATUS: i32 = 107;
-    const COLOR_WINDOW: u32 = 5;
+    const ID_FILE_OPEN: i32 = 201;
+    const ID_FILE_SAVE: i32 = 202;
+    const ID_FILE_EXIT: i32 = 203;
+    const ID_ABOUT: i32 = 204;
+    const MF_STRING_LOCAL: u32 = 0x0000;
+    const MF_POPUP_LOCAL: u32 = 0x0010;
+    const MF_SEPARATOR_LOCAL: u32 = 0x0800;
     const CB_ADDSTRING: u32 = 0x0143;
     const CB_GETCURSEL: u32 = 0x0147;
     const CB_SETCURSEL: u32 = 0x014E;
     const LB_ADDSTRING: u32 = 0x0180;
     const LB_RESETCONTENT: u32 = 0x0184;
     const LB_GETCOUNT: u32 = 0x018B;
+    const LB_GETTOPINDEX: u32 = 0x018E;
     const LB_SETTOPINDEX: u32 = 0x0197;
     const LBS_OWNERDRAWFIXED: u32 = 0x0010;
     const LBS_HASSTRINGS: u32 = 0x0040;
     const LBS_NOINTEGRALHEIGHT: u32 = 0x0100;
     const ODS_SELECTED_LOCAL: u32 = 0x0001;
+    const WM_SETREDRAW_LOCAL: u32 = 0x000B;
     const MAX_UI_BATCH_EVENTS: usize = 96;
     const MAX_PENDING_LOG_EVENTS: usize = 4096;
     const MAX_RETAINED_LOG_EVENTS: usize = 2000;
@@ -123,7 +137,7 @@ mod win32_app {
             hInstance: hinstance,
             hIcon: LoadIconW(null_mut(), IDI_APPLICATION),
             hCursor: LoadCursorW(null_mut(), IDC_ARROW),
-            hbrBackground: (COLOR_WINDOW + 1) as HBRUSH,
+            hbrBackground: null_mut(),
             lpszMenuName: null(),
             lpszClassName: class_name.as_ptr(),
         };
@@ -182,6 +196,7 @@ mod win32_app {
                 DefWindowProcW(hwnd, msg, wparam, lparam)
             }
             WM_CREATE => {
+                create_menu_bar(hwnd);
                 create_controls(hwnd);
                 0
             }
@@ -203,6 +218,10 @@ mod win32_app {
                 match id {
                     ID_CONNECT => toggle_connect(hwnd),
                     ID_CLEAR => clear_history(hwnd),
+                    ID_FILE_OPEN => open_log_file(hwnd),
+                    ID_FILE_SAVE => save_visible_logs(hwnd),
+                    ID_FILE_EXIT => { DestroyWindow(hwnd); },
+                    ID_ABOUT => show_about(hwnd),
                     ID_LEVEL | ID_SEARCH => rebuild_log_list(hwnd),
                     _ => {}
                 }
@@ -238,6 +257,25 @@ mod win32_app {
             }
             _ => DefWindowProcW(hwnd, msg, wparam, lparam),
         }
+    }
+
+    unsafe fn create_menu_bar(hwnd: HWND) {
+        let menu = CreateMenu();
+        let file_menu = CreateMenu();
+
+        let open = wstr("Open...");
+        let save = wstr("Save...");
+        let exit = wstr("Exit");
+        let file = wstr("File");
+        let about = wstr("About");
+
+        AppendMenuW(file_menu, MF_STRING_LOCAL, ID_FILE_OPEN as usize, open.as_ptr());
+        AppendMenuW(file_menu, MF_STRING_LOCAL, ID_FILE_SAVE as usize, save.as_ptr());
+        AppendMenuW(file_menu, MF_SEPARATOR_LOCAL, 0, null());
+        AppendMenuW(file_menu, MF_STRING_LOCAL, ID_FILE_EXIT as usize, exit.as_ptr());
+        AppendMenuW(menu, MF_POPUP_LOCAL, file_menu as usize, file.as_ptr());
+        AppendMenuW(menu, MF_STRING_LOCAL, ID_ABOUT as usize, about.as_ptr());
+        SetMenu(hwnd, menu);
     }
 
     unsafe fn create_controls(hwnd: HWND) {
@@ -431,10 +469,126 @@ mod win32_app {
             if let Ok(mut guard) = state.0.lock() {
                 guard.events.clear();
                 guard.visible_indices.clear();
-                SendMessageW(guard.logs, LB_RESETCONTENT, 0, 0);
+                reset_listbox_rows(guard.logs, 0);
                 set_window_text(guard.status, "history cleared");
             }
         }
+    }
+
+    unsafe fn open_log_file(hwnd: HWND) {
+        if let Some(path) = choose_open_path(hwnd) {
+            match crate::input::load_events_from_input(&path) {
+                Ok(events) => {
+                    if let Some(state) = state(hwnd) {
+                        if let Ok(mut guard) = state.0.lock() {
+                            guard.events = events;
+                            guard.visible_indices.clear();
+                            set_window_text(guard.status, "file loaded");
+                        }
+                    }
+                    rebuild_log_list(hwnd);
+                }
+                Err(e) => message_box(hwnd, "Open failed", &e),
+            }
+        }
+    }
+
+    unsafe fn save_visible_logs(hwnd: HWND) {
+        let Some(path) = choose_save_path(hwnd) else { return; };
+        let Some(state_handle) = state(hwnd) else { return; };
+        let payload = if let Ok(guard) = state_handle.0.lock() {
+            let mut output = String::new();
+            for index in &guard.visible_indices {
+                if let Some(event) = guard.events.get(*index) {
+                    match serde_json::to_string(event) {
+                        Ok(line) => {
+                            output.push_str(&line);
+                            output.push('\n');
+                        }
+                        Err(e) => {
+                            message_box(hwnd, "Save failed", &format!("serialize log event failed: {e}"));
+                            return;
+                        }
+                    }
+                }
+            }
+            output
+        } else {
+            return;
+        };
+
+        match fs::write(&path, payload) {
+            Ok(()) => {
+                if let Some(state_handle) = state(hwnd) {
+                    if let Ok(guard) = state_handle.0.lock() {
+                        set_window_text(guard.status, "visible logs saved");
+                    }
+                }
+            }
+            Err(e) => message_box(hwnd, "Save failed", &format!("write failed: {e}")),
+        }
+    }
+
+    unsafe fn show_about(hwnd: HWND) {
+        message_box(
+            hwnd,
+            "About North Star Log Reader",
+            "Take Some - North Star\n\nNorth Star LIVE Log Reader\nFirst-party Logger Plugin diagnostics tool.",
+        );
+    }
+
+    unsafe fn choose_open_path(hwnd: HWND) -> Option<String> {
+        choose_file_path(
+            hwnd,
+            "Open log file",
+            "Log files (*.jsonl;*.ulog.jsonl)\0*.jsonl;*.ulog.jsonl\0All files (*.*)\0*.*\0\0",
+            "jsonl",
+            false,
+        )
+    }
+
+    unsafe fn choose_save_path(hwnd: HWND) -> Option<String> {
+        choose_file_path(
+            hwnd,
+            "Save visible logs",
+            "JSONL logs (*.jsonl)\0*.jsonl\0All files (*.*)\0*.*\0\0",
+            "jsonl",
+            true,
+        )
+    }
+
+    unsafe fn choose_file_path(hwnd: HWND, title: &str, filter: &str, default_ext: &str, save: bool) -> Option<String> {
+        let mut file = vec![0u16; 4096];
+        let title = wstr(title);
+        let filter = wstr(filter);
+        let default_ext = wstr(default_ext);
+        let mut ofn = OPENFILENAMEW::default();
+        ofn.lStructSize = std::mem::size_of::<OPENFILENAMEW>() as u32;
+        ofn.hwndOwner = hwnd;
+        ofn.lpstrFilter = filter.as_ptr();
+        ofn.lpstrFile = file.as_mut_ptr();
+        ofn.nMaxFile = file.len() as u32;
+        ofn.lpstrTitle = title.as_ptr();
+        ofn.lpstrDefExt = default_ext.as_ptr();
+        ofn.Flags = OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
+        if save {
+            ofn.Flags |= OFN_OVERWRITEPROMPT;
+        } else {
+            ofn.Flags |= OFN_FILEMUSTEXIST;
+        }
+
+        let ok = if save { GetSaveFileNameW(&mut ofn) } else { GetOpenFileNameW(&mut ofn) };
+        if ok == 0 {
+            return None;
+        }
+        let len = file.iter().position(|c| *c == 0).unwrap_or(file.len());
+        Some(String::from_utf16_lossy(&file[..len]))
+    }
+
+    unsafe fn message_box(hwnd: HWND, title: &str, message: &str) {
+        let title = wstr(title);
+        let message = wstr(message);
+        MessageBoxW(hwnd, message.as_ptr(), title.as_ptr(), MB_OK | MB_ICONINFORMATION);
     }
 
     fn pending_log_events() -> &'static Mutex<Vec<NormalizedLogEvent>> {
@@ -532,21 +686,82 @@ mod win32_app {
         };
 
         if list_reset {
-            SendMessageW(logs_hwnd, LB_RESETCONTENT, 0, 0);
+            reset_listbox_rows(logs_hwnd, rows_to_add);
+        } else {
+            add_listbox_rows(logs_hwnd, rows_to_add);
         }
-        add_listbox_rows(logs_hwnd, rows_to_add);
         set_window_text(status_hwnd, &status_text);
     }
 
     unsafe fn add_listbox_rows(logs_hwnd: HWND, rows: usize) {
+        if rows == 0 {
+            return;
+        }
+
+        let was_at_bottom = listbox_is_at_bottom(logs_hwnd);
+        let text = wstr("");
+
+        SendMessageW(logs_hwnd, WM_SETREDRAW_LOCAL, 0, 0);
+        for _ in 0..rows {
+            SendMessageW(logs_hwnd, LB_ADDSTRING, 0, text.as_ptr() as LPARAM);
+        }
+        if was_at_bottom {
+            scroll_listbox_to_bottom(logs_hwnd);
+        }
+        SendMessageW(logs_hwnd, WM_SETREDRAW_LOCAL, 1, 0);
+        repaint_without_erase(logs_hwnd);
+    }
+
+    unsafe fn reset_listbox_rows(logs_hwnd: HWND, rows: usize) {
+        SendMessageW(logs_hwnd, WM_SETREDRAW_LOCAL, 0, 0);
+        SendMessageW(logs_hwnd, LB_RESETCONTENT, 0, 0);
         let text = wstr("");
         for _ in 0..rows {
             SendMessageW(logs_hwnd, LB_ADDSTRING, 0, text.as_ptr() as LPARAM);
         }
+        scroll_listbox_to_bottom(logs_hwnd);
+        SendMessageW(logs_hwnd, WM_SETREDRAW_LOCAL, 1, 0);
+        repaint_without_erase(logs_hwnd);
+    }
+
+    unsafe fn listbox_is_at_bottom(logs_hwnd: HWND) -> bool {
         let count = SendMessageW(logs_hwnd, LB_GETCOUNT, 0, 0) as i32;
-        if count > 0 {
-            SendMessageW(logs_hwnd, LB_SETTOPINDEX, (count - 1) as WPARAM, 0);
+        if count <= 0 {
+            return true;
         }
+        let top = SendMessageW(logs_hwnd, LB_GETTOPINDEX, 0, 0) as i32;
+        let mut rect = std::mem::zeroed::<RECT>();
+        if GetClientRect(logs_hwnd, &mut rect) == 0 {
+            return true;
+        }
+        let visible_rows = ((rect.bottom - rect.top).max(1) / 24).max(1);
+        top + visible_rows >= count - 1
+    }
+
+    unsafe fn scroll_listbox_to_bottom(logs_hwnd: HWND) {
+        let count = SendMessageW(logs_hwnd, LB_GETCOUNT, 0, 0) as i32;
+        if count <= 0 {
+            return;
+        }
+        let mut rect = std::mem::zeroed::<RECT>();
+        let visible_rows = if GetClientRect(logs_hwnd, &mut rect) != 0 {
+            ((rect.bottom - rect.top).max(1) / 24).max(1)
+        } else {
+            1
+        };
+        let top = (count - visible_rows).max(0) as WPARAM;
+        if SendMessageW(logs_hwnd, LB_GETTOPINDEX, 0, 0) != top as isize {
+            SendMessageW(logs_hwnd, LB_SETTOPINDEX, top, 0);
+        }
+    }
+
+    unsafe fn repaint_without_erase(hwnd: HWND) {
+        RedrawWindow(
+            hwnd,
+            null(),
+            null_mut(),
+            RDW_INVALIDATE | RDW_NOERASE | RDW_NOCHILDREN,
+        );
     }
 
     unsafe fn rebuild_log_list(hwnd: HWND) {
@@ -566,8 +781,7 @@ mod win32_app {
             return;
         };
 
-        SendMessageW(logs_hwnd, LB_RESETCONTENT, 0, 0);
-        add_listbox_rows(logs_hwnd, rows);
+        reset_listbox_rows(logs_hwnd, rows);
         set_window_text(status_hwnd, &status_text);
     }
 

@@ -6,6 +6,6 @@ fn main() {
         internal_name: "northstar-hasher",
         original_filename: "northstar-hasher.exe",
         file_description: "North Star Hasher",
-        icon_path: None,
+        icon_path: Some("../icons/AppIcon.ico"),
     });
 }

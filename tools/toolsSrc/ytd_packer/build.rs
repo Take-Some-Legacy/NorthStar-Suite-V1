@@ -6,6 +6,6 @@ fn main() {
         internal_name: "northstar-ytd-packer",
         original_filename: "northstar-ytd-packer.exe",
         file_description: "North Star YTD Packer",
-        icon_path: Some("../icons/northstar-ytd-packer.ico"),
+        icon_path: Some("../icons/AppIcon.ico"),
     });
 }

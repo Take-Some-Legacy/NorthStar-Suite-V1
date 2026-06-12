@@ -17,14 +17,51 @@
     "windows": "tools/toolbelt/first_party/northstar/symbol_extract/bin/northstar-symbol-extract.exe"
   },
   "commands": {
-    "help": { "args": ["--help"], "mutating": false },
-    "version": { "args": ["version"], "mutating": false },
-    "accepted-inputs": { "args": ["accepted-inputs"], "mutating": false },
-    "doctor": { "args": ["doctor"], "mutating": false },
-    "extract": { "args": ["-in", "<filename>", "[-out", "<filename>]"], "mutating": false }
+    "help": {
+      "args": [
+        "--help"
+      ],
+      "mutating": false
+    },
+    "version": {
+      "args": [
+        "version"
+      ],
+      "mutating": false
+    },
+    "accepted-inputs": {
+      "args": [
+        "accepted-inputs"
+      ],
+      "mutating": false
+    },
+    "doctor": {
+      "args": [
+        "doctor"
+      ],
+      "mutating": false
+    },
+    "extract": {
+      "args": [
+        "-in",
+        "<filename>",
+        "[-out",
+        "<filename>]"
+      ],
+      "mutating": false
+    }
   },
-  "accepted_inputs": ["*.exe", "*.dll", "*.obj", "*.lib", "PE/COFF files with export or COFF symbol-table data"],
-  "produced_outputs": ["stdout raw symbol list lines", "*.txt symbol list files"],
+  "accepted_inputs": [
+    "*.exe",
+    "*.dll",
+    "*.obj",
+    "*.lib",
+    "PE/COFF files with export or COFF symbol-table data"
+  ],
+  "produced_outputs": [
+    "stdout raw symbol list lines",
+    "*.txt symbol list files"
+  ],
   "capabilities": [
     "workspace.symbols.extract",
     "workspace.debug.symbols",
@@ -32,12 +69,34 @@
   ],
   "legacy_compatibility": {
     "replaces": "tools/toolbelt/third_party/symbol_extract/bin/SymbolExtract.exe",
-    "legacy_options": ["-in[:type]", "-out", "-exclude", "-searchpath"],
-    "adds": ["--help", "-h", "/?", "help", "version", "--version", "-V", "accepted-inputs", "doctor", "-count"]
+    "legacy_options": [
+      "-in[:type]",
+      "-out",
+      "-exclude",
+      "-searchpath"
+    ],
+    "adds": [
+      "--help",
+      "-h",
+      "/?",
+      "help",
+      "version",
+      "--version",
+      "-V",
+      "accepted-inputs",
+      "doctor",
+      "-count"
+    ]
   },
   "payload_contract": {
     "stdout_clean": true,
     "line_format": "<name> 0x<RVA_HEX8> <source>",
-    "status_commands": ["--help", "version", "accepted-inputs", "doctor"]
-  }
+    "status_commands": [
+      "--help",
+      "version",
+      "accepted-inputs",
+      "doctor"
+    ]
+  },
+  "cargo_manifest": "tools/toolsSrc/symbol_extract/Cargo.toml"
 }

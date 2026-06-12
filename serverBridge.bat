@@ -28,6 +28,7 @@ if not defined TAKESOME_SUITE_ROOT if defined NEWENGINE_SUITE_ROOT set "TAKESOME
 set "ROOT=%~dp0."
 
 set "SUPERVISOR=%ROOT%\tools\scripts\ai_bridge_supervisor.py"
+set "WORKSPACE_CONFIG=%ROOT%\config\suite\workspace.v1.json"
 
 set "LLM_PILOT_CONSOLE=%ROOT%\llmPilotConsole.bat"
 
@@ -81,6 +82,10 @@ set "NORTHSTAR_SUITE_STDIO_ERRORS=replace"
 
 set "NORTHSTAR_BRIDGE_EXPOSURE_MODE=operator"
 
+rem Site/operator worker defaults are owned by config\suite\workspace.v1.json.
+rem Operators may still override them through environment variables before launching.
+
+
 
 
 if not exist "%SUPERVISOR%" (
@@ -102,7 +107,7 @@ if exist "%LLM_PILOT_CONSOLE%" (
   echo [WARN] Missing llmPilotConsole.bat; heartbeat window skipped.
 )
 
-%PYTHON_EXE% %PYTHON_ARGS% "%SUPERVISOR%" --root "%ROOT%" --write --prefer-named --setup-named --no-intelligence -sudo
+%PYTHON_EXE% %PYTHON_ARGS% "%SUPERVISOR%" --root ..\TakeSomeWebsite --workspace-config "%WORKSPACE_CONFIG%" --write --prefer-named --setup-named -sudo
 
 set "RC=%errorlevel%"
 

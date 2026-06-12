@@ -22,28 +22,17 @@ _MAX_TIMEOUT_SEC = 0  # 0 means no descriptor-side timeout cap for long native t
 # bounded execution DTO. Add a binary to PATH or add tools/<name>/tool.json and
 # it appears without writing a new Python handler or manual description row.
 PATH_CANDIDATES: tuple[str, ...] = (
-    "rg",
-    "grep",
-    "sed",
-    "awk",
-    "fd",
+    # Keep only host tools that are expected to exist on the operator machine.
+    # GNU/POSIX tools are surfaced through toolbelt descriptors instead of noisy
+    # missing PATH candidates; rg/fd should be re-added only with vendored payloads.
     "find",
     "git",
     "cargo",
     "python",
     "py",
-    "ls",
-    "cat",
-    "head",
-    "tail",
-    "wc",
-    "mkdir",
-    "cp",
-    "mv",
-    "rm",
 )
 
-READ_ONLY_COMMANDS: set[str] = {"rg", "grep", "awk", "fd", "ls", "cat", "head", "tail", "wc"}
+READ_ONLY_COMMANDS: set[str] = set()
 READ_ONLY_GIT_SUBCOMMANDS: set[str] = {
     "status", "diff", "log", "show", "grep", "ls-files", "branch", "remote",
     "rev-parse", "describe", "tag", "config", "submodule", "stash", "blame",
@@ -204,7 +193,7 @@ def discover_project_tools(ctx: BridgeContext, *, include_unavailable: bool = Fa
             command=resolved,
             source="path" if command != "python" or resolved != ctx.python_cmd else "bridge-python",
             kind="external-cli",
-            description=f"Run discovered project tool `{command}` inside the North Star repository. Arguments are passed directly without shell parsing; output is bounded.",
+            description=f"Run discovered project tool `{command}` inside the current workspace. Arguments are passed directly without shell parsing; output is bounded.",
             always_write=command in {"cargo", "python", "py", "mkdir", "cp", "mv", "rm"},
         ))
 
@@ -212,7 +201,7 @@ def discover_project_tools(ctx: BridgeContext, *, include_unavailable: bool = Fa
     # handler is required per tool: descriptors become MCP tools automatically.
     try:
         from takesome.tools.descriptors import discover_tools as discover_descriptors
-        descriptors, _warnings = discover_descriptors(ctx.root)
+        descriptors, _warnings = discover_descriptors(ctx.operator_root)
     except Exception:
         descriptors = []
 
@@ -227,7 +216,7 @@ def discover_project_tools(ctx: BridgeContext, *, include_unavailable: bool = Fa
             command=["__takesome_tool_descriptor__", descriptor.id],
             source="tools-descriptor",
             kind=str(descriptor.kind),
-            description=f"Run descriptor-discovered tool `{descriptor.id}`: {descriptor.description or descriptor.name}. Descriptor: {rel(ctx.root, descriptor.descriptor_path)}.",
+            description=f"Run descriptor-discovered tool `{descriptor.id}`: {descriptor.description or descriptor.name}. Descriptor: {rel(ctx.operator_root, descriptor.descriptor_path)}.",
             descriptor_id=descriptor.id,
             always_write=not _descriptor_default_safe(descriptor_commands),
             descriptor_commands=descriptor_commands,
@@ -279,6 +268,14 @@ def _tool_env(ctx: BridgeContext) -> Dict[str, str]:
         "PYTHONIOENCODING": "utf-8",
         "NORTHSTAR_PROJECT_TOOL": "1",
         "NORTHSTAR_REPO_ROOT": str(ctx.root),
+        "NORTHSTAR_WORKSPACE_ROOT": str(ctx.root),
+        "NORTHSTAR_SUITE_WORKSPACE_ROOT": str(ctx.root),
+        "TAKESOME_WORKSPACE_ROOT": str(ctx.root),
+        "NORTHSTAR_TOOL_ROOT": str(ctx.operator_root),
+        "NORTHSTAR_SUITE_TOOL_ROOT": str(ctx.operator_root),
+        "TAKESOME_TOOL_ROOT": str(ctx.operator_root),
+        "NEWENGINE_PROJECT_ROOT": str(ctx.root),
+        "NEWENGINE_REPO_ROOT": str(ctx.operator_root),
     })
     if ctx.write_enabled:
         env["NORTHSTAR_AI_BRIDGE_WRITE"] = "1"
@@ -385,6 +382,7 @@ def project_tool_registry(ctx: BridgeContext, args: Dict[str, Any]) -> Dict[str,
         "schema": "northstar.project_tool.registry.v1",
         "ok": True,
         "root": str(ctx.root),
+        "tool_root": str(ctx.operator_root),
         "write_enabled": ctx.write_enabled,
         "count": len(tools),
         "tools": [

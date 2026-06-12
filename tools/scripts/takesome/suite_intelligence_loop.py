@@ -17,6 +17,7 @@ from .suite_intelligence import (
     detect_torch_status,
     detect_external_torch_status,
     detect_torch_status_for_python,
+    resolve_python_executable,
     openai_status_to_json,
     read_openai_key,
     run_self_checks,
@@ -26,7 +27,7 @@ from .suite_intelligence import (
 )
 
 DEFAULT_GOAL = "Keep NorthStar Suite healthy: detect bugs, errors, stale tools, and next useful improvements."
-DEFAULT_LOCAL_MODEL_ROOT = Path(r"D:\LLM")
+DEFAULT_LOCAL_MODEL_ROOT = Path(r"D:\LLM\DeepSeek-R1-Distill-Qwen-7B-PyTorch")
 
 
 def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int:
@@ -118,8 +119,9 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
 def run_intelligence_cycle(*, root: Path, cycle_index: int, goal: str, top: int, model: str, openai_allowed: bool, local_model_root: Path) -> dict[str, Any]:
     started = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     suite_torch_status = detect_torch_status()
-    pilot_python = os.environ.get("NORTHSTAR_SUITE_LLM_PYTHON", "").strip()
-    pilot_torch_status = detect_torch_status_for_python(pilot_python) if pilot_python else suite_torch_status
+    configured_pilot_python = os.environ.get("NORTHSTAR_SUITE_LLM_PYTHON", "").strip()
+    pilot_python, pilot_python_source = resolve_python_executable(configured_pilot_python)
+    pilot_torch_status = detect_torch_status_for_python(pilot_python)
     torch_status = pilot_torch_status if pilot_torch_status.available else suite_torch_status
     log_text, log_sources = collect_context_logs(root)
     scan = scan_suite_workspace(root)
@@ -131,8 +133,11 @@ def run_intelligence_cycle(*, root: Path, cycle_index: int, goal: str, top: int,
     candidates = score_actions(registry.actions(), goal=goal, signals=signals, torch_status=torch_status)
     selected = candidates[:top]
     self_checks = run_self_checks(root, registry_actions=[candidate.action_id for candidate in candidates], torch_status=torch_status)
-    if pilot_python:
-        self_checks.append({"name": "Suite LLM pilot Python checked", "ok": pilot_torch_status.available, "detail": f"python={pilot_python}; {_torch_line_safe(pilot_torch_status)}"})
+    self_checks.append({
+        "name": "Suite LLM pilot Python resolved",
+        "ok": pilot_torch_status.available,
+        "detail": f"python={pilot_python}; source={pilot_python_source}; {_torch_line_safe(pilot_torch_status)}",
+    })
 
     openai_key, openai_source = read_openai_key(root)
     openai_status = {
@@ -164,20 +169,19 @@ def run_intelligence_cycle(*, root: Path, cycle_index: int, goal: str, top: int,
         "started_utc": started,
         "goal": goal,
         "torch": torch_status_to_json(torch_status),
+        "suite_python_torch": torch_status_to_json(suite_torch_status),
         "pilot": {
             "domain": "suite.tool_plane",
             "not_engine_ai": True,
+            "provider": os.environ.get("NORTHSTAR_SUITE_LLM_PROVIDER", "deepseek-pytorch-local"),
+            "configured_python": configured_pilot_python,
             "python": pilot_python,
-            "torch": pilot_torch_status,
+            "python_source": pilot_python_source,
+            "torch": torch_status_to_json(pilot_torch_status),
+            "active_for_ranking": bool(pilot_torch_status.available),
             "model_root": str(local_model_root),
             "model_root_exists": bool(local_model_root.exists()),
             "model_files": count_local_model_files(local_model_root),
-        },
-        "suite_python_torch": torch_status_to_json(suite_torch_status),
-        "pilot": {
-            "python": pilot_python,
-            "torch": torch_status_to_json(pilot_torch_status),
-            "active_for_ranking": bool(pilot_torch_status.available),
         },
         "openai": openai_status,
         "openai_advice": openai_advice,

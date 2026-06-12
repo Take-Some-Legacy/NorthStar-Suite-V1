@@ -1,1 +1,1 @@
-northstar.nepak_packer opaque byte proof
+northstar.nepak_manager opaque byte proof

@@ -6,6 +6,6 @@ fn main() {
         internal_name: "northstar-nemat-packer",
         original_filename: "northstar-nemat-packer.exe",
         file_description: "North Star NEMAT material library tool",
-        icon_path: Some("../icons/northstar-nemat-packer.ico"),
+        icon_path: Some("../icons/AppIcon.ico"),
     });
 }

@@ -8,6 +8,7 @@ from .cache import scan_and_cache_tools, tool_cache_dir, write_tool_cache
 from .descriptors import ToolDescriptor, discover_tools, tool_by_id
 from .run import tools_command
 from .validation import validate_build_tools, validate_native_tool_surface
+from .descriptor_hygiene import scan_tool_descriptor_hygiene, write_tool_descriptor_hygiene_report
 from .operator_memory import operator_memory_maintenance
 
 __all__ = [
@@ -34,6 +35,8 @@ __all__ = [
     "tools_command",
     "validate_build_tools",
     "validate_native_tool_surface",
+    "scan_tool_descriptor_hygiene",
+    "write_tool_descriptor_hygiene_report",
     "dataset_maturity_command",
     "dataset_maturity_scan",
     "operator_memory_maintenance",

@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
+from .mcp_routes import DEFAULT_MCP_ROUTES, McpRouteProfile
+
 BRIDGE_VERSION = "dev mode"
 PROTOCOL_VERSION = "2025-03-26"
 DEFAULT_HTTP_HOST = "127.0.0.1"
@@ -88,14 +90,21 @@ class BridgeContext:
     python_cmd: List[str]
     interactive: bool = False
     sudo: bool = False
+    mcp_routes: McpRouteProfile = DEFAULT_MCP_ROUTES
+    tool_root: Optional[Path] = None
+
+    @property
+    def operator_root(self) -> Path:
+        return (self.tool_root or self.root).resolve()
 
     @property
     def takesome_py(self) -> Path:
-        return self.root / "tools" / "scripts" / "takesome.py"
+        return self.operator_root / "tools" / "scripts" / "takesome.py"
 
     @property
     def bridge_config(self) -> Path:
-        return self.root / "config" / "suite" / "ai_bridge.v1.json"
+        candidate = self.root / "config" / "suite" / "ai_bridge.v1.json"
+        return candidate if candidate.exists() else self.operator_root / "config" / "suite" / "ai_bridge.v1.json"
 
     @property
     def suite_root(self) -> Path:

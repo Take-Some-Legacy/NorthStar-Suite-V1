@@ -3,7 +3,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -12,6 +14,44 @@ from typing import Any
 DEFAULT_PILOT_PYTHON = Path(r"D:\TakeSomeData\venvs\northstar-llm-pilot\Scripts\python.exe")
 DEFAULT_MODEL_ROOT = Path(r"D:\LLM\DeepSeek-R1-Distill-Qwen-7B-PyTorch")
 RESULT_REL = Path(".takesome") / "intelligence" / "smoke-deepseek.json"
+
+
+
+def _resolve_python_executable(candidate: str) -> tuple[Path, str]:
+    raw = str(candidate or "").strip().strip('"')
+    if not raw or raw.lower() == "auto":
+        return Path(sys.executable), "auto/current-process"
+    path = Path(raw)
+    try:
+        if path.exists():
+            return path, "configured-path"
+    except OSError:
+        pass
+    if not any(sep in raw for sep in ("/", "\\")):
+        found = shutil.which(raw)
+        if found:
+            return Path(found), "PATH"
+    return Path(sys.executable), f"configured-unavailable:{raw};fallback=current-process"
+
+
+def _parse_smoke_payload(stdout: str) -> dict[str, Any]:
+    payload = (stdout or "").strip()
+    if not payload:
+        return {"steps": [{"name": "smoke_json_parse", "ok": False, "stdout_tail": ""}]}
+    try:
+        parsed = json.loads(payload)
+        return parsed if isinstance(parsed, dict) else {"steps": [{"name": "smoke_json_parse", "ok": False, "stdout_tail": payload[-4000:]}]}
+    except Exception:
+        pass
+    start = payload.find("{")
+    end = payload.rfind("}")
+    if start >= 0 and end > start:
+        try:
+            parsed = json.loads(payload[start:end + 1])
+            return parsed if isinstance(parsed, dict) else {"steps": [{"name": "smoke_json_parse", "ok": False, "stdout_tail": payload[-4000:]}]}
+        except Exception:
+            pass
+    return {"steps": [{"name": "smoke_json_parse", "ok": False, "stdout_tail": payload[-4000:]}]}
 
 
 def _status_from_steps(steps: list[dict[str, Any]]) -> dict[str, bool]:
@@ -111,13 +151,12 @@ print(json.dumps(out, ensure_ascii=False, indent=2))
 
 
 def run_deepseek_smoke(root: Path, args: argparse.Namespace | None = None) -> int:
-    pilot_python = Path(
-        str(
-            getattr(args, "pilot_python", "")
-            or os.environ.get("NORTHSTAR_SUITE_LLM_PYTHON")
-            or DEFAULT_PILOT_PYTHON
-        )
+    configured_pilot_python = str(
+        getattr(args, "pilot_python", "")
+        or os.environ.get("NORTHSTAR_SUITE_LLM_PYTHON")
+        or DEFAULT_PILOT_PYTHON
     )
+    pilot_python, pilot_python_source = _resolve_python_executable(configured_pilot_python)
     model_root = Path(
         str(
             getattr(args, "model_root", "")
@@ -133,7 +172,9 @@ def run_deepseek_smoke(root: Path, args: argparse.Namespace | None = None) -> in
     result: dict[str, Any] = {
         "schema": "northstar.deepseek_smoke.v1",
         "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "configured_pilot_python": configured_pilot_python,
         "pilot_python": str(pilot_python),
+        "pilot_python_source": pilot_python_source,
         "model_root": str(model_root),
         "try_generate": try_generate,
         "ok": False,
@@ -142,13 +183,13 @@ def run_deepseek_smoke(root: Path, args: argparse.Namespace | None = None) -> in
         "steps": [],
     }
 
-    if not pilot_python.exists():
-        result["steps"].append({"name": "python", "ok": False, "error": "pilot python does not exist"})
-        _classify(result)
-        result_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print("[ERROR] DeepSeek smoke: pilot python is missing")
-        print(f"[INFO] Result: {RESULT_REL}")
-        return 2
+    result["steps"].append({
+        "name": "python_resolution",
+        "ok": True,
+        "configured": configured_pilot_python,
+        "resolved": str(pilot_python),
+        "source": pilot_python_source,
+    })
 
     env = os.environ.copy()
     env.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
@@ -162,13 +203,12 @@ def run_deepseek_smoke(root: Path, args: argparse.Namespace | None = None) -> in
         timeout=timeout_sec,
         env=env,
     )
-    payload = (proc.stdout or "").strip()
-    try:
-        parsed = json.loads(payload.splitlines()[-1] if payload else "{}")
-    except Exception:
-        parsed = {"steps": [{"name": "smoke_json_parse", "ok": False, "stdout_tail": payload[-4000:]}]}
+    parsed = _parse_smoke_payload(proc.stdout or "")
     if isinstance(parsed, dict):
+        incoming_steps = parsed.get("steps") if isinstance(parsed.get("steps"), list) else []
+        parsed = {k: v for k, v in parsed.items() if k != "steps"}
         result.update(parsed)
+        result["steps"].extend(item for item in incoming_steps if isinstance(item, dict))
     if proc.stderr:
         result["stderr_tail"] = proc.stderr[-4000:]
     result["process_exit_code"] = proc.returncode

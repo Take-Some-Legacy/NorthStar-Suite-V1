@@ -1,0 +1,77 @@
+diff -ruN hotfix_in/docs/audits/CONSOLE_SELECTION_IMPORT_EXPORT_HOTFIX_20260612.md hotfix_work/docs/audits/CONSOLE_SELECTION_IMPORT_EXPORT_HOTFIX_20260612.md
+--- hotfix_in/docs/audits/CONSOLE_SELECTION_IMPORT_EXPORT_HOTFIX_20260612.md	1970-01-01 00:00:00.000000000 +0000
++++ hotfix_work/docs/audits/CONSOLE_SELECTION_IMPORT_EXPORT_HOTFIX_20260612.md	2026-06-12 18:23:55.093408272 +0000
+@@ -0,0 +1,18 @@
++# Console Selection Import/Export Hotfix — 2026-06-12
++
++## Problem
++
++`ai_bridge_supervisor.py` could import `configure_windows_console_selection` while a partially patched local tree still had an older `terminal_style.py` without that symbol. Startup then failed before config loading.
++
++## Fix
++
++- `terminal_style.py` exports `configure_windows_console_selection(policy)` and keeps `disable_windows_quick_edit()` as a compatibility wrapper.
++- `ai_bridge_supervisor.py` imports the function with a compatibility fallback.
++- Console selection is applied after `workspace.v1.json` environment is loaded.
++- The old import-time QuickEdit disable path remains removed.
++
++## Expected log
++
++```text
++[INFO ] Console selection policy applied mode=allow
++```
+Binary files hotfix_in/tools/scripts/__pycache__/ai_bridge_supervisor.cpython-313.pyc and hotfix_work/tools/scripts/__pycache__/ai_bridge_supervisor.cpython-313.pyc differ
+diff -ruN hotfix_in/tools/scripts/ai_bridge_supervisor.py hotfix_work/tools/scripts/ai_bridge_supervisor.py
+--- hotfix_in/tools/scripts/ai_bridge_supervisor.py	2026-06-12 17:48:31.000000000 +0000
++++ hotfix_work/tools/scripts/ai_bridge_supervisor.py	2026-06-12 18:23:55.093026731 +0000
+@@ -32,11 +32,28 @@
+     bracket as _bracket,
+     color,
+     enable_windows_ansi as _enable_windows_ansi,
+-    disable_windows_quick_edit as _disable_windows_quick_edit,
+     level_color as _level_color,
+     strip_ansi as _strip_ansi,
+     style,
+ )
++
++try:
++    from northstar_bridge.terminal_style import (
++        configure_windows_console_selection as _configure_windows_console_selection,
++    )
++except ImportError:  # compatibility with partially patched local trees
++    try:
++        from northstar_bridge.terminal_style import disable_windows_quick_edit as _legacy_disable_windows_quick_edit
++    except ImportError:
++        _legacy_disable_windows_quick_edit = None
++
++    def _configure_windows_console_selection(policy: object | None = None) -> None:
++        selected = str(policy or "allow").strip().lower().replace("-", "_")
++        if selected in {"disable", "disabled", "disable_quick_edit", "freeze_safe"} and _legacy_disable_windows_quick_edit:
++            _legacy_disable_windows_quick_edit()
++        # Old terminal_style has no safe way to force-enable QuickEdit; leave the
++        # terminal untouched until terminal_style.py from this patch is applied.
++        return None
+ from northstar_bridge.supervisor_footer import (
+     bind as _footer_bind,
+     clear as _footer_clear_locked,
+@@ -401,7 +418,7 @@
+ 
+ 
+ _enable_windows_ansi()
+-_disable_windows_quick_edit()
++
+ 
+ 
+ @dataclass
+@@ -1521,6 +1538,9 @@
+     workspace_config = load_workspace_config(launch_root, args.workspace_config)
+     root = resolve_workspace_root(launch_root, args.root, workspace_config)
+     apply_workspace_environment(root, workspace_config)
++    selection_mode = os.environ.get("NORTHSTAR_CONSOLE_SELECTION_MODE", "allow")
++    _configure_windows_console_selection(selection_mode)
++    emit("INFO", "Console selection policy applied", mode=selection_mode)
+     routes = load_mcp_route_profile(root)
+     os.environ.setdefault("NORTHSTAR_MCP_ENDPOINT_PATH", routes.endpoint)
+     if args.sudo:
+Binary files hotfix_in/tools/scripts/northstar_bridge/__pycache__/terminal_style.cpython-313.pyc and hotfix_work/tools/scripts/northstar_bridge/__pycache__/terminal_style.cpython-313.pyc differ
+Binary files hotfix_in/tools/scripts/northstar_bridge/__pycache__/workspace_config.cpython-313.pyc and hotfix_work/tools/scripts/northstar_bridge/__pycache__/workspace_config.cpython-313.pyc differ

@@ -36,6 +36,18 @@
         "accepted-inputs"
       ],
       "description": "Print accepted input and output file contract."
+    },
+    {
+      "id": "doctor",
+      "description": "Run descriptor-level doctor checks: executable presence, descriptor shape, lifecycle command availability, and bounded launch metadata.",
+      "args": [
+        "doctor"
+      ],
+      "safe": true,
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "implemented_by_bridge": true
     }
   ],
   "capabilities": [

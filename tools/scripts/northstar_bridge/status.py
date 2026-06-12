@@ -22,6 +22,11 @@ def _config_summary(ctx: BridgeContext) -> Dict[str, Any]:
         "write_enable_env": cfg.get("write_enable_env"),
         "safe_roots_mode": "project_root_with_denylist",
         "tool_count": len(tools),
+        "mcp_route": {
+            "endpoint": ctx.mcp_routes.endpoint,
+            "mcp_paths": list(ctx.mcp_routes.mcp_paths),
+            "discovery_paths": list(ctx.mcp_routes.discovery_paths),
+        },
         "public_contract": {
             "execute_suite_command": "always_listed",
             "write_text_file": "always_listed_write_gated",
@@ -72,6 +77,7 @@ def status(ctx: BridgeContext, args: Dict[str, Any] | None = None) -> Dict[str, 
         },
         "workspace": {
             "root": str(ctx.root),
+            "tool_root": str(ctx.operator_root),
             "python_cmd": ctx.python_cmd,
             "platform": platform.platform(),
             "markers": markers,

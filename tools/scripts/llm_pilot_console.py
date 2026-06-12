@@ -12,6 +12,8 @@ import time
 from pathlib import Path
 from typing import Any
 
+from northstar_bridge.workspace_config import apply_workspace_environment, load_workspace_config, resolve_workspace_root
+
 SPIN = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
 
@@ -349,10 +351,14 @@ def draw(root: Path, frame: int, interval: float) -> None:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Live heartbeat viewer for NorthStar Suite Intelligence LLM pilot")
-    parser.add_argument("--root", default=".")
+    parser.add_argument("--root", default="auto")
+    parser.add_argument("--workspace-config", default="")
     parser.add_argument("--interval", type=float, default=2.0)
     args = parser.parse_args(argv)
-    root = Path(args.root).resolve()
+    launch_root = Path.cwd().resolve()
+    workspace_config = load_workspace_config(launch_root, args.workspace_config)
+    root = resolve_workspace_root(launch_root, args.root, workspace_config)
+    apply_workspace_environment(root, workspace_config)
     frame = 0
     try:
         while True:

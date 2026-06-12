@@ -3,7 +3,7 @@ import json
 from typing import Any, Dict, Optional
 from . import release_info
 from .contracts import BRIDGE_VERSION, PROTOCOL_VERSION, BridgeContext, BridgeError, ToolSpec, MAX_PUBLIC_RESPONSE_BYTES, MAX_PUBLIC_STRING_BYTES
-from .mcp_routes import DEFAULT_MCP_ROUTES
+from .mcp_routes import DEFAULT_MCP_ROUTES, McpRouteProfile
 from .rpc_surface import (
     PUBLIC_APP_DESCRIPTION,
     PUBLIC_APP_TAGS,
@@ -19,7 +19,7 @@ def rpc_error(request_id: Any, code: int, message: str, data: Optional[Dict[str,
     if data:
         error["data"] = data
     return {"jsonrpc": "2.0", "id": request_id, "error": error}
-def discovery_payload(tools: Dict[str, ToolSpec]) -> Dict[str, Any]:
+def discovery_payload(tools: Dict[str, ToolSpec], routes: McpRouteProfile = DEFAULT_MCP_ROUTES) -> Dict[str, Any]:
     return {
         "ok": True,
         "name": "northstar-ai-bridge",
@@ -30,12 +30,12 @@ def discovery_payload(tools: Dict[str, ToolSpec]) -> Dict[str, Any]:
         "releaseNotes": release_info.BRIDGE_RELEASE_NOTES,
         "tags": PUBLIC_APP_TAGS,
         "transport": "mcp-streamable-http",
-        "endpoint": DEFAULT_MCP_ROUTES.endpoint,
+        "endpoint": routes.endpoint,
         "http": {
-            f"POST {DEFAULT_MCP_ROUTES.endpoint}": "JSON-RPC MCP messages",
-            f"OPTIONS {DEFAULT_MCP_ROUTES.endpoint}": "transport preflight / allowed methods",
-            f"HEAD {DEFAULT_MCP_ROUTES.endpoint}": "reachability probe / zero-byte metadata headers",
-            f"GET {DEFAULT_MCP_ROUTES.endpoint}": "operator discovery; use POST for MCP clients",
+            f"POST {routes.endpoint}": "JSON-RPC MCP messages",
+            f"OPTIONS {routes.endpoint}": "transport preflight / allowed methods",
+            f"HEAD {routes.endpoint}": "reachability probe / zero-byte metadata headers",
+            f"GET {routes.endpoint}": "operator discovery; use POST for MCP clients",
         },
         "protocolVersion": PROTOCOL_VERSION,
         "capabilities": {

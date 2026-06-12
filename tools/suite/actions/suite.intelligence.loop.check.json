@@ -6,7 +6,7 @@
   "command": "suite-intelligence-loop-check",
   "args": [],
   "requires_tools": [],
-  "requires_workspace": ["script_env"],
+  "requires_workspace": [],
   "outputs": [
     ".takesome/intelligence/loop-state.json",
     ".takesome/intelligence/loop-events.jsonl",

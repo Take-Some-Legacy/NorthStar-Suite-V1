@@ -145,6 +145,14 @@ def _automation_env(ctx: BridgeContext, env_overrides: Optional[Dict[str, str]])
         "NEWENGINE_NO_PAUSE": "1",
 
         "NEWENGINE_PLUGIN_TARGET": env.get("NEWENGINE_PLUGIN_TARGET", "all"),
+        "NORTHSTAR_WORKSPACE_ROOT": str(ctx.root),
+        "NORTHSTAR_SUITE_WORKSPACE_ROOT": str(ctx.root),
+        "TAKESOME_WORKSPACE_ROOT": str(ctx.root),
+        "NORTHSTAR_TOOL_ROOT": str(ctx.operator_root),
+        "NORTHSTAR_SUITE_TOOL_ROOT": str(ctx.operator_root),
+        "TAKESOME_TOOL_ROOT": str(ctx.operator_root),
+        "NEWENGINE_PROJECT_ROOT": str(ctx.root),
+        "NEWENGINE_REPO_ROOT": str(ctx.operator_root),
 
     })
 
@@ -197,7 +205,7 @@ def run_takesome(ctx: BridgeContext, args: List[str], timeout_sec: int = 120, en
 
             [*ctx.python_cmd, str(ctx.takesome_py), *resolved_args],
 
-            cwd=str(ctx.root),
+            cwd=str(ctx.operator_root),
 
             text=True,
 

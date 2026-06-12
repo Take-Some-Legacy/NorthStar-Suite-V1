@@ -2,9 +2,10 @@
   "schema": "northstar.bridge.public_origin.v1",
   "mode": "cloudflare_named_tunnel",
   "public_origin": "https://suite.kaylas-systems.ru",
-  "tunnel_id": "60362efb-6a3b-4459-a4b0-21c9206c2c95",
-  "tunnel_name": "northstar-suite",
+  "public_endpoint": "https://suite.kaylas-systems.ru/mcp-v2",
   "local_origin": "http://127.0.0.1:8797",
+  "tunnel_id": "18100838-185e-4edd-b1db-e1a28974c09d",
+  "tunnel_name": "northstar-suite-huawei",
   "protocol": "quic",
   "fallback_protocols": [
     "auto",
@@ -15,8 +16,18 @@
     "auto",
     "http2"
   ],
-  "quick_tunnel_fallback": true,
+  "quick_tunnel_fallback": false,
   "quick_tunnel_is_production": false,
+  "cloudflare": {
+    "tunnel": "northstar-suite-huawei",
+    "tunnel_id": "18100838-185e-4edd-b1db-e1a28974c09d",
+    "credentials_file": "~/.cloudflared/18100838-185e-4edd-b1db-e1a28974c09d.json",
+    "origin_cert": "~/.cloudflared/cert.pem",
+    "require_named_tunnel": true,
+    "quick_tunnel_fallback": false,
+    "dns_hostname": "suite.kaylas-systems.ru",
+    "dns_expected_target": "18100838-185e-4edd-b1db-e1a28974c09d.cfargotunnel.com"
+  },
   "ingress": [
     {
       "hostname": "suite.kaylas-systems.ru",
@@ -25,5 +36,35 @@
     {
       "service": "http_status:404"
     }
-  ]
+  ],
+  "mcp": {
+    "endpoint": "/mcp-v2",
+    "aliases": [
+      "/mcp"
+    ],
+    "discovery_paths": [
+      "/",
+      "/mcp-v2",
+      "/mcp"
+    ],
+    "public_get_paths": [
+      "/",
+      "/mcp-v2",
+      "/mcp",
+      "/health",
+      "/favicon.ico"
+    ],
+    "direct_tool_call_path": "/tools/call"
+  },
+  "dns": {
+    "hostname": "suite.kaylas-systems.ru",
+    "record_type": "CNAME",
+    "expected_target": "18100838-185e-4edd-b1db-e1a28974c09d.cfargotunnel.com",
+    "proxy_status": "proxied",
+    "repair": {
+      "dashboard_path": "Cloudflare Dashboard -> kaylas-systems.ru -> DNS -> Records -> suite",
+      "dashboard_action": "Edit existing suite record to CNAME 18100838-185e-4edd-b1db-e1a28974c09d.cfargotunnel.com with proxy enabled, or delete old suite record and rerun route dns.",
+      "cli_if_record_removed": "cloudflared tunnel route dns northstar-suite-huawei suite.kaylas-systems.ru"
+    }
+  }
 }

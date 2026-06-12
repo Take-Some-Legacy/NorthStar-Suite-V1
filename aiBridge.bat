@@ -17,6 +17,7 @@ set "ROOT=%~dp0."
 
 set "BRIDGE=%ROOT%\tools\scripts\northstar_ai_bridge.py"
 set "SUPERVISOR=%ROOT%\tools\scripts\ai_bridge_supervisor.py"
+set "WORKSPACE_CONFIG=%ROOT%\config\suite\workspace.v1.json"
 
 set "PYTHON_EXE="
 
@@ -110,13 +111,13 @@ if /I "%~1"=="tunnel" (
     exit /b 2
   )
   shift
-  %PYTHON_EXE% %PYTHON_ARGS% "%SUPERVISOR%" --root "%ROOT%" --write --prefer-named --setup-named %*
+  %PYTHON_EXE% %PYTHON_ARGS% "%SUPERVISOR%" --workspace-config "%WORKSPACE_CONFIG%" --write --prefer-named --setup-named %*
   exit /b %errorlevel%
 )
 
 if "%~1"=="" (
 
-  %PYTHON_EXE% %PYTHON_ARGS% "%BRIDGE%" --root "%ROOT%" --hello
+  %PYTHON_EXE% %PYTHON_ARGS% "%BRIDGE%" --workspace-config "%WORKSPACE_CONFIG%" --hello
 
   exit /b %errorlevel%
 
@@ -124,7 +125,7 @@ if "%~1"=="" (
 
 
 
-%PYTHON_EXE% %PYTHON_ARGS% "%BRIDGE%" --root "%ROOT%" %*
+%PYTHON_EXE% %PYTHON_ARGS% "%BRIDGE%" --workspace-config "%WORKSPACE_CONFIG%" %*
 
 exit /b %errorlevel%
 

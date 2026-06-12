@@ -6,6 +6,7 @@ rem Shows operational status, not private chain-of-thought.
 
 set "ROOT=%~dp0."
 set "VIEWER=%ROOT%\tools\scripts\llm_pilot_console.py"
+set "WORKSPACE_CONFIG=%ROOT%\config\suite\workspace.v1.json"
 
 where py >nul 2>nul
 if %errorlevel%==0 (
@@ -41,7 +42,7 @@ echo [INFO] NorthStar LLM Pilot heartbeat console started.
 echo [INFO] Root: %ROOT%
 echo [INFO] Viewer: %VIEWER%
 echo.
-%PYTHON_EXE% %PYTHON_ARGS% "%VIEWER%" --root "%ROOT%" --interval 5
+%PYTHON_EXE% %PYTHON_ARGS% "%VIEWER%" --workspace-config "%WORKSPACE_CONFIG%" --interval 5
 set "RC=%errorlevel%"
 echo.
 echo [INFO] LLM Pilot heartbeat console stopped with exit code %RC%.

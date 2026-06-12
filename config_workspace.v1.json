@@ -1,0 +1,42 @@
+{
+  "schema": "northstar.suite.workspace.v1",
+  "workspace": {
+    "root": ".",
+    "kind": "site",
+    "exposure_mode": "operator",
+    "description": "Site/operator workspace for Take Some / North Star Suite bridge."
+  },
+  "script_env": {
+    "file": ".takesome/script-env.cmd",
+    "external_suite_root_envs": [
+      "NEWENGINE_SUITE_ROOT",
+      "TAKESOME_SUITE_ROOT",
+      "NORTHSTAR_SUITE_ROOT"
+    ]
+  },
+  "bridge": {
+    "auto_trust": true,
+    "skip_origin_preflight": true
+  },
+  "suite_intelligence": {
+    "autostart": true,
+    "no_openai": true,
+    "interval_sec": 30,
+    "openai_every": 1
+  },
+  "llm": {
+    "provider": "deepseek-pytorch-local",
+    "python": "auto",
+    "model_root": "D:/LLM/DeepSeek-R1-Distill-Qwen-7B-PyTorch"
+  },
+  "console": {
+    "ansi": true,
+    "selection": {
+      "mode": "allow",
+      "notes": [
+        "allow enables QuickEdit/text selection for operator copy/paste in classic Windows console.",
+        "Use preserve to leave the terminal untouched, or disable_quick_edit for unattended freeze-safe log sessions."
+      ]
+    }
+  }
+}

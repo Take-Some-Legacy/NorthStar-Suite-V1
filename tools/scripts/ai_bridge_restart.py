@@ -18,6 +18,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
 
+from northstar_bridge.mcp_routes import load_mcp_route_profile
+from northstar_bridge.workspace_config import apply_workspace_environment, load_workspace_config, resolve_workspace_root
+
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8797
 SAFE_MARKERS = ("northstar_ai_bridge.py", "northstar_operator_bridge.py")
@@ -153,6 +156,7 @@ def cmd_preflight(args: argparse.Namespace) -> int:
         text=True,
         encoding="utf-8",
         errors="replace",
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         shell=False,
@@ -206,21 +210,35 @@ def cmd_wait_down(args: argparse.Namespace) -> int:
     return 1
 
 
+def _root(args: argparse.Namespace) -> Path:
+    launch_root = Path.cwd().resolve()
+    config = load_workspace_config(launch_root, getattr(args, "workspace_config", ""))
+    root = resolve_workspace_root(launch_root, getattr(args, "root", "auto"), config)
+    apply_workspace_environment(root, config)
+    return root
+
+
+def _endpoint(args: argparse.Namespace) -> str:
+    routes = load_mcp_route_profile(_root(args))
+    return f"http://{args.host}:{args.port}{routes.endpoint}"
+
+
 def cmd_wait_up(args: argparse.Namespace) -> int:
     deadline = time.time() + args.wait_sec
     while time.time() < deadline:
         if _probe(args.host, args.port, args.timeout):
-            print(json.dumps({"ok": True, "state": "up", "endpoint": f"http://{args.host}:{args.port}/mcp"}, ensure_ascii=False, indent=2))
+            print(json.dumps({"ok": True, "state": "up", "endpoint": _endpoint(args)}, ensure_ascii=False, indent=2))
             return 0
         time.sleep(0.5)
-    print(json.dumps({"ok": False, "error": "not_responding", "endpoint": f"http://{args.host}:{args.port}/mcp"}, ensure_ascii=False, indent=2))
+    print(json.dumps({"ok": False, "error": "not_responding", "endpoint": _endpoint(args)}, ensure_ascii=False, indent=2))
     return 1
 
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Safe local-origin restart helper for North Star AI Bridge")
     parser.add_argument("command", choices=["preflight", "status", "stop-origin", "wait-down", "wait-up"])
-    parser.add_argument("--root", default=".")
+    parser.add_argument("--root", default="auto")
+    parser.add_argument("--workspace-config", default="")
     parser.add_argument("--host", default=DEFAULT_HOST)
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     parser.add_argument("--timeout", type=float, default=1.0)
@@ -229,7 +247,7 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
     # Keep root validation simple; this helper intentionally operates on the
     # local port/process table, not on repository files.
-    Path(args.root).resolve()
+    _root(args)
     if args.command == "preflight":
         return cmd_preflight(args)
     if args.command == "status":

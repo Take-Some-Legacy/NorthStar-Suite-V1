@@ -8,16 +8,76 @@
     "windows": "bin/northstar-log-reader.exe"
   },
   "commands": [
-    { "id": "help", "args": ["--help"], "safe": true },
-    { "id": "version", "args": ["version"], "safe": true },
-    { "id": "accepted-inputs", "args": ["accepted-inputs"], "safe": true },
-    { "id": "doctor", "args": ["doctor"], "safe": true },
-    { "id": "read", "args": ["read"], "safe": true },
-    { "id": "tail", "args": ["tail"], "safe": true },
-    { "id": "live", "args": ["live"], "safe": true },
-    { "id": "listen", "args": ["listen"], "safe": true },
-    { "id": "stream", "args": ["stream"], "safe": true },
-    { "id": "ui", "args": ["ui"], "safe": true }
+    {
+      "id": "help",
+      "args": [
+        "--help"
+      ],
+      "safe": true
+    },
+    {
+      "id": "version",
+      "args": [
+        "version"
+      ],
+      "safe": true
+    },
+    {
+      "id": "accepted-inputs",
+      "args": [
+        "accepted-inputs"
+      ],
+      "safe": true
+    },
+    {
+      "id": "doctor",
+      "args": [
+        "doctor"
+      ],
+      "safe": true
+    },
+    {
+      "id": "read",
+      "args": [
+        "read"
+      ],
+      "safe": true
+    },
+    {
+      "id": "tail",
+      "args": [
+        "tail"
+      ],
+      "safe": true
+    },
+    {
+      "id": "live",
+      "args": [
+        "live"
+      ],
+      "safe": true
+    },
+    {
+      "id": "listen",
+      "args": [
+        "listen"
+      ],
+      "safe": true
+    },
+    {
+      "id": "stream",
+      "args": [
+        "stream"
+      ],
+      "safe": true
+    },
+    {
+      "id": "ui",
+      "args": [
+        "ui"
+      ],
+      "safe": true
+    }
   ],
   "accepted_inputs": [
     "live http:// NDJSON stream",
@@ -30,5 +90,6 @@
     "LIVE JSONL stdout",
     "LIVE table stdout",
     "*.html live UI"
-  ]
+  ],
+  "description": "North Star LIVE Log Reader for opening the local HTML log-reader UI, prefiltering runtime/build logs, tailing live streams, and exporting diagnostic snapshots for operator workflows."
 }

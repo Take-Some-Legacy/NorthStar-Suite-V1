@@ -1,0 +1,5 @@
+[v1]
+"northstar-nepak-manager 0.2.0 (path+file:///C:/Users/Aiden/Documents/Take%20Some/NorthStar-Engine/tools/toolsSrc/nepak_packer)" = [
+    "northstar-nepak-gui.exe",
+    "northstar-nepak-manager.exe",
+]

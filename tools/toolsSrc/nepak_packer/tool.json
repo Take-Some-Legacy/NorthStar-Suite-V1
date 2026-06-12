@@ -1,30 +1,20 @@
 {
   "schema": "takesome.tool.v1",
-  "id": "northstar.nepak_packer",
-  "version": "0.1.1",
-  "name": "North Star NEPAK Packer",
-  "description": "Builds, extracts, inspects and validates .nepak VFS packages as explicit package assets.",
+  "id": "northstar.nepak_manager",
+  "version": "0.2.0",
+  "name": "North Star NEPAK Manager",
+  "description": "Builds, extracts, inspects, verifies, diffs and mount-tests clean .nepak VFS packages as explicit package assets.",
   "kind": "rust-cli",
   "root": ".",
   "cargo_manifest": "Cargo.toml",
-  "install_path": "tools/exe/northstar-nepak-packer.exe",
-  "default_args": [
-    "--help"
-  ],
-  "validation_args": [
-    "--help"
-  ],
-  "formats": [
-    ".nepak"
-  ],
-  "content_kinds": [
-    "vfs_package"
-  ],
+  "install_path": "tools/exe/northstar-nepak-manager.exe",
+  "default_args": ["--help"],
+  "validation_args": ["--help"],
+  "formats": [".nepak"],
+  "content_kinds": ["vfs_package"],
   "format_provider": {
-    "provider_id": "northstar.nepak_packer",
-    "type_ids": [
-      "asset.type.nepak.vfs_package"
-    ],
+    "provider_id": "northstar.nepak_manager",
+    "type_ids": ["asset.type.nepak.vfs_package"],
     "can_read": true,
     "can_write": true,
     "can_inspect": true,
@@ -33,21 +23,17 @@
     "can_preview": true,
     "can_edit_schema": true,
     "preview_surface": "tree",
-    "editor_schema": "northstar.schema.nepak.package.v1"
+    "editor_schema": "northstar.schema.nepak.package.clean.v1"
   },
   "capabilities": [
-    "asset.package.nepak.read",
-    "asset.package.nepak.write",
-    "asset.package.nepak.inspect",
-    "asset.package.nepak.validate",
-    "asset.package.nepak.diff",
-    "asset.package.nepak.mount",
+    "assets.container.nepak",
+    "assets.container.nepak.writer",
+    "assets.container.nepak.inspect",
+    "assets.container.nepak.verify",
+    "assets.container.nepak.diff",
+    "assets.container.nepak.mount_test",
     "asset.preview.tree",
-    "asset.editor.package.edit_schema",
-    "assets.package.nepak_pack",
-    "assets.package.nepak_extract",
-    "assets.package.nepak_inspect",
-    "validation.nef8_hash"
+    "asset.editor.package.edit_schema"
   ],
   "build_validation": true,
   "safe_for_build": true,

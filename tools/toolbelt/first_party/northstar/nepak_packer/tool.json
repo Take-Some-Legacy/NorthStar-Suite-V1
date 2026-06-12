@@ -1,229 +1,99 @@
 {
   "schema": "takesome.tool.v2",
-  "id": "northstar.nepak_packer",
-  "version": "0.1.1",
-  "name": "North Star NEPAK Packer",
-  "description": "Generic .nepak VFS container packer/extractor/inspector/validator for opaque byte entries.",
+  "id": "northstar.nepak_manager",
+  "version": "0.2.0",
+  "name": "North Star NEPAK Manager",
+  "description": "Clean .nepak VFS package manager with binary RPF-style central directory, GUI browser, inspect, verify, diff and extract commands.",
   "kind": "rust-cli",
   "source_type": "first_party",
   "owner": "Take Some",
   "root": ".",
   "package_root": "tools/toolbelt/first_party/northstar/nepak_packer",
   "source_root": "tools/toolsSrc/nepak_packer",
-  "executable": "bin/northstar-nepak-packer.exe",
-  "install_path": "tools/toolbelt/first_party/northstar/nepak_packer/bin/northstar-nepak-packer.exe",
+  "executable": "bin/northstar-nepak-manager.exe",
+  "install_path": "tools/toolbelt/first_party/northstar/nepak_packer/bin/northstar-nepak-manager.exe",
+  "gui_executable": "bin/northstar-nepak-gui.exe",
+  "gui_install_path": "tools/toolbelt/first_party/northstar/nepak_packer/bin/northstar-nepak-gui.exe",
   "cargo_manifest": "tools/toolsSrc/nepak_packer/Cargo.toml",
   "safe_for_build": true,
   "build_validation": true,
   "commands": [
-    {
-      "id": "help",
-      "args": [
-        "--help"
-      ],
-      "description": "Print tool usage."
-    },
-    {
-      "id": "version",
-      "args": [
-        "version"
-      ],
-      "description": "Print tool version."
-    },
-    {
-      "id": "accepted-inputs",
-      "args": [
-        "accepted-inputs"
-      ],
-      "description": "Print accepted input and output file contract."
-    }
+    { "id": "help", "args": ["--help"], "description": "Print tool usage." },
+    { "id": "version", "args": ["version"], "description": "Print tool version." },
+    { "id": "accepted-inputs", "args": ["accepted-inputs"], "description": "Print accepted input and output file contract." },
+    { "id": "doctor", "args": ["doctor"], "description": "Run descriptor-level doctor checks.", "safe": true, "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "implemented_by_bridge": true },
+    { "id": "gui", "executable": "bin/northstar-nepak-gui.exe", "args": [], "description": "Launch native NEPAK GUI browser/editor shell." }
   ],
   "capabilities": [
     "assets.container.nepak",
     "assets.container.nepak.pack",
     "assets.container.nepak.extract",
     "assets.container.nepak.inspect",
-    "assets.container.nepak.validate"
+    "assets.container.nepak.verify",
+    "assets.container.nepak.manifest",
+    "assets.container.nepak.diff",
+    "assets.container.nepak.mount_test",
+    "assets.container.nepak.writer",
+    "assets.container.nepak.gui",
+    "asset.preview.package_tree",
+    "asset.viewport.package_tree"
   ],
-  "sha256": "4b4e7df126140687d76159bb62326f3620ce2cb2191d01fdeaaad67b04ea079d",
   "suite_commands": [
     {
+      "id": "launch-nepak-gui",
+      "title": "Launch NEPAK GUI",
+      "description": "Launch native GUI browser for binary RPF-style .nepak packages.",
+      "executable": "bin/northstar-nepak-gui.exe",
+      "tool_args": [],
+      "args": [],
+      "riskTier": "read_only"
+    },
+    {
       "id": "pack-nepak",
-      "title": "Pack NEPAK container",
-      "description": "Pack file or directory into .nepak VFS container.",
-      "tool_args": [
-        "pack"
-      ],
+      "title": "Pack clean NEPAK container",
+      "description": "Pack file or directory into clean .nepak VFS container.",
+      "tool_args": ["pack"],
       "args": [
-        {
-          "name": "input",
-          "flags": [
-            "--input",
-            "-i"
-          ],
-          "kind": "path",
-          "default": "",
-          "required": true,
-          "help": "Input file or directory.",
-          "tool_flag": "--input"
-        },
-        {
-          "name": "output",
-          "flags": [
-            "--output",
-            "-o"
-          ],
-          "kind": "path",
-          "default": "",
-          "required": true,
-          "help": "Output .nepak path.",
-          "tool_flag": "--output"
-        },
-        {
-          "name": "no_compress",
-          "flags": [
-            "--no-compress"
-          ],
-          "kind": "bool",
-          "action": "store_true",
-          "help": "Store payloads raw instead of deflate-compressed.",
-          "tool_flag": "--no-compress"
-        }
+        { "name": "input", "flags": ["--input", "-i"], "kind": "path", "default": "", "required": true, "help": "Input file or directory.", "tool_flag": "--input" },
+        { "name": "output", "flags": ["--output", "-o"], "kind": "path", "default": "", "required": true, "help": "Output .nepak path.", "tool_flag": "--output" },
+        { "name": "no_compress", "flags": ["--no-compress"], "kind": "bool", "action": "store_true", "help": "Store payloads raw instead of deflate-compressed.", "tool_flag": "--no-compress" }
       ],
       "riskTier": "write"
     },
     {
       "id": "inspect-nepak",
-      "title": "Inspect NEPAK container",
-      "description": "Inspect a .nepak VFS container.",
-      "tool_args": [
-        "inspect"
-      ],
-      "args": [
-        {
-          "name": "input",
-          "flags": [
-            "--input",
-            "-i"
-          ],
-          "kind": "path",
-          "default": "",
-          "required": false,
-          "help": "Input .nepak file. Defaults to discovered asset.",
-          "tool_flag": "--input",
-          "default_discover": {
-            "kind": "first_existing_or_glob",
-            "paths": [],
-            "glob_roots": [
-              ".takesome",
-              "builds",
-              "EngineRepo/NewEngine/neocore2/assets",
-              "NewEngine/neocore2/assets"
-            ],
-            "glob": "*.nepak"
-          }
-        }
-      ],
+      "title": "Inspect clean NEPAK container",
+      "description": "Inspect a clean .nepak VFS container.",
+      "tool_args": ["inspect"],
+      "args": [{ "name": "input", "flags": ["--input", "-i"], "kind": "path", "default": "", "required": true, "help": "Input .nepak file.", "tool_flag": "--input" }],
       "riskTier": "read_only"
     },
     {
-      "id": "validate-nepak",
-      "title": "Validate NEPAK container",
-      "description": "Validate a .nepak VFS container.",
-      "tool_args": [
-        "validate"
-      ],
-      "args": [
-        {
-          "name": "input",
-          "flags": [
-            "--input",
-            "-i"
-          ],
-          "kind": "path",
-          "default": "",
-          "required": false,
-          "help": "Input .nepak file. Defaults to discovered asset.",
-          "tool_flag": "--input",
-          "default_discover": {
-            "kind": "first_existing_or_glob",
-            "paths": [],
-            "glob_roots": [
-              ".takesome",
-              "builds",
-              "EngineRepo/NewEngine/neocore2/assets",
-              "NewEngine/neocore2/assets"
-            ],
-            "glob": "*.nepak"
-          }
-        }
-      ],
+      "id": "verify-nepak",
+      "title": "Verify clean NEPAK container",
+      "description": "Verify a clean .nepak VFS container.",
+      "tool_args": ["verify"],
+      "args": [{ "name": "input", "flags": ["--input", "-i"], "kind": "path", "default": "", "required": true, "help": "Input .nepak file.", "tool_flag": "--input" }],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "manifest-nepak",
+      "title": "Emit generated NEPAK manifest",
+      "description": "Emit generated JSON manifest payload from binary central directory. JSON is not stored as internal NEPAK metadata.",
+      "tool_args": ["manifest"],
+      "args": [{ "name": "input", "flags": ["--input", "-i"], "kind": "path", "default": "", "required": true, "help": "Input .nepak file.", "tool_flag": "--input" }],
       "riskTier": "read_only"
     },
     {
       "id": "extract-nepak",
-      "title": "Extract NEPAK container",
-      "description": "Extract .nepak VFS container to a directory.",
-      "tool_args": [
-        "extract"
-      ],
+      "title": "Extract clean NEPAK container",
+      "description": "Extract .nepak VFS container to a directory with hardened path validation.",
+      "tool_args": ["extract"],
       "args": [
-        {
-          "name": "input",
-          "flags": [
-            "--input",
-            "-i"
-          ],
-          "kind": "path",
-          "default": "",
-          "required": false,
-          "help": "Input .nepak file. Defaults to discovered asset.",
-          "tool_flag": "--input",
-          "default_discover": {
-            "kind": "first_existing_or_glob",
-            "paths": [],
-            "glob_roots": [
-              ".takesome",
-              "builds",
-              "EngineRepo/NewEngine/neocore2/assets",
-              "NewEngine/neocore2/assets"
-            ],
-            "glob": "*.nepak"
-          }
-        },
-        {
-          "name": "output",
-          "flags": [
-            "--output",
-            "-o"
-          ],
-          "kind": "path",
-          "default": " .takesome/extract/nepak",
-          "required": false,
-          "help": "Output directory.",
-          "tool_flag": "--output"
-        },
-        {
-          "name": "path",
-          "flags": [
-            "--path"
-          ],
-          "kind": "string",
-          "default": "",
-          "required": false,
-          "help": "Optional package path to extract.",
-          "tool_flag": "--path"
-        },
-        {
-          "name": "overwrite",
-          "flags": [
-            "--overwrite"
-          ],
-          "kind": "bool",
-          "action": "store_true",
-          "help": "Allow extract to overwrite existing files.",
-          "tool_flag": "--overwrite"
-        }
+        { "name": "input", "flags": ["--input", "-i"], "kind": "path", "default": "", "required": true, "help": "Input .nepak file.", "tool_flag": "--input" },
+        { "name": "output", "flags": ["--output", "-o"], "kind": "path", "default": ".takesome/extract/nepak", "required": false, "help": "Output directory.", "tool_flag": "--output" },
+        { "name": "path", "flags": ["--path"], "kind": "string", "default": "", "required": false, "help": "Optional package path to extract.", "tool_flag": "--path" },
+        { "name": "overwrite", "flags": ["--overwrite"], "kind": "bool", "action": "store_true", "help": "Allow extract to overwrite existing files.", "tool_flag": "--overwrite" }
       ],
       "riskTier": "write"
     }

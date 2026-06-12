@@ -223,6 +223,7 @@ def _register_tools_parser(sub: argparse._SubParsersAction[argparse.ArgumentPars
     p_tool_doctor = tool_sub.add_parser("doctor")
     p_tool_doctor.add_argument("--full", action="store_true", help="Run full workspace doctor with detailed findings.")
     tool_sub.add_parser("validate")
+    tool_sub.add_parser("descriptor-hygiene", help="Generate Tool Descriptor Hygiene JSON/Markdown reports.")
     p_tool_invariants = tool_sub.add_parser("invariants")
     p_tool_invariants.add_argument("--strict-large-files", action="store_true")
     p_tool_invariants.add_argument("--strict-boundaries", action="store_true")

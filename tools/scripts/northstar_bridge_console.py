@@ -130,7 +130,7 @@ def install(bridge_module: Any) -> None:
         return patched
 
     def patched_run_http(ctx: Any, host: str, port: int, status_interval: int = 30) -> int:
-        emit("STATE", "HTTP bridge starting", endpoint=f"http://{host}:{port}/mcp", write=getattr(ctx, "write_enabled", False), root=getattr(ctx, "root", ""))
+        emit("STATE", "HTTP bridge starting", endpoint=f"http://{host}:{port}{getattr(getattr(ctx, 'mcp_routes', None), 'endpoint', '/mcp')}", write=getattr(ctx, "write_enabled", False), root=getattr(ctx, "root", ""))
         rc = original_run_http(ctx, host, port, status_interval)
         emit("STATE", "HTTP bridge stopped", rc=rc)
         return rc

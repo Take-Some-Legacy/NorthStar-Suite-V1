@@ -10,15 +10,27 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Dict
 
-DEFAULT_ENDPOINT = "http://127.0.0.1:8797/mcp"
+from northstar_bridge.mcp_routes import load_mcp_route_profile
+from northstar_bridge.workspace_config import apply_workspace_environment, load_workspace_config, resolve_workspace_root
+
+DEFAULT_MCP_ENDPOINT_PATH = "/mcp"
 
 
 def _utc_now() -> str:
     return dt.datetime.now(dt.UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
-def _root(path: str) -> Path:
-    return Path(path).resolve()
+def _root(path: str, workspace_config_path: str = "") -> Path:
+    launch_root = Path.cwd().resolve()
+    config = load_workspace_config(launch_root, workspace_config_path)
+    root = resolve_workspace_root(launch_root, path or "auto", config)
+    apply_workspace_environment(root, config)
+    return root.resolve()
+
+
+def _default_endpoint(root: Path, host: str = "127.0.0.1", port: int = 8797) -> str:
+    routes = load_mcp_route_profile(root)
+    return f"http://{host}:{port}{routes.endpoint or DEFAULT_MCP_ENDPOINT_PATH}"
 
 
 def _state_dir(root: Path) -> Path:
@@ -54,7 +66,7 @@ def _write_json(path: Path, payload: Dict[str, Any]) -> None:
 
 
 def _write_report(root: Path, state: Dict[str, Any]) -> Path:
-    endpoint = str(state.get("active_endpoint") or DEFAULT_ENDPOINT)
+    endpoint = str(state.get("active_endpoint") or _default_endpoint(root))
     mode = str(state.get("mode") or "http")
     write_enabled = bool(state.get("write_enabled"))
     logs_dir = str(state.get("logs_directory") or ".takesome/ai-bridge/logs")
@@ -111,8 +123,8 @@ serverBridge.bat
 
 
 def write_state(args: argparse.Namespace) -> int:
-    root = _root(args.root)
-    endpoint = args.endpoint or f"http://{args.host}:{args.port}/mcp"
+    root = _root(args.root, args.workspace_config)
+    endpoint = args.endpoint or _default_endpoint(root, args.host, args.port)
     existing = _load_state(root)
     state: Dict[str, Any] = {
         "active_endpoint": endpoint,
@@ -141,11 +153,11 @@ def write_state(args: argparse.Namespace) -> int:
 
 
 def endpoint(args: argparse.Namespace) -> int:
-    root = _root(args.root)
+    root = _root(args.root, args.workspace_config)
     state = _load_state(root)
     if not state:
         state = {
-            "active_endpoint": DEFAULT_ENDPOINT,
+            "active_endpoint": _default_endpoint(root),
             "mode": "http",
             "write_enabled": False,
             "state_file": ".takesome/ai-bridge/state/endpoint.json",
@@ -157,15 +169,15 @@ def endpoint(args: argparse.Namespace) -> int:
     if args.print_json:
         print(json.dumps(state, ensure_ascii=False, indent=2))
     else:
-        print(state.get("active_endpoint") or DEFAULT_ENDPOINT)
+        print(state.get("active_endpoint") or _default_endpoint(root))
     return 0
 
 
 def report(args: argparse.Namespace) -> int:
-    root = _root(args.root)
+    root = _root(args.root, args.workspace_config)
     state = _load_state(root)
     if not state:
-        state = {"active_endpoint": DEFAULT_ENDPOINT, "mode": "http", "write_enabled": False, "updated_at": _utc_now()}
+        state = {"active_endpoint": _default_endpoint(root), "mode": "http", "write_enabled": False, "updated_at": _utc_now()}
         _write_json(_state_path(root), state)
     path = _write_report(root, state)
     print(path.relative_to(root).as_posix())
@@ -189,7 +201,8 @@ def probe(args: argparse.Namespace) -> int:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="North Star AI Bridge endpoint state helper")
     parser.add_argument("command", choices=["write", "endpoint", "report", "probe"])
-    parser.add_argument("--root", default=".")
+    parser.add_argument("--root", default="auto")
+    parser.add_argument("--workspace-config", default="")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8797)
     parser.add_argument("--mode", default="http")

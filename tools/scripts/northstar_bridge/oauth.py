@@ -78,13 +78,14 @@ def _client_id_for(metadata: dict[str, Any]) -> str:
 
 
 def protected_resource_metadata(base: str, resource_path: str = "/mcp") -> dict[str, Any]:
+    resource_path = resource_path if str(resource_path).startswith("/") else "/" + str(resource_path)
     resource = base.rstrip("/") + resource_path
     return {
         "resource": resource,
         "authorization_servers": [base],
         "bearer_methods_supported": ["header"],
         "scopes_supported": oauth_scopes.supported_scopes(),
-        "resource_documentation": base.rstrip("/") + "/mcp",
+        "resource_documentation": base.rstrip("/") + resource_path,
     }
 
 
@@ -241,10 +242,10 @@ def is_well_known_path(path: str) -> bool:
     return path.startswith("/.well-known/oauth-protected-resource") or path.startswith("/.well-known/oauth-authorization-server") or path.startswith("/.well-known/openid-configuration") or path.endswith("/.well-known/oauth-protected-resource") or path.endswith("/.well-known/oauth-authorization-server") or path.endswith("/.well-known/openid-configuration")
 
 
-def _protected_resource_path_from_well_known(path: str) -> str:
+def _protected_resource_path_from_well_known(path: str, default_resource_path: str = "/mcp") -> str:
     marker = "oauth-protected-resource"
     if marker not in path:
-        return "/mcp"
+        return default_resource_path
     suffix = path.split(marker, 1)[1].strip("/")
     if suffix:
         return "/" + suffix
@@ -254,12 +255,12 @@ def _protected_resource_path_from_well_known(path: str) -> str:
     prefix = path.split("/.well-known/", 1)[0].strip("/")
     if prefix:
         return "/" + prefix
-    return "/mcp"
+    return default_resource_path
 
 
-def well_known_response(base: str, path: str) -> tuple[int, dict[str, Any]]:
+def well_known_response(base: str, path: str, default_resource_path: str = "/mcp") -> tuple[int, dict[str, Any]]:
     if "oauth-protected-resource" in path:
-        return 200, protected_resource_metadata(base, _protected_resource_path_from_well_known(path))
+        return 200, protected_resource_metadata(base, _protected_resource_path_from_well_known(path, default_resource_path))
     if "oauth-authorization-server" in path or "openid-configuration" in path:
         return 200, authorization_server_metadata(base)
     return 404, {"ok": False, "error": "not_found", "path": path}

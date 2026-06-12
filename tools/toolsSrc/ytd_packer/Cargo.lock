@@ -349,6 +349,7 @@ dependencies = [
  "newengine-plugin-api",
  "newengine-schema-api",
  "newengine-service-api",
+ "newengine-ulog-api",
  "serde",
  "serde_json",
 ]
@@ -390,8 +391,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "newengine-ulog-api"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "serde_json",
+]
+
+[[package]]
 name = "northstar-cli"
 version = "0.1.0"
+dependencies = [
+ "northstar-logging",
+ "northstar-ulog",
+ "serde_json",
+]
+
+[[package]]
+name = "northstar-logging"
+version = "0.1.0"
+dependencies = [
+ "northstar-ulog",
+ "serde_json",
+]
+
+[[package]]
+name = "northstar-ulog"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "northstar-ytd-packer"

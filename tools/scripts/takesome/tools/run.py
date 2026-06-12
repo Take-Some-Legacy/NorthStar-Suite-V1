@@ -24,6 +24,7 @@ from .dataset_maturity import dataset_maturity_command
 from .operator_memory import operator_memory_maintenance
 from .invariants import run_p0_invariant_scan, run_p1_capability_conformance_scan, run_p2_schema_property_scan, run_p21_schema_runtime_scan, run_p3_editor_shell_scan, run_p4_import_pipeline_scan, run_p5_world_scene_save_load_scan, run_p6_gameplay_foundation_scan, run_p7_rendering_maturity_scan, run_p8_reference_module_completeness_scan
 from .validation import validate_build_tools
+from .descriptor_hygiene import write_tool_descriptor_hygiene_report
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,7 @@ _DEV_TOOL_ACTIONS: tuple[DevToolAction, ...] = (
     DevToolAction("scan", "Scan tool descriptors", "refresh .takesome/tools/tool-registry cache", "info"),
     DevToolAction("list", "List registered tools", "show ids, kinds, roots and capabilities", "info"),
     DevToolAction("validate", "Validate tool registry", "check descriptor surface, build validators and P0 invariants", "good"),
+    DevToolAction("descriptor-hygiene", "Run descriptor hygiene report", "check tool.json lifecycle, descriptions, duplicates, suite command risks and executable paths", "good"),
     DevToolAction("invariants", "Run P0 invariant scan", "workspace drift, provider ids, hidden fallbacks, boundaries and large modules", "warn"),
     DevToolAction("conformance", "Run P1 conformance scan", "capability matrix, null providers, route diagnostics and provider-family harness", "good"),
     DevToolAction("schema", "Run P2 schema/property scan", "engine.schema, property DTOs, Inspector bridge, scripting bindings and transaction DTOs", "good"),
@@ -130,6 +132,8 @@ def _dispatch_dev_tool_action(repo_root: Path, action: DevToolAction, *, log: Te
         return run_workspace_doctor(repo_root, full=True, log=log)
     if action.key == "validate":
         return validate_build_tools(repo_root, log=log)
+    if action.key == "descriptor-hygiene":
+        return write_tool_descriptor_hygiene_report(repo_root, log=log)
     if action.key == "invariants":
         return run_p0_invariant_scan(repo_root, strict_large_files=False, strict_boundaries=False, log=log)
     if action.key == "conformance":
@@ -250,7 +254,7 @@ def _run_tool(repo_root: Path, ns: Any, *, log: TeeLog) -> int:
 
 def tools_command(repo_root: Path, ns: Any) -> int:
     action = ns.tools_action
-    if action in {"menu", "scan", "list", "doctor", "validate", "invariants", "conformance", "schema", "schema-runtime", "editor-shell", "import-pipeline", "world-scene", "gameplay", "rendering", "reference-completeness", "reference-completeness-strict", "dataset-ingest", "dataset-lifecycle", "dataset-entry-analysis", "dataset-maturity", "dataset-maturity-strict", "operator-memory", "import-ui-assets", "build", "run", "collect-run"}:
+    if action in {"menu", "scan", "list", "doctor", "validate", "descriptor-hygiene", "invariants", "conformance", "schema", "schema-runtime", "editor-shell", "import-pipeline", "world-scene", "gameplay", "rendering", "reference-completeness", "reference-completeness-strict", "dataset-ingest", "dataset-lifecycle", "dataset-entry-analysis", "dataset-maturity", "dataset-maturity-strict", "operator-memory", "import-ui-assets", "build", "run", "collect-run"}:
         apply_delete_list(repo_root)
     log = TeeLog()
     if action == "menu":
@@ -263,6 +267,8 @@ def tools_command(repo_root: Path, ns: Any) -> int:
         return run_workspace_doctor(repo_root, full=bool(getattr(ns, "full", False)), log=log)
     if action == "validate":
         return validate_build_tools(repo_root, log=log)
+    if action == "descriptor-hygiene":
+        return write_tool_descriptor_hygiene_report(repo_root, log=log)
     if action == "invariants":
         return run_p0_invariant_scan(
             repo_root,

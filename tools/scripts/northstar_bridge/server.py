@@ -18,7 +18,7 @@ from .contracts import BRIDGE_VERSION, BridgeContext
 from .registry import build_tools
 from .rpc import discovery_payload, handle_rpc_batch, tool_descriptor
 from .paths import rel
-from .mcp_routes import DEFAULT_MCP_ROUTES, all_head_paths, is_direct_tool_call_path, is_discovery_path, is_mcp_path, is_operator_get_path, route_label
+from .mcp_routes import all_head_paths, is_direct_tool_call_path, is_discovery_path, is_mcp_path, is_operator_get_path, route_label
 
 _REQUEST_IDS = count(1)
 _SECRET_KEY_PARTS = ("key", "token", "secret", "password", "authorization", "credential")
@@ -50,7 +50,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         return
 
     def _auth_required(self, path: str) -> bool:
-        return is_direct_tool_call_path(path) or is_operator_get_path(path)
+        ctx = self.server.ctx  # type: ignore[attr-defined]
+        return is_direct_tool_call_path(path, ctx.mcp_routes) or is_operator_get_path(path, ctx.mcp_routes)
 
     def _rpc_body_requires_auth(self, body: Any) -> bool:
         def one(item: Any) -> bool:
@@ -71,7 +72,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def _send_oauth_required(self, request_id: int, started: float) -> None:
         ctx = self.server.ctx  # type: ignore[attr-defined]
-        payload = {"ok": False, "error": "oauth_required", "auth": oauth.protected_resource_metadata(oauth.base_url_from_headers(self.headers), _request_path(self.path) if is_mcp_path(_request_path(self.path)) else DEFAULT_MCP_ROUTES.endpoint)}
+        routes = ctx.mcp_routes
+        current_path = _request_path(self.path)
+        payload = {"ok": False, "error": "oauth_required", "auth": oauth.protected_resource_metadata(oauth.base_url_from_headers(self.headers), current_path if is_mcp_path(current_path, routes) else routes.endpoint)}
         data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(401)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -227,7 +230,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         request_id = next(_REQUEST_IDS)
         path = _request_path(self.path)
         _emit_request("HEAD", path, request_id)
-        status_code = 200 if path in all_head_paths() else 404
+        ctx = self.server.ctx  # type: ignore[attr-defined]
+        status_code = 200 if path in all_head_paths(ctx.mcp_routes) else 404
         self.send_response(status_code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", "0")
@@ -246,8 +250,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 return
             ctx = self.server.ctx  # type: ignore[attr-defined]
             tools = self.server.tools  # type: ignore[attr-defined]
+            routes = ctx.mcp_routes
             if oauth.is_well_known_path(path):
-                status_code, payload = oauth.well_known_response(oauth.base_url_from_headers(self.headers), path)
+                status_code, payload = oauth.well_known_response(oauth.base_url_from_headers(self.headers), path, routes.endpoint)
                 self._send(payload, status_code=status_code, request_id=request_id, started=started)
             elif path == "/oauth/authorize":
                 status_code, headers, data = oauth.authorize(ctx.root, self.headers, urllib.parse.urlparse(self.path).query)
@@ -263,9 +268,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             elif path == "/favicon.ico":
                 self._send_favicon(ctx, request_id=request_id, started=started)
             elif path == "/health":
-                self._send({"ok": True, "name": "northstar-ai-bridge", "version": BRIDGE_VERSION, "releaseName": release_info.BRIDGE_RELEASE_NAME, "releaseNotes": release_info.BRIDGE_RELEASE_NOTES, "mode": "http", "endpoints": [DEFAULT_MCP_ROUTES.endpoint, "/status", "/tools", "/dataset", "/logs", "/favicon.ico"]}, request_id=request_id, started=started)
-            elif is_discovery_path(path):
-                payload = discovery_payload(tools)
+                self._send({"ok": True, "name": "northstar-ai-bridge", "version": BRIDGE_VERSION, "releaseName": release_info.BRIDGE_RELEASE_NAME, "releaseNotes": release_info.BRIDGE_RELEASE_NOTES, "mode": "http", "endpoints": [*ctx.mcp_routes.mcp_paths, "/status", "/tools", "/dataset", "/logs", "/favicon.ico"]}, request_id=request_id, started=started)
+            elif is_discovery_path(path, ctx.mcp_routes):
+                payload = discovery_payload(tools, ctx.mcp_routes)
                 accept = self.headers.get("Accept", "")
                 if "text/event-stream" in accept:
                     event = "event: endpoint\ndata: " + json.dumps(payload, ensure_ascii=False) + "\n\n"
@@ -317,16 +322,16 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 payload = oauth.register_client(ctx.root, body if isinstance(body, dict) else {})
                 self._send(payload, status_code=201, request_id=request_id, started=started, trace=trace)
                 return
-            if is_mcp_path(path) and self._rpc_body_requires_auth(body) and not access.authorized(ctx.root, self.headers):
+            if is_mcp_path(path, ctx.mcp_routes) and self._rpc_body_requires_auth(body) and not access.authorized(ctx.root, self.headers):
                 self._send_oauth_required(request_id, started)
                 return
-            if not is_mcp_path(path) and not self._authorized(path):
+            if not is_mcp_path(path, ctx.mcp_routes) and not self._authorized(path):
                 self._send_forbidden_local(request_id, started)
                 return
-            if is_mcp_path(path):
+            if is_mcp_path(path, ctx.mcp_routes):
                 response, status_code = handle_rpc_batch(ctx, tools, body)
                 self._send(response, status_code=status_code, request_id=request_id, started=started, trace=trace)
-            elif is_direct_tool_call_path(path):
+            elif is_direct_tool_call_path(path, ctx.mcp_routes):
                 response = _handle_direct_tool_call(ctx, tools, body)
                 self._send(response, request_id=request_id, started=started, trace=trace)
             else:

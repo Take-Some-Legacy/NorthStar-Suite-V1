@@ -460,7 +460,8 @@ def observe_stream(name: str, line: str) -> None:
                     _FOOTER.health_count += 1
                     event = f"health #{request_match.group(1)}"
                 else:
-                    working = method == "POST" or path in {"/mcp", "/tools/call"}
+                    mcp_endpoint = os.environ.get("NORTHSTAR_MCP_ENDPOINT_PATH", "/mcp")
+                    working = method == "POST" or path in {mcp_endpoint, "/tools/call"}
                     event = f"{method} {path} #{request_match.group(1)}"
             if "[ERROR" in clean or "Traceback" in clean or "Exception occurred" in clean:
                 status = "ERROR"

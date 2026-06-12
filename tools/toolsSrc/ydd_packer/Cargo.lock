@@ -127,6 +127,27 @@ dependencies = [
 [[package]]
 name = "northstar-cli"
 version = "0.1.0"
+dependencies = [
+ "northstar-logging",
+ "northstar-ulog",
+ "serde_json",
+]
+
+[[package]]
+name = "northstar-logging"
+version = "0.1.0"
+dependencies = [
+ "northstar-ulog",
+ "serde_json",
+]
+
+[[package]]
+name = "northstar-ulog"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "northstar-ydd-packer"

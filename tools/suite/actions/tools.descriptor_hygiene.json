@@ -1,0 +1,24 @@
+{
+  "action_id": "tools.descriptor_hygiene",
+  "group": "Tools",
+  "title": "Run Tool Descriptor Hygiene report",
+  "description": "Validate tool.json lifecycle commands, descriptions, duplicate command ids, suite command risk metadata, and executable paths; writes JSON and Markdown reports.",
+  "command": "tools",
+  "args": [
+    "descriptor-hygiene"
+  ],
+  "requires_tools": [],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [
+    "NewEngine/neocore2/buildInfo/tools/TOOL_DESCRIPTOR_HYGIENE.json",
+    "NewEngine/neocore2/buildInfo/tools/TOOL_DESCRIPTOR_HYGIENE.md"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal",
+  "readOnlyHint": false,
+  "destructiveHint": false,
+  "idempotentHint": true,
+  "riskTier": "write"
+}

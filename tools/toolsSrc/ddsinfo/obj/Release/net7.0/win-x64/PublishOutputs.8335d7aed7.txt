@@ -1,5 +1,0 @@
-C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\publish\ddsinfo.exe
-C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\publish\ddsinfo.dll
-C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\publish\ddsinfo.deps.json
-C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\publish\ddsinfo.runtimeconfig.json
-C:\Users\Aiden\Documents\Take Some\NorthStar-Engine\tools\toolsSrc\ddsinfo\publish\ddsinfo.pdb
