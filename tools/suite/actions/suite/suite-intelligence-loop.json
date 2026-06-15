@@ -1,0 +1,28 @@
+{
+  "action_id": "suite-intelligence-loop",
+  "group": "Suite Intelligence",
+  "title": "Run Noesis resident workloop (CLI alias)",
+  "description": "CLI-compatible alias for suite.intelligence.loop. Runs the foreground Noesis intelligence loop; it scans state, updates memory, detects stage, ranks tasks and writes assigned-task state without executing dangerous actions.",
+  "command": "suite-intelligence-loop",
+  "args": [],
+  "requires_tools": [],
+  "requires_workspace": [],
+  "outputs": [
+    ".takesome/intelligence/loop-state.json",
+    ".takesome/intelligence/loop-events.jsonl",
+    ".takesome/intelligence/operator-request.md",
+    ".takesome/intelligence/operator-response.md",
+    ".takesome/intelligence/assistant-memory.json",
+    ".takesome/intelligence/task-scan.json",
+    ".takesome/intelligence/workloop-decision.json",
+    ".takesome/intelligence/assigned-task.json"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal",
+  "aliasOf": "suite.intelligence.loop",
+  "riskTier": "write",
+  "destructiveHint": false,
+  "readOnlyHint": false,
+  "idempotentHint": false,
+  "approvalPolicy": "assignment_only_no_auto_execute"
+}
