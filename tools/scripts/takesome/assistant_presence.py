@@ -10,6 +10,7 @@ PRESENCE_SCHEMA = "noesis.suite.assistant_presence.v1"
 ASSIGNMENT_SCHEMA = "noesis.suite.assigned_task.v1"
 EVENT_SCHEMA = "noesis.suite.assistant_presence_event.v1"
 VALID_STATES = {"thinking", "working", "waiting", "idle", "assigned", "blocked", "error"}
+CONTROL_DIR = ".takesome"
 
 
 def utc_iso() -> str:
@@ -17,7 +18,7 @@ def utc_iso() -> str:
 
 
 def presence_dir(root: Path) -> Path:
-    return root / ".takesome" / "intelligence"
+    return root / CONTROL_DIR / "intelligence"
 
 
 def presence_json_path(root: Path) -> Path:
@@ -87,22 +88,50 @@ def should_assign_task(cycle: dict[str, Any], operator_response: dict[str, Any] 
     return False, "operator response is present"
 
 
-def build_assigned_task(root: Path, cycle: dict[str, Any], *, reason: str, operator_response: dict[str, Any] | None = None) -> dict[str, Any]:
-    top = (_recommendations(cycle) or [{}])[0]
-    task_id = _text(top.get("key") or top.get("id") or top.get("action") or top.get("command") or top.get("label"))
-    label = _text(top.get("label") or top.get("title") or top.get("summary") or task_id)
+def candidate_task_id(candidate: dict[str, Any]) -> str:
+    return _text(
+        candidate.get("action_id")
+        or candidate.get("key")
+        or candidate.get("id")
+        or candidate.get("action")
+        or candidate.get("command")
+        or candidate.get("label")
+    )
+
+
+def candidate_label(candidate: dict[str, Any], task_id: str) -> str:
+    return _text(candidate.get("label") or candidate.get("title") or candidate.get("summary") or task_id)
+
+
+def build_assigned_task(
+    root: Path,
+    cycle: dict[str, Any],
+    *,
+    reason: str,
+    operator_response: dict[str, Any] | None = None,
+    selected_candidate: dict[str, Any] | None = None,
+    execution_policy: str = "assignment_only_no_auto_execute",
+    status: str = "assigned",
+    stage: dict[str, Any] | None = None,
+    decision: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    top = selected_candidate if isinstance(selected_candidate, dict) else ((_recommendations(cycle) or [{}])[0])
+    task_id = candidate_task_id(top)
+    label = candidate_label(top, task_id)
     if not task_id:
         task_id = "suite.doctor"
         label = "Run Suite doctor and summarize blocking issues"
-        top = {"key": task_id, "risk": "read_only", "reason": "no recommendations were produced"}
+        top = {"action_id": task_id, "risk_level": "read_only", "reason": "no recommendations were produced"}
     return {
         "schema": ASSIGNMENT_SCHEMA,
         "generated_utc": utc_iso(),
         "cycle": cycle.get("cycle"),
-        "status": "assigned",
-        "execution_policy": "assignment_only_no_auto_execute",
+        "status": status,
+        "execution_policy": execution_policy,
         "reason": reason,
         "operator_response": classify_operator_response(operator_response),
+        "stage": stage or {},
+        "decision": decision or {},
         "task": {"id": task_id, "label": label, "candidate": top},
         "paths": {"json": _rel(root, assigned_task_path(root)), "markdown": _rel(root, presence_dir(root) / "assigned-task.md")},
     }
@@ -113,21 +142,27 @@ def write_assigned_task(root: Path, assignment: dict[str, Any]) -> None:
     md_path = presence_dir(root) / "assigned-task.md"
     _write_json(json_path, assignment)
     task = assignment.get("task", {}) if isinstance(assignment.get("task"), dict) else {}
+    stage = assignment.get("stage", {}) if isinstance(assignment.get("stage"), dict) else {}
     md_path.write_text(
         "\n".join([
             "# Noesis Suite — Assigned Task",
             "",
             f"generated_utc: {assignment.get('generated_utc')}",
             f"cycle: {assignment.get('cycle')}",
+            f"status: {assignment.get('status')}",
             f"execution_policy: {assignment.get('execution_policy')}",
+            f"stage: {stage.get('stage', '')}",
             "",
             f"- id: `{task.get('id', '')}`",
             f"- label: {task.get('label', '')}",
             f"- reason: {assignment.get('reason', '')}",
             "",
             "This is assignment only. The loop must not execute write/destructive work without explicit approval.",
+            "",
         ]),
         encoding="utf-8",
+    )
+
 
 def update_assistant_presence(
     root: Path,
@@ -173,3 +208,7 @@ def update_assistant_presence(
         "",
         f"operator_response: `{response.get('kind')}` — {response.get('summary')}",
         f"assigned_task: `{task.get('id', '')}` {task.get('label', '')}",
+        "",
+    ]
+    (state_dir / "assistant-presence.md").write_text("\n".join(lines), encoding="utf-8")
+    return payload

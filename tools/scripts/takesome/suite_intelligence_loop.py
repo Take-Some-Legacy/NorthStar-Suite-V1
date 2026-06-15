@@ -8,6 +8,12 @@ from pathlib import Path
 from typing import Any
 
 from .paths import rel
+from .assistant_memory import load_assistant_memory, write_memory_snapshot
+from .assistant_presence import build_assigned_task, update_assistant_presence, write_assigned_task
+from .stage_detector import detect_workloop_stage
+from .task_classifier import classify_task_candidates
+from .task_scanner import scan_task_context, write_task_scan
+from .workloop_policy import decide_next_assignment
 from .suite.registry import build_suite_registry
 from .suite_intelligence import (
     ask_openai_for_task_plan,
@@ -26,7 +32,7 @@ from .suite_intelligence import (
     torch_status_to_json,
 )
 
-DEFAULT_GOAL = "Keep NorthStar Suite healthy: detect bugs, errors, stale tools, and next useful improvements."
+DEFAULT_GOAL = "Keep Noesis Suite healthy: detect bugs, errors, stale tools, and next useful improvements."
 DEFAULT_LOCAL_MODEL_ROOT = Path(r"D:\LLM\DeepSeek-R1-Distill-Qwen-7B-PyTorch")
 
 
@@ -62,10 +68,9 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
     request_path = state_dir / "operator-request.md"
     response_path = state_dir / "operator-response.md"
     pilot_status_path = state_dir / "pilot-status.md"
-    pilot_status_path = state_dir / "pilot-status.md"
 
     if not json_mode:
-        print("[INFO] NorthStar Suite Intelligence loop started.")
+        print("[INFO] Noesis Suite Intelligence loop started.")
         print(f"[INFO] State: {rel(root, state_path)}")
         print(f"[INFO] Events: {rel(root, events_path)}")
         print(f"[INFO] Inbox: {rel(root, inbox_path)}")
@@ -78,6 +83,13 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
     cycle_index = 0
     while True:
         cycle_index += 1
+        update_assistant_presence(
+            root,
+            state="thinking",
+            phase="cycle_start",
+            cycle={"cycle": cycle_index},
+            message="Starting Noesis Suite intelligence cycle and checking current work status.",
+        )
         openai_allowed = (not no_openai) and (cycle_index == 1 or cycle_index % openai_every == 0)
         cycle = run_intelligence_cycle(
             root=root,
@@ -88,13 +100,82 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
             openai_allowed=openai_allowed,
             local_model_root=local_model_root,
         )
+        update_assistant_presence(
+            root,
+            state="working",
+            phase="cycle_scanned",
+            cycle=cycle,
+            message="Cycle scan and recommendation ranking completed; preparing operator request and workloop decision.",
+        )
         write_operator_request(root, request_path, cycle)
+        update_assistant_presence(
+            root,
+            state="waiting",
+            phase="operator_wait",
+            cycle=cycle,
+            message="Waiting for operator response or deciding whether to assign a safe next task.",
+        )
         if wait_for_operator:
             cycle["operator_response"] = wait_for_operator_response(response_path, timeout_sec=operator_timeout_sec)
         else:
             cycle["operator_response"] = read_operator_response(response_path)
 
-        write_pilot_status(root, pilot_status_path, cycle)
+        memory = load_assistant_memory(root)
+        task_scan = write_task_scan(root, scan_task_context(root, cycle=cycle))
+        stage = detect_workloop_stage(
+            cycle=cycle,
+            memory=memory,
+            task_scan=task_scan,
+            operator_response=cycle["operator_response"],
+        )
+        classified = classify_task_candidates(
+            cycle.get("recommendations", []),
+            stage=stage,
+            memory=memory,
+            task_scan=task_scan,
+        )
+        decision = decide_next_assignment(
+            root=root,
+            cycle=cycle,
+            memory=memory,
+            task_scan=task_scan,
+            stage=stage,
+            classified=classified,
+            operator_response=cycle["operator_response"],
+        )
+        assignment = None
+        if decision.get("assign"):
+            assignment = build_assigned_task(
+                root,
+                cycle,
+                reason="; ".join(str(reason) for reason in decision.get("reasons", []) if reason),
+                operator_response=cycle["operator_response"],
+                selected_candidate=decision.get("selected_candidate") if isinstance(decision.get("selected_candidate"), dict) else None,
+                execution_policy=str(decision.get("execution_policy") or "assignment_only_no_auto_execute"),
+                status=str(decision.get("status") or "assigned"),
+                stage=stage,
+                decision=decision,
+            )
+            write_assigned_task(root, assignment)
+
+        cycle["task_scan"] = task_scan
+        cycle["stage"] = stage
+        cycle["task_candidates"] = classified
+        cycle["workloop_decision"] = decision
+        cycle["assigned_task"] = assignment
+        cycle["assistant_memory"] = write_memory_snapshot(root, memory, cycle=cycle)
+        presence_state = "blocked" if stage.get("blocked") else ("assigned" if assignment else str(stage.get("state") or "working"))
+        cycle["assistant_presence"] = update_assistant_presence(
+            root,
+            state=presence_state,
+            phase="workloop_decision",
+            cycle=cycle,
+            operator_response=cycle["operator_response"],
+            assignment=assignment,
+            message="Noesis workloop memory, scan, stage detection and assignment policy completed.",
+            extra={"decision": decision, "stage": stage},
+        )
+
         write_pilot_status(root, pilot_status_path, cycle)
         state_path.write_text(json.dumps(cycle, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         with events_path.open("a", encoding="utf-8") as stream:
@@ -164,7 +245,7 @@ def run_intelligence_cycle(*, root: Path, cycle_index: int, goal: str, top: int,
 
     request = build_operator_request(cycle_index=cycle_index, self_checks=self_checks, openai_status=openai_status, selected=[candidate_to_json(candidate) for candidate in selected])
     return {
-        "schema": "northstar.suite_intelligence.loop_cycle.v2",
+        "schema": "noesis.suite_intelligence.loop_cycle.v3",
         "cycle": cycle_index,
         "started_utc": started,
         "goal": goal,
@@ -231,7 +312,7 @@ def write_pilot_status(root: Path, status_path: Path, cycle: dict[str, Any]) -> 
     pilot = cycle.get("pilot", {}) if isinstance(cycle.get("pilot"), dict) else {}
     torch_info = pilot.get("torch", {}) if isinstance(pilot.get("torch"), dict) else {}
     lines = [
-        "# NorthStar Suite Intelligence — Pilot Status",
+        "# Noesis Suite Intelligence — Pilot Status",
         "",
         f"cycle: {cycle.get('cycle')}",
         f"started_utc: {cycle.get('started_utc')}",
@@ -255,6 +336,11 @@ def write_pilot_status(root: Path, status_path: Path, cycle: dict[str, Any]) -> 
         f"- score: {top.get('score') or ''}",
         f"- label: {top.get('label') or ''}",
         "",
+        "## Noesis Workloop",
+        f"- stage: {(cycle.get('stage') or {}).get('stage') if isinstance(cycle.get('stage'), dict) else ''}",
+        f"- decision: {(cycle.get('workloop_decision') or {}).get('status') if isinstance(cycle.get('workloop_decision'), dict) else ''}",
+        f"- assigned_task: {((cycle.get('assigned_task') or {}).get('task') or {}).get('id') if isinstance(cycle.get('assigned_task'), dict) else ''}",
+        "",
         "## Supporting facts",
     ]
     for reason in top.get("reasons", []) if isinstance(top.get("reasons"), list) else []:
@@ -271,7 +357,7 @@ def write_pilot_status(root: Path, status_path: Path, cycle: dict[str, Any]) -> 
 def write_operator_request(root: Path, request_path: Path, cycle: dict[str, Any]) -> None:
     request = str(cycle.get("operator_request") or "").strip()
     header = [
-        "# NorthStar Suite Intelligence — Operator Request",
+        "# Noesis Suite Intelligence — Operator Request",
         "",
         f"cycle: {cycle.get('cycle')}",
         f"started_utc: {cycle.get('started_utc')}",
@@ -325,8 +411,10 @@ def render_cycle_line(cycle: dict[str, Any]) -> str:
     openai_state = "ok" if openai.get("ok") else ("attempted_failed" if openai.get("attempted") else "skipped")
     response = cycle.get("operator_response", {}) if isinstance(cycle.get("operator_response"), dict) else {}
     response_state = "available" if response.get("available") else "none"
+    stage = cycle.get("stage", {}) if isinstance(cycle.get("stage"), dict) else {}
+    decision = cycle.get("workloop_decision", {}) if isinstance(cycle.get("workloop_decision"), dict) else {}
     tag = "OK" if not failed else "WARN"
-    return f"[{tag}] intelligence cycle={cycle.get('cycle')} checks_failed={len(failed)} openai={openai_state} operator_response={response_state} next={top_action}"
+    return f"[{tag}] intelligence cycle={cycle.get('cycle')} stage={stage.get('stage', 'unknown')} decision={decision.get('status', 'none')} checks_failed={len(failed)} openai={openai_state} operator_response={response_state} next={top_action}"
 
 
 def count_local_model_files(root: Path) -> int:
