@@ -14,6 +14,7 @@ from .stage_detector import detect_workloop_stage
 from .task_classifier import classify_task_candidates
 from .task_scanner import scan_task_context, write_task_scan
 from .workloop_policy import decide_next_assignment
+from .workloop_trace import append_workloop_trace, finalize_workloop_decision
 from .suite.registry import build_suite_registry
 from .suite_intelligence import (
     ask_openai_for_task_plan,
@@ -68,6 +69,8 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
     request_path = state_dir / "operator-request.md"
     response_path = state_dir / "operator-response.md"
     pilot_status_path = state_dir / "pilot-status.md"
+    trace_path = state_dir / "workloop-trace.jsonl"
+    trace_summary_path = state_dir / "workloop-trace.md"
 
     if not json_mode:
         print("[INFO] Noesis Suite Intelligence loop started.")
@@ -77,6 +80,8 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
         print(f"[INFO] Operator request: {rel(root, request_path)}")
         print(f"[INFO] Operator response: {rel(root, response_path)}")
         print(f"[INFO] Pilot status: {rel(root, pilot_status_path)}")
+        print(f"[INFO] Workloop trace: {rel(root, trace_path)}")
+        print(f"[INFO] Workloop trace summary: {rel(root, trace_summary_path)}")
         print(f"[INFO] Local model root: {local_model_root}")
         print(f"[INFO] cycles={'infinite' if cycles == 0 else cycles}, interval_sec={interval_sec}, openai_every={openai_every}")
 
@@ -108,6 +113,7 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
             message="Cycle scan and recommendation ranking completed; preparing operator request and workloop decision.",
         )
         write_operator_request(root, request_path, cycle)
+        append_workloop_trace(root, state_dir, cycle=cycle, phase="operator_request_written", message="Operator request file was written for this cycle.", extra={"path": rel(root, request_path)})
         update_assistant_presence(
             root,
             state="waiting",
@@ -119,21 +125,26 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
             cycle["operator_response"] = wait_for_operator_response(response_path, timeout_sec=operator_timeout_sec)
         else:
             cycle["operator_response"] = read_operator_response(response_path)
+        append_workloop_trace(root, state_dir, cycle=cycle, phase="operator_response_read", message="Operator response was read and will be interpreted by markdown rules.", operator_response=cycle["operator_response"], extra={"path": rel(root, response_path)})
 
         memory = load_assistant_memory(root)
+        append_workloop_trace(root, state_dir, cycle=cycle, phase="memory_loaded", message="Assistant memory loaded before task scan and stage detection.", operator_response=cycle["operator_response"], extra={"has_summary": isinstance(memory.get("summary"), dict) if isinstance(memory, dict) else False})
         task_scan = write_task_scan(root, scan_task_context(root, cycle=cycle))
+        append_workloop_trace(root, state_dir, cycle=cycle, phase="task_scan_written", message="Task scan was written; stage detection can use repo/log/operator signals.", operator_response=cycle["operator_response"], extra={"path": rel(root, state_dir / "task-scan.json")})
         stage = detect_workloop_stage(
             cycle=cycle,
             memory=memory,
             task_scan=task_scan,
             operator_response=cycle["operator_response"],
         )
+        append_workloop_trace(root, state_dir, cycle=cycle, phase="stage_detected", message="Workloop stage was detected from markdown-rule-aware operator response and scan signals.", stage=stage, operator_response=cycle["operator_response"])
         classified = classify_task_candidates(
             cycle.get("recommendations", []),
             stage=stage,
             memory=memory,
             task_scan=task_scan,
         )
+        append_workloop_trace(root, state_dir, cycle=cycle, phase="candidates_classified", message="Task candidates were classified before final assignment policy.", stage=stage, operator_response=cycle["operator_response"], extra={"candidate_count": len(classified.get("candidates", [])) if isinstance(classified.get("candidates"), list) else 0})
         decision = decide_next_assignment(
             root=root,
             cycle=cycle,
@@ -143,6 +154,7 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
             classified=classified,
             operator_response=cycle["operator_response"],
         )
+        append_workloop_trace(root, state_dir, cycle=cycle, phase="decision_initial", message="Initial workloop decision was created; final persistence will happen after assignment materialization.", stage=stage, decision=decision, operator_response=cycle["operator_response"])
         assignment = None
         if decision.get("assign"):
             assignment = build_assigned_task(
@@ -157,6 +169,17 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
                 decision=decision,
             )
             write_assigned_task(root, assignment)
+            append_workloop_trace(root, state_dir, cycle=cycle, phase="assignment_written", message="Assigned task JSON and Markdown were written from the final selected candidate.", stage=stage, decision=decision, assignment=assignment, operator_response=cycle["operator_response"])
+
+        decision = finalize_workloop_decision(
+            state_dir,
+            decision,
+            stage=stage,
+            assignment=assignment,
+            recommendations=cycle.get("recommendations", []) if isinstance(cycle.get("recommendations"), list) else [],
+            cycle=cycle,
+        )
+        append_workloop_trace(root, state_dir, cycle=cycle, phase="decision_finalized", message="Final MD-rule-aware decision was persisted as the single source for console/status/runtime files.", stage=stage, decision=decision, assignment=assignment, operator_response=cycle["operator_response"])
 
         cycle["task_scan"] = task_scan
         cycle["stage"] = stage
@@ -175,11 +198,13 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
             message="Noesis workloop memory, scan, stage detection and assignment policy completed.",
             extra={"decision": decision, "stage": stage},
         )
+        append_workloop_trace(root, state_dir, cycle=cycle, phase="presence_updated", message="Assistant presence was updated with the same final decision and assignment.", stage=stage, decision=decision, assignment=assignment, operator_response=cycle["operator_response"])
 
         write_pilot_status(root, pilot_status_path, cycle)
         state_path.write_text(json.dumps(cycle, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         with events_path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(cycle, ensure_ascii=False) + "\n")
+        append_workloop_trace(root, state_dir, cycle=cycle, phase="cycle_persisted", message="Full cycle state and event payload were persisted.", stage=stage, decision=decision, assignment=assignment, operator_response=cycle["operator_response"], extra={"state": rel(root, state_path), "events": rel(root, events_path)})
 
         if json_mode:
             print(json.dumps(cycle, ensure_ascii=False, indent=2))
