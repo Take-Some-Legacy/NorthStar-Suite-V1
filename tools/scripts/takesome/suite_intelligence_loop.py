@@ -427,17 +427,37 @@ def count_local_model_files(root: Path) -> int:
         return 0
 
 
-def loop_args_from_env(*, cycles: int | None = None) -> argparse.Namespace:
+def loop_args_from_env(*, cycles: int | None = None, parsed_args: argparse.Namespace | None = None) -> argparse.Namespace:
+    parsed_args = parsed_args or argparse.Namespace()
+
+    def env_bool(name: str) -> bool:
+        return os.environ.get(name, "").lower() in {"1", "true", "yes"}
+
+    def choose(name: str, env_name: str, default: object) -> object:
+        value = getattr(parsed_args, name, None)
+        if value not in (None, ""):
+            return value
+        raw = os.environ.get(env_name)
+        return raw if raw not in (None, "") else default
+
+    explicit_cycles = getattr(parsed_args, "cycles", None)
+    if bool(getattr(parsed_args, "once", False)):
+        explicit_cycles = 1
+
     return argparse.Namespace(
-        goal=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_GOAL", ""),
-        interval_sec=int(os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_INTERVAL_SEC", "30") or "30"),
-        cycles=cycles if cycles is not None else int(os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_CYCLES", "0") or "0"),
-        top=int(os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_TOP", "8") or "8"),
-        openai_every=int(os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_OPENAI_EVERY", "3") or "3"),
-        no_openai=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI", "").lower() in {"1", "true", "yes"},
-        wait_for_operator=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_WAIT_FOR_OPERATOR", "").lower() in {"1", "true", "yes"},
-        operator_timeout_sec=int(os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_OPERATOR_TIMEOUT_SEC", "0") or "0"),
-        openai_model=os.environ.get("NORTHSTAR_SUITE_OPENAI_MODEL", ""),
-        local_model_root=os.environ.get("NORTHSTAR_LOCAL_MODEL_ROOT", str(DEFAULT_LOCAL_MODEL_ROOT)),
-        json=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_JSON", "").lower() in {"1", "true", "yes"},
+        goal=str(choose("goal", "NORTHSTAR_SUITE_INTELLIGENCE_GOAL", "") or ""),
+        interval_sec=int(choose("interval_sec", "NORTHSTAR_SUITE_INTELLIGENCE_INTERVAL_SEC", "30") or "30"),
+        cycles=(
+            cycles
+            if cycles is not None
+            else int(explicit_cycles if explicit_cycles is not None else os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_CYCLES", "0") or "0")
+        ),
+        top=int(choose("top", "NORTHSTAR_SUITE_INTELLIGENCE_TOP", "8") or "8"),
+        openai_every=int(choose("openai_every", "NORTHSTAR_SUITE_INTELLIGENCE_OPENAI_EVERY", "3") or "3"),
+        no_openai=bool(getattr(parsed_args, "no_openai", False)) or env_bool("NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI"),
+        wait_for_operator=bool(getattr(parsed_args, "wait_for_operator", False)) or env_bool("NORTHSTAR_SUITE_INTELLIGENCE_WAIT_FOR_OPERATOR"),
+        operator_timeout_sec=int(choose("operator_timeout_sec", "NORTHSTAR_SUITE_INTELLIGENCE_OPERATOR_TIMEOUT_SEC", "0") or "0"),
+        openai_model=str(choose("openai_model", "NORTHSTAR_SUITE_OPENAI_MODEL", "") or ""),
+        local_model_root=str(choose("local_model_root", "NORTHSTAR_LOCAL_MODEL_ROOT", str(DEFAULT_LOCAL_MODEL_ROOT)) or str(DEFAULT_LOCAL_MODEL_ROOT)),
+        json=bool(getattr(parsed_args, "json", False)) or env_bool("NORTHSTAR_SUITE_INTELLIGENCE_JSON"),
     )

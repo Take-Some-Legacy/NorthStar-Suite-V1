@@ -20,7 +20,7 @@ class _LogLike(Protocol):
     def emit(self, message: str) -> None: ...
 
 
-def try_handle_registry_command(argv: Sequence[str], repo_root: Path, log: _LogLike | None = None) -> int | None:
+def try_handle_registry_command(argv: Sequence[str], repo_root: Path, log: _LogLike | None = None, parsed_args: SimpleNamespace | None = None) -> int | None:
     """Small integration hook for the existing `takesome.py` CLI.
 
     Current CLI code can call this before the legacy command switch.  Returning
@@ -55,9 +55,11 @@ def try_handle_registry_command(argv: Sequence[str], repo_root: Path, log: _LogL
         )
         return suite_intelligence_command(repo_root, args)
     if command == "suite-intelligence-loop":
-        return suite_intelligence_loop_command(repo_root, loop_args_from_env())
+        return suite_intelligence_loop_command(repo_root, loop_args_from_env(parsed_args=parsed_args))
     if command == "suite-intelligence-loop-check":
-        return suite_intelligence_loop_command(repo_root, loop_args_from_env(cycles=1))
+        base = parsed_args or SimpleNamespace()
+        setattr(base, "cycles", 1)
+        return suite_intelligence_loop_command(repo_root, loop_args_from_env(cycles=1, parsed_args=base))
     if command == "suite-intelligence-smoke-deepseek":
         return run_deepseek_smoke(repo_root, SimpleNamespace())
     if command == "tools-list":

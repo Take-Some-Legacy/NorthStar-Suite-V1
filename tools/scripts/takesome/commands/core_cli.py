@@ -95,7 +95,28 @@ def register_core_parsers(sub: argparse._SubParsersAction[argparse.ArgumentParse
     p.add_argument("--apply", action="store_true", help="Delete only whitelisted temporary plugin artifacts: _split_stage/ and split_staging.rs.")
 
     for command_id in REGISTRY_COMMAND_IDS:
-        sub.add_parser(command_id, help=f"Registry-driven command: {command_id}.")
+        if command_id == "suite-intelligence-loop":
+            p = sub.add_parser(command_id, help="Run the Noesis memory-driven intelligence work loop.")
+            p.add_argument("--cycles", type=int, default=None, help="Number of loop cycles to run. 0 means infinite. Defaults to env/config.")
+            p.add_argument("--once", action="store_true", help="Alias for --cycles 1.")
+            p.add_argument("--interval", "--interval-sec", dest="interval_sec", type=int, default=None, help="Seconds between cycles.")
+            p.add_argument("--top", type=int, default=None, help="Number of candidate tasks to keep.")
+            p.add_argument("--goal", default="", help="Operator goal for this loop run.")
+            p.add_argument("--local-model-root", default="", help="Local model root override for offline planning.")
+            p.add_argument("--openai-every", type=int, default=None, help="Call cloud planner every N cycles when enabled.")
+            p.add_argument("--openai-model", default="", help="Cloud planner model override.")
+            p.add_argument("--no-openai", action="store_true", help="Disable cloud planner calls for this run.")
+            p.add_argument("--json", action="store_true", help="Print each cycle as JSON.")
+            p.add_argument("--wait-for-operator", action="store_true", help="Wait for operator-response.md before policy assignment.")
+            p.add_argument("--operator-timeout", "--operator-timeout-sec", dest="operator_timeout_sec", type=int, default=None, help="Seconds to wait for operator response. 0 means wait forever when --wait-for-operator is set.")
+        elif command_id == "suite-intelligence-loop-check":
+            p = sub.add_parser(command_id, help="Run one Noesis intelligence loop check cycle.")
+            p.add_argument("--no-openai", action="store_true", help="Disable cloud planner calls for this check.")
+            p.add_argument("--json", action="store_true", help="Print the check cycle as JSON.")
+            p.add_argument("--wait-for-operator", action="store_true", help="Wait for operator-response.md before policy assignment.")
+            p.add_argument("--operator-timeout", "--operator-timeout-sec", dest="operator_timeout_sec", type=int, default=None, help="Seconds to wait for operator response.")
+        else:
+            sub.add_parser(command_id, help=f"Registry-driven command: {command_id}.")
 
     p = sub.add_parser("run-game")
     p.add_argument("--sync-plugins", action="store_true", help="Run plugin sync even when status is clean.")
@@ -189,7 +210,7 @@ def dispatch_core_command(command: str, root: Path, ns: argparse.Namespace) -> i
     if command == "plugin-cleanup":
         return plugin_cleanup_command(root, ns)
 
-    registry_result = try_handle_registry_command([command], root)
+    registry_result = try_handle_registry_command([command], root, parsed_args=ns)
     if registry_result is not None:
         return registry_result
 
