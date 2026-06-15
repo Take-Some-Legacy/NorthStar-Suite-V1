@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
+from .config_loader import first_existing_config_path
 from .mcp_routes import DEFAULT_MCP_ROUTES, McpRouteProfile
 
 BRIDGE_VERSION = "dev mode"
@@ -23,26 +24,37 @@ MAX_EXEC_STDERR_BYTES = 12 * 1024
 MAX_READ_BYTES_DEFAULT = 128 * 1024
 MAX_SEARCH_FILE_BYTES = 512 * 1024
 OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
-SUITE_ROOT_ENVS = ("NORTHSTAR_SUITE_ROOT", "NEWENGINE_SUITE_ROOT", "TAKESOME_SUITE_ROOT")
-DEFAULT_EXTERNAL_SUITE_ROOT = Path(r"D:\\TakeSomeData")
+SUITE_ROOT_ENVS = (
+    "NOESIS_SUITE_RUNTIME_ROOT",
+    "NOESIS_SUITE_ROOT",
+    "NORTHSTAR_SUITE_RUNTIME_ROOT",
+    "NORTHSTAR_SUITE_ROOT",
+    "NEWENGINE_SUITE_ROOT",
+    "TAKESOME_SUITE_ROOT",
+)
 OPENAI_KEY_CACHE_REL = Path("secrets") / "openai_api_key.local"
 
 
-def _valid_external_suite_root(path: Path) -> bool:
-    try:
-        return path.exists() and path.is_dir() and (path / "dataSet").exists()
-    except OSError:
-        return False
+def _default_machine_runtime_root() -> Path:
+    if os.name == "nt":
+        base = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
+        if base:
+            return Path(base) / "NoesisSuite"
+    return Path.home() / ".local" / "state" / "noesis-suite"
 
 
 def bridge_suite_root(project_root: Path) -> Path:
+    """Return machine-local Suite runtime root, not workspace-local state.
+
+    One Suite runs on one machine.  Runtime state, OAuth tokens, access tokens,
+    logs and endpoint reports belong to the machine-local Suite runtime, while
+    project files remain under the workspace root.
+    """
     for name in SUITE_ROOT_ENVS:
         env = os.environ.get(name)
         if env:
             return Path(env).expanduser().resolve()
-    if _valid_external_suite_root(DEFAULT_EXTERNAL_SUITE_ROOT):
-        return DEFAULT_EXTERNAL_SUITE_ROOT.resolve()
-    return project_root.resolve() / ".takesome"
+    return _default_machine_runtime_root().resolve()
 
 SAFE_TEXT_EXTENSIONS = {
     ".bat", ".cmd", ".cfg", ".conf", ".css", ".csv", ".frag", ".glsl",
@@ -66,6 +78,7 @@ SAFE_ROOTS = (
 DENY_PARTS = {
     ".git",
     ".takesome/secrets",
+    ".takesome/authority",
     ".takesome/ai-bridge/patch-backups",
 }
 
@@ -92,6 +105,7 @@ class BridgeContext:
     sudo: bool = False
     mcp_routes: McpRouteProfile = DEFAULT_MCP_ROUTES
     tool_root: Optional[Path] = None
+    host_binding: Any = None
 
     @property
     def operator_root(self) -> Path:
@@ -103,8 +117,8 @@ class BridgeContext:
 
     @property
     def bridge_config(self) -> Path:
-        candidate = self.root / "config" / "suite" / "ai_bridge.v1.json"
-        return candidate if candidate.exists() else self.operator_root / "config" / "suite" / "ai_bridge.v1.json"
+        found = first_existing_config_path(self.root, "ai_bridge.v1.json", operator_root=self.operator_root)
+        return found or (self.operator_root / ".takesome" / "config" / "ai_bridge.v1.json")
 
     @property
     def suite_root(self) -> Path:

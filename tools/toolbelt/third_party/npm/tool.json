@@ -1,0 +1,172 @@
+{
+    "id":  "vendor.npm",
+    "safe_to_auto_run":  false,
+    "name":  "npm CLI",
+    "package_root":  "tools/toolbelt/third_party/npm",
+    "executable":  "bin/npm-proxy.cmd",
+    "version":  "system",
+    "source_type":  "third_party",
+    "workspace_policy":  "active_workspace_for_package_commands",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/npm",
+    "owner":  "OpenJS Foundation / npm CLI maintainers",
+    "schema":  "takesome.tool.v2",
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print npm version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "run",
+                         "id":  "list-scripts",
+                         "description":  "List package.json scripts.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "install",
+                         "id":  "install",
+                         "description":  "Install npm dependencies in the active workspace.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  false,
+                         "idempotentHint":  false
+                     },
+                     {
+                         "args":  "ci",
+                         "id":  "ci",
+                         "description":  "Install dependencies from package-lock.json using npm ci.",
+                         "destructiveHint":  true,
+                         "readOnlyHint":  false,
+                         "idempotentHint":  false
+                     },
+                     {
+                         "args":  [
+                                      "run",
+                                      "build"
+                                  ],
+                         "id":  "build",
+                         "description":  "Run npm build script.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  false,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  [
+                                      "run",
+                                      "typecheck",
+                                      "--if-present"
+                                  ],
+                         "id":  "typecheck",
+                         "description":  "Run npm typecheck script if present.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  [
+                                      "run",
+                                      "lint",
+                                      "--if-present"
+                                  ],
+                         "id":  "lint",
+                         "description":  "Run npm lint script if present.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  [
+                                      "run",
+                                      "test",
+                                      "--if-present"
+                                  ],
+                         "id":  "test",
+                         "description":  "Run npm test script if present.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  [
+                                      "run",
+                                      "dev",
+                                      "--if-present"
+                                  ],
+                         "id":  "dev",
+                         "description":  "Run npm dev script if present. Long-running.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  false,
+                         "idempotentHint":  false
+                     },
+                     {
+                         "args":  [
+                                      "run",
+                                      "preview",
+                                      "--if-present"
+                                  ],
+                         "id":  "preview",
+                         "description":  "Run npm preview script if present. Long-running.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  false,
+                         "idempotentHint":  false
+                     },
+                     {
+                         "args":  "audit",
+                         "id":  "audit",
+                         "description":  "Run npm audit.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "outdated",
+                         "id":  "outdated",
+                         "description":  "Run npm outdated.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "capabilities":  [
+                         "npm.version",
+                         "npm.scripts.list",
+                         "npm.dependencies.install",
+                         "npm.dependencies.ci",
+                         "npm.build",
+                         "npm.typecheck",
+                         "npm.lint",
+                         "npm.test",
+                         "npm.dev",
+                         "npm.preview",
+                         "npm.audit",
+                         "npm.outdated"
+                     ],
+    "kind":  "external-cli",
+    "validation":  {
+                       "args":  "--version",
+                       "mode":  "presence_version"
+                   },
+    "description":  "DevSuite npm CLI adapter for dependency installation, script discovery, builds, typechecks, tests and workspace development commands.",
+    "maturity":  "system-adapter-local",
+    "error_policy":  {
+                         "propagate_exit_code":  true,
+                         "guard_output_patterns":  [
+                                                       "npm error",
+                                                       "npm ERR!",
+                                                       "ENOENT",
+                                                       "Could not read package.json",
+                                                       "Missing script:",
+                                                       "error TS\\\\d+",
+                                                       "Failed to compile",
+                                                       "SyntaxError",
+                                                       "TypeError",
+                                                       "Cannot find module",
+                                                       "RollupError"
+                                                   ]
+                     }
+}

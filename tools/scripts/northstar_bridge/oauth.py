@@ -12,8 +12,9 @@ from pathlib import Path
 from typing import Any
 
 from . import oauth_scopes
+from .contracts import bridge_suite_root
 
-AUTH_ROOT = Path(".takesome/authority/oauth")
+AUTH_ROOT = Path("authority/oauth")
 CODE_TTL_SEC = 300
 TOKEN_TTL_SEC = 12 * 60 * 60
 
@@ -23,7 +24,7 @@ def _now() -> int:
 
 
 def _json_path(root: Path, *parts: str) -> Path:
-    return root / AUTH_ROOT.joinpath(*parts)
+    return bridge_suite_root(root) / AUTH_ROOT.joinpath(*parts)
 
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:

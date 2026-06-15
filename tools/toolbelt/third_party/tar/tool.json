@@ -1,153 +1,134 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.tar",
-  "version": "1.35-msys2-usr",
-  "name": "GNU tar",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/tar",
-  "root": "tools/toolbelt/third_party/tar",
-  "executable": "bin/tar.exe",
-  "expected_sha256": "df0582941d1f451a76337863ba1dc8d8986ad0faf44f0e5f5c34afeb43c36453",
-  "expected_size_bytes": 511486,
-  "description": "MSYS2 usr GNU tar executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU tar version.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU tar help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "GNU tar) 1.35"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
-  "suite_commands": [
-    {
-      "id": "tar-list",
-      "title": "List tar archive",
-      "description": "List archive entries through GNU tar.",
-      "tool_args": [
-        "-tf"
-      ],
-      "args": [
-        {
-          "name": "archive",
-          "flags": [
-            "--archive"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Archive path.",
-          "tool_flag": ""
-        }
-      ],
-      "positional_args": [
-        "archive"
-      ],
-      "riskTier": "read_only"
-    },
-    {
-      "id": "tar-extract",
-      "title": "Extract tar archive",
-      "description": "Extract archive through GNU tar into an output directory.",
-      "tool_args": [
-        "-xf"
-      ],
-      "args": [
-        {
-          "name": "archive",
-          "flags": [
-            "--archive"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Archive path.",
-          "tool_flag": ""
-        },
-        {
-          "name": "output",
-          "flags": [
-            "--output"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Output directory.",
-          "tool_flag": "-C"
-        }
-      ],
-      "positional_args": [
-        "archive"
-      ],
-      "riskTier": "write"
-    },
-    {
-      "id": "tar-create",
-      "title": "Create tar archive",
-      "description": "Create archive through GNU tar from explicit inputs.",
-      "tool_args": [
-        "-cf"
-      ],
-      "args": [
-        {
-          "name": "archive",
-          "flags": [
-            "--archive"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Output archive path.",
-          "tool_flag": ""
-        },
-        {
-          "name": "inputs",
-          "flags": [
-            "inputs"
-          ],
-          "kind": "path_list",
-          "positional": true,
-          "nargs": "+",
-          "required": true,
-          "help": "Files/directories to include.",
-          "tool_flag": ""
-        }
-      ],
-      "positional_args": [
-        "archive",
-        "inputs"
-      ],
-      "riskTier": "write"
-    }
-  ]
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU tar version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU tar help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.tar",
+    "safe_to_auto_run":  false,
+    "name":  "GNU tar",
+    "package_root":  "tools/toolbelt/third_party/tar",
+    "executable":  "bin/tar.cmd",
+    "version":  "1.35-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "482c5c9036d7bed22ad4859a833d18d44c032b101614c76b8851aeb4d5a57f3a",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/tar",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "expected_size_bytes":  1662,
+    "description":  "MSYS2 usr GNU tar executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "GNU tar) 1.35",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "suite_commands":  [
+                           {
+                               "args":  {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--archive",
+                                            "name":  "archive",
+                                            "help":  "Archive path.",
+                                            "required":  true
+                                        },
+                               "riskTier":  "read_only",
+                               "id":  "tar-list",
+                               "positional_args":  "archive",
+                               "tool_args":  "-tf",
+                               "description":  "List archive entries through GNU tar.",
+                               "title":  "List tar archive"
+                           },
+                           {
+                               "args":  [
+                                            {
+                                                "kind":  "path",
+                                                "tool_flag":  "",
+                                                "flags":  "--archive",
+                                                "name":  "archive",
+                                                "help":  "Archive path.",
+                                                "required":  true
+                                            },
+                                            {
+                                                "kind":  "path",
+                                                "tool_flag":  "-C",
+                                                "flags":  "--output",
+                                                "name":  "output",
+                                                "help":  "Output directory.",
+                                                "required":  true
+                                            }
+                                        ],
+                               "riskTier":  "write",
+                               "id":  "tar-extract",
+                               "positional_args":  "archive",
+                               "tool_args":  "-xf",
+                               "description":  "Extract archive through GNU tar into an output directory.",
+                               "title":  "Extract tar archive"
+                           },
+                           {
+                               "args":  [
+                                            {
+                                                "kind":  "path",
+                                                "tool_flag":  "",
+                                                "flags":  "--archive",
+                                                "name":  "archive",
+                                                "help":  "Output archive path.",
+                                                "required":  true
+                                            },
+                                            {
+                                                "kind":  "path_list",
+                                                "tool_flag":  "",
+                                                "nargs":  "+",
+                                                "flags":  "inputs",
+                                                "positional":  true,
+                                                "name":  "inputs",
+                                                "help":  "Files/directories to include.",
+                                                "required":  true
+                                            }
+                                        ],
+                               "riskTier":  "write",
+                               "id":  "tar-create",
+                               "positional_args":  [
+                                                       "archive",
+                                                       "inputs"
+                                                   ],
+                               "tool_args":  "-cf",
+                               "description":  "Create archive through GNU tar from explicit inputs.",
+                               "title":  "Create tar archive"
+                           }
+                       ],
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

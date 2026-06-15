@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import datetime as dt
-import json
 import re
 import shutil
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from .config_loader import read_json_object
 from .contracts import (
     BridgeContext,
     BridgeError,
@@ -86,10 +86,7 @@ def read_text_file(path: Path, max_bytes: int = MAX_READ_BYTES_DEFAULT) -> Tuple
     return data.decode("utf-8", errors="replace"), size > len(data), size
 
 def load_config(ctx: BridgeContext) -> Dict[str, Any]:
-    try:
-        return json.loads(ctx.bridge_config.read_text(encoding="utf-8")) if ctx.bridge_config.exists() else {}
-    except Exception as exc:
-        return {"_config_error": str(exc)}
+    return read_json_object(ctx.bridge_config) if ctx.bridge_config.exists() else {}
 
 def backup_file(ctx: BridgeContext, path: Path) -> Optional[Path]:
     if not path.exists() or not path.is_file():

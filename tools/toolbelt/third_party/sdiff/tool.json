@@ -1,99 +1,96 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.sdiff",
-  "version": "3.12-msys2-usr",
-  "name": "GNU sdiff",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/sdiff",
-  "root": "tools/toolbelt/third_party/sdiff",
-  "executable": "bin/sdiff.exe",
-  "expected_sha256": "1ebf31bdfe552d728c940866ffb0753a745e9699b69c79013d8766242d6714a6",
-  "expected_size_bytes": 62159,
-  "description": "MSYS2 usr GNU sdiff executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU sdiff version/help.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU sdiff help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "sdiff (GNU diffutils) 3.12"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries. sdiff also carries diff.exe as a same-bin runtime companion because GNU sdiff invokes diff by name.",
-  "runtime_files": [
-    {
-      "path": "bin/diff.exe",
-      "role": "sdiff companion executable",
-      "sha256": "d64621f766d8910a92cb3d99bd7f23c0b1c736eece0e19dccbccead93aa81854",
-      "size": 279886
-    }
-  ],
-  "suite_commands": [
-    {
-      "id": "sdiff-files",
-      "title": "Side-by-side diff files",
-      "description": "Run GNU sdiff as a safe side-by-side diff wrapper.",
-      "tool_args": [],
-      "args": [
-        {
-          "name": "left",
-          "flags": [
-            "--left"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Left file path.",
-          "tool_flag": ""
-        },
-        {
-          "name": "right",
-          "flags": [
-            "--right"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Right file path.",
-          "tool_flag": ""
-        }
-      ],
-      "positional_args": [
-        "left",
-        "right"
-      ],
-      "riskTier": "read_only"
-    }
-  ]
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU sdiff version/help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU sdiff help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.sdiff",
+    "safe_to_auto_run":  false,
+    "name":  "GNU sdiff",
+    "package_root":  "tools/toolbelt/third_party/sdiff",
+    "executable":  "bin/sdiff.cmd",
+    "version":  "3.12-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "a0a6b306a383cf885149b06241bdc81fcaf363eddb463eabd98e9abe4609468c",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/sdiff",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "expected_size_bytes":  1664,
+    "description":  "MSYS2 usr GNU sdiff executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "sdiff (GNU diffutils) 3.12",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "runtime_files":  {
+                          "path":  "bin/diff.exe",
+                          "sha256":  "d64621f766d8910a92cb3d99bd7f23c0b1c736eece0e19dccbccead93aa81854",
+                          "size":  279886,
+                          "role":  "sdiff companion executable"
+                      },
+    "suite_commands":  {
+                           "args":  [
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--left",
+                                            "name":  "left",
+                                            "help":  "Left file path.",
+                                            "required":  true
+                                        },
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--right",
+                                            "name":  "right",
+                                            "help":  "Right file path.",
+                                            "required":  true
+                                        }
+                                    ],
+                           "riskTier":  "read_only",
+                           "id":  "sdiff-files",
+                           "positional_args":  [
+                                                   "left",
+                                                   "right"
+                                               ],
+                           "tool_args":  {
+
+                                         },
+                           "description":  "Run GNU sdiff as a safe side-by-side diff wrapper.",
+                           "title":  "Side-by-side diff files"
+                       },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries. sdiff also carries diff.exe as a same-bin runtime companion because GNU sdiff invokes diff by name."
 }

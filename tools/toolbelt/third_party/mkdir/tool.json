@@ -1,56 +1,59 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.mkdir",
-  "version": "8.32-msys2-usr",
-  "name": "GNU mkdir",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/mkdir",
-  "root": "tools/toolbelt/third_party/mkdir",
-  "executable": "bin/mkdir.exe",
-  "expected_sha256": "fc9b9e49fd6496cdddfc5681208d74bd649ac934818eafdfd50a9571bdcb4861",
-  "expected_size_bytes": 71435,
-  "description": "GNU/MSYS2 mkdir executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print mkdir version.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print mkdir help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "mkdir (GNU coreutils) 8.32"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print mkdir version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print mkdir help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.mkdir",
+    "safe_to_auto_run":  false,
+    "name":  "GNU mkdir",
+    "package_root":  "tools/toolbelt/third_party/mkdir",
+    "executable":  "bin/mkdir.cmd",
+    "version":  "8.32-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "91adebf244b8f52a36cb7a7d31f382bdab1761394d6139a7588bec10a3761c1b",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/mkdir",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "expected_size_bytes":  1664,
+    "description":  "GNU/MSYS2 mkdir executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "mkdir (GNU coreutils) 8.32",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

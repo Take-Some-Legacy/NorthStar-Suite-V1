@@ -1,0 +1,22 @@
+{
+  "schema": "noesis.suite.host_binding.v1",
+  "suite_id": "noesis-suite",
+  "deployment_profile": "federated-machines",
+  "machine": {
+    "id": "suite-node-01",
+    "role": "primary"
+  },
+  "binding": {
+    "host": "127.0.0.1",
+    "port": 8797,
+    "endpoint": "/mcp-v2",
+    "health": "/health",
+    "public_origin": "",
+    "network_mode": "local"
+  },
+  "cluster": {
+    "id": "noesis-cluster",
+    "network_mode": "federated-machines",
+    "peers": []
+  }
+}

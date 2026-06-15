@@ -1,93 +1,88 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.diff",
-  "version": "3.12-msys2-usr",
-  "name": "GNU diff",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/diff",
-  "root": "tools/toolbelt/third_party/diff",
-  "executable": "bin/diff.exe",
-  "expected_sha256": "d64621f766d8910a92cb3d99bd7f23c0b1c736eece0e19dccbccead93aa81854",
-  "expected_size_bytes": 279886,
-  "description": "MSYS2 usr GNU diff executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU diff version/help.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU diff help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "diff (GNU diffutils) 3.12"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
-  "suite_commands": [
-    {
-      "id": "diff-files",
-      "title": "Diff files",
-      "description": "Run GNU diff as a safe unified diff wrapper.",
-      "tool_args": [
-        "-u"
-      ],
-      "args": [
-        {
-          "name": "left",
-          "flags": [
-            "--left"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Left/before file path.",
-          "tool_flag": ""
-        },
-        {
-          "name": "right",
-          "flags": [
-            "--right"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Right/after file path.",
-          "tool_flag": ""
-        }
-      ],
-      "positional_args": [
-        "left",
-        "right"
-      ],
-      "riskTier": "read_only"
-    }
-  ]
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU diff version/help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU diff help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.diff",
+    "safe_to_auto_run":  false,
+    "name":  "GNU diff",
+    "package_root":  "tools/toolbelt/third_party/diff",
+    "executable":  "bin/diff.cmd",
+    "version":  "3.12-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "efbced91bd20b76d2392eac8305fe62002df633a6d0b86800d09f5f19813a23d",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/diff",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "expected_size_bytes":  1663,
+    "description":  "MSYS2 usr GNU diff executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "diff (GNU diffutils) 3.12",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "suite_commands":  {
+                           "args":  [
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--left",
+                                            "name":  "left",
+                                            "help":  "Left/before file path.",
+                                            "required":  true
+                                        },
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--right",
+                                            "name":  "right",
+                                            "help":  "Right/after file path.",
+                                            "required":  true
+                                        }
+                                    ],
+                           "riskTier":  "read_only",
+                           "id":  "diff-files",
+                           "positional_args":  [
+                                                   "left",
+                                                   "right"
+                                               ],
+                           "tool_args":  "-u",
+                           "description":  "Run GNU diff as a safe unified diff wrapper.",
+                           "title":  "Diff files"
+                       },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

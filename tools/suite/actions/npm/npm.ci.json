@@ -1,0 +1,35 @@
+{
+    "output_mode":  "process_exit",
+    "progress_total":  1,
+    "action_id":  "npm.ci",
+    "progress_unit":  "step",
+    "output_schema":  null,
+    "target_domain":  "npm",
+    "outputs":  "node_modules/",
+    "label":  "Clean install npm dependencies",
+    "idempotentHint":  false,
+    "command":  "tools",
+    "cwd_policy":  "active_workspace",
+    "detail":  "Run npm ci in the active workspace through DevSuite vendor.npm.",
+    "safe_for_menu":  true,
+    "category":  "npm",
+    "readOnlyHint":  false,
+    "args":  [
+                 "run",
+                 "vendor.npm",
+                 "--",
+                 "ci"
+             ],
+    "chips":  [
+                  "npm",
+                  "workspace",
+                  "script_env"
+              ],
+    "primary_tag":  "NPM",
+    "risk_level":  "writes_workspace",
+    "profile":  "",
+    "requires_workspace":  [
+                               "package.json"
+                           ],
+    "destructiveHint":  true
+}

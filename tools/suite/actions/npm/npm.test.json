@@ -1,0 +1,47 @@
+{
+    "output_mode":  "process_exit",
+    "progress_total":  1,
+    "action_id":  "npm.test",
+    "progress_unit":  "step",
+    "output_schema":  null,
+    "target_domain":  "npm",
+    "outputs":  {
+
+                },
+    "label":  "Test npm workspace",
+    "idempotentHint":  true,
+    "command":  "tools",
+    "cwd_policy":  "active_workspace",
+    "detail":  "Run npm run test --if-present in the active workspace through DevSuite vendor.npm.",
+    "safe_for_menu":  true,
+    "category":  "npm",
+    "readOnlyHint":  true,
+    "args":  [
+                 "run",
+                 "vendor.npm",
+                 "--",
+                 "run",
+                 "test",
+                 "--if-present"
+             ],
+    "chips":  [
+                  "npm",
+                  "workspace",
+                  "script_env"
+              ],
+    "primary_tag":  "NPM",
+    "risk_level":  "safe",
+    "profile":  "",
+    "requires_workspace":  [
+                               "package.json"
+                           ],
+    "destructiveHint":  false,
+    "error_guards":  [
+                         "error TS\\\\d+",
+                         "Failed to compile",
+                         "SyntaxError",
+                         "TypeError",
+                         "Cannot find module",
+                         "RollupError"
+                     ]
+}

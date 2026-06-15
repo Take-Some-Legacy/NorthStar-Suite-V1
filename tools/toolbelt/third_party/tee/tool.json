@@ -1,56 +1,59 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.tee",
-  "version": "8.32-msys2-usr",
-  "name": "GNU tee",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/tee",
-  "root": "tools/toolbelt/third_party/tee",
-  "executable": "bin/tee.exe",
-  "expected_sha256": "5b956ac9d6bb6d457665709bbcf71326ecd66bb5111b280c124a68405ce5da46",
-  "expected_size_bytes": 38794,
-  "description": "MSYS2 usr GNU tee executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU tee version.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU tee help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "tee (GNU coreutils) 8.32"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU tee version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU tee help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.tee",
+    "safe_to_auto_run":  false,
+    "name":  "GNU tee",
+    "package_root":  "tools/toolbelt/third_party/tee",
+    "executable":  "bin/tee.cmd",
+    "version":  "8.32-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "7a5c881c6b3a1d769fb47adf6ec3da402f55b863aec2eaea19fe44db8b5fc895",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/tee",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "expected_size_bytes":  1662,
+    "description":  "MSYS2 usr GNU tee executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "tee (GNU coreutils) 8.32",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

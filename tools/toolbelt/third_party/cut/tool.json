@@ -1,56 +1,59 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.cut",
-  "version": "8.32-msys2-usr",
-  "name": "GNU cut",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/cut",
-  "root": "tools/toolbelt/third_party/cut",
-  "executable": "bin/cut.exe",
-  "expected_sha256": "63fcfb76c80d57538312a9637429d5a4b99ac83e8b00d95684609b4c045471e9",
-  "expected_size_bytes": 45102,
-  "description": "MSYS2 usr GNU cut executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU cut version.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU cut help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "cut (GNU coreutils) 8.32"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU cut version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU cut help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.cut",
+    "safe_to_auto_run":  false,
+    "name":  "GNU cut",
+    "package_root":  "tools/toolbelt/third_party/cut",
+    "executable":  "bin/cut.cmd",
+    "version":  "8.32-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "d1fa9b29cc9cfc04c8c1acc78f4c87a8ad0a6ededc9990a91426770c66a79acc",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/cut",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "expected_size_bytes":  1662,
+    "description":  "MSYS2 usr GNU cut executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "cut (GNU coreutils) 8.32",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

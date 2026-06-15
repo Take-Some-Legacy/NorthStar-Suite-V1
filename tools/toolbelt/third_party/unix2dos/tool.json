@@ -1,56 +1,59 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.gitforwindows.unix2dos",
-  "version": "7.5.2-gitforwindows-usr",
-  "name": "unix2dos",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "dos2unix/Git-for-Windows",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/unix2dos",
-  "root": "tools/toolbelt/third_party/unix2dos",
-  "executable": "bin/unix2dos.exe",
-  "expected_sha256": "e2b5ada1f7434022e8e65a668ff831b564372f5c762a07c84c0ca23fd8dc4998",
-  "expected_size_bytes": 53862,
-  "description": "dos2unix/Git-for-Windows unix2dos executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print unix2dos version.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print unix2dos help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "unix2dos"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print unix2dos version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print unix2dos help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.gitforwindows.unix2dos",
+    "safe_to_auto_run":  false,
+    "name":  "unix2dos",
+    "package_root":  "tools/toolbelt/third_party/unix2dos",
+    "executable":  "bin/unix2dos.cmd",
+    "version":  "7.5.2-gitforwindows-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "58a7efdcc51210155e6de29f51f5ab3c63f4f5477c5d1090ba03c9cacbae95d3",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/unix2dos",
+    "owner":  "dos2unix/Git-for-Windows",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "expected_size_bytes":  1667,
+    "description":  "dos2unix/Git-for-Windows unix2dos executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "unix2dos",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

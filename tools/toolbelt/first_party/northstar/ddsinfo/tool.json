@@ -27,10 +27,10 @@
     "-o",
     "publish"
   ],
-  "executable": "bin/ddsinfo.exe",
+  "executable": "bin/ddsinfo.cmd",
   "install_path": "tools/toolbelt/first_party/northstar/ddsinfo/bin/ddsinfo.exe",
-  "expected_sha256": "2db7341c7eddbe719846ef9f21956f7312e051f7fe3833c0ec271c58275be28e",
-  "expected_size_bytes": 154112,
+  "expected_sha256": "430558f2edc7ecca795dd7b31f6cc532b61a38be3e1e79f0c98460d7749858e3",
+  "expected_size_bytes": 875,
   "safe_for_build": true,
   "build_validation": true,
   "safe_to_auto_run": false,
@@ -168,5 +168,7 @@
       "role": "host-runtime-metadata"
     }
   ],
-  "layout_note": "Host exe lives in first_party package bin and accepts implementation path via --library or NORTHSTAR_DDSINFO_LIBRARY; implementation DLL lives in tools/toolbelt/libraries."
+  "layout_note": "Host exe lives in first_party package bin and accepts implementation path via --library or NORTHSTAR_DDSINFO_LIBRARY; implementation DLL lives in tools/toolbelt/libraries.",
+  "availability": "launcher_present_binary_requires_build",
+  "backend_executable": "ddsinfo.exe"
 }

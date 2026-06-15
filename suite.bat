@@ -50,7 +50,9 @@ set "NE_SUITE_EXIT=%ERRORLEVEL%"
 if not "%NE_SUITE_EXIT%"=="0" (
   echo.
   echo [ERROR] Take Some Suite exited with code %NE_SUITE_EXIT%.
-  echo [EXIT] Press any key to close this console...
-  pause >nul
+  if "%~1"=="" (
+    echo [EXIT] Press any key to close this console...
+    pause >nul
+  )
 )
 exit /b %NE_SUITE_EXIT%

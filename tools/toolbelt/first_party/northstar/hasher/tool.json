@@ -10,7 +10,7 @@
   "root": ".",
   "package_root": "tools/toolbelt/first_party/northstar/hasher",
   "source_root": "tools/toolsSrc/northstar_hasher",
-  "executable": "bin/northstar-hasher.exe",
+  "executable": "bin/northstar-hasher.cmd",
   "install_path": "tools/toolbelt/first_party/northstar/hasher/bin/northstar-hasher.exe",
   "invocation": {
     "type": "executable",
@@ -76,5 +76,9 @@
       "doctor"
     ]
   },
-  "cargo_manifest": "tools/toolsSrc/northstar_hasher/Cargo.toml"
+  "cargo_manifest": "tools/toolsSrc/northstar_hasher/Cargo.toml",
+  "expected_sha256": "81d01c192bc1e5e79660260385117c33c87f2c2ea38a37294ea7d88eec4bcc11",
+  "expected_size_bytes": 883,
+  "availability": "launcher_present_binary_requires_build",
+  "backend_executable": "northstar-hasher.exe"
 }

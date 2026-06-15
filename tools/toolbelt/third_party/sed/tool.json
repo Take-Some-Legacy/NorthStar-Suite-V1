@@ -1,115 +1,106 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.sed",
-  "version": "4.9-msys2-usr",
-  "name": "GNU sed",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/sed",
-  "root": "tools/toolbelt/third_party/sed",
-  "executable": "bin/sed.exe",
-  "expected_sha256": "8d54e322dfc3faa60f0464691aba8634197406e53367aa8942409181c0808be8",
-  "expected_size_bytes": 178140,
-  "description": "MSYS2 usr GNU sed executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU sed version.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU sed help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "GNU sed) 4.9"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
-  "suite_commands": [
-    {
-      "id": "sed-file",
-      "title": "Transform text file with sed",
-      "description": "Run GNU sed on one file through a bounded wrapper.",
-      "tool_args": [
-        "-e"
-      ],
-      "args": [
-        {
-          "name": "script",
-          "flags": [
-            "--script"
-          ],
-          "kind": "string",
-          "required": true,
-          "help": "sed -e script.",
-          "tool_flag": ""
-        },
-        {
-          "name": "input",
-          "flags": [
-            "--input"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Input text file.",
-          "tool_flag": ""
-        },
-        {
-          "name": "output",
-          "flags": [
-            "--output"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Output text file.",
-          "tool_flag": ""
-        },
-        {
-          "name": "check",
-          "flags": [
-            "--check"
-          ],
-          "kind": "bool",
-          "action": "store_true",
-          "help": "Print transformed output but do not write the output file.",
-          "tool_flag": ""
-        }
-      ],
-      "positional_args": [
-        "script",
-        "input"
-      ],
-      "output_redirect_arg": "output",
-      "check_suppresses_output_redirect": true,
-      "riskTier": "write"
-    }
-  ]
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU sed version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU sed help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.sed",
+    "safe_to_auto_run":  false,
+    "name":  "GNU sed",
+    "package_root":  "tools/toolbelt/third_party/sed",
+    "executable":  "bin/sed.cmd",
+    "version":  "4.9-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "17fb022c43e512249ae0224529e77dc2aa4481f380bb5c27b2f9f93631b4e024",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/sed",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "expected_size_bytes":  1662,
+    "description":  "MSYS2 usr GNU sed executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "GNU sed) 4.9",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "suite_commands":  {
+                           "args":  [
+                                        {
+                                            "kind":  "string",
+                                            "tool_flag":  "",
+                                            "flags":  "--script",
+                                            "name":  "script",
+                                            "help":  "sed -e script.",
+                                            "required":  true
+                                        },
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--input",
+                                            "name":  "input",
+                                            "help":  "Input text file.",
+                                            "required":  true
+                                        },
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--output",
+                                            "name":  "output",
+                                            "help":  "Output text file.",
+                                            "required":  true
+                                        },
+                                        {
+                                            "action":  "store_true",
+                                            "kind":  "bool",
+                                            "tool_flag":  "",
+                                            "flags":  "--check",
+                                            "name":  "check",
+                                            "help":  "Print transformed output but do not write the output file."
+                                        }
+                                    ],
+                           "riskTier":  "write",
+                           "id":  "sed-file",
+                           "positional_args":  [
+                                                   "script",
+                                                   "input"
+                                               ],
+                           "tool_args":  "-e",
+                           "check_suppresses_output_redirect":  true,
+                           "output_redirect_arg":  "output",
+                           "description":  "Run GNU sed on one file through a bounded wrapper.",
+                           "title":  "Transform text file with sed"
+                       },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

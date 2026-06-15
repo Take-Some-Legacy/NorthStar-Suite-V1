@@ -1,113 +1,104 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.fgrep",
-  "version": "3.0-msys2-usr-compat",
-  "name": "GNU fgrep compatibility wrapper",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local-compat",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/fgrep",
-  "root": "tools/toolbelt/third_party/fgrep",
-  "executable": "bin/fgrep.bat",
-  "expected_sha256": "983500d85ef594969f9aca161e07c69ae2a7f37fe007b7cf5fa853eb09ffb362",
-  "expected_size_bytes": 218,
-  "description": "Compatibility fgrep wrapper implemented as vendored MSYS2 GNU grep -F.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "grep (GNU grep) 3.0"
-  },
-  "layout_note": "fgrep compatibility wrapper over grep -F; no separate fgrep.exe exists in MSYS2 usr.",
-  "suite_commands": [
-    {
-      "id": "fgrep-files",
-      "title": "Fixed-string search files",
-      "description": "Run GNU fgrep as a safe fixed-string search wrapper.",
-      "tool_args": [
-        "-n"
-      ],
-      "args": [
-        {
-          "name": "pattern",
-          "flags": [
-            "--pattern"
-          ],
-          "kind": "string",
-          "required": true,
-          "help": "Fixed string to search for.",
-          "tool_flag": ""
-        },
-        {
-          "name": "ignore_case",
-          "flags": [
-            "--ignore-case"
-          ],
-          "kind": "bool",
-          "action": "store_true",
-          "help": "Case-insensitive search.",
-          "tool_flag": "-i"
-        },
-        {
-          "name": "word",
-          "flags": [
-            "--word"
-          ],
-          "kind": "bool",
-          "action": "store_true",
-          "help": "Match whole words only.",
-          "tool_flag": "-w"
-        },
-        {
-          "name": "files",
-          "flags": [
-            "files"
-          ],
-          "kind": "path_list",
-          "positional": true,
-          "nargs": "+",
-          "required": true,
-          "help": "Files to search.",
-          "tool_flag": ""
-        }
-      ],
-      "positional_args": [
-        "pattern",
-        "files"
-      ],
-      "riskTier": "read_only"
-    }
-  ]
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "idempotentHint":  true,
+                         "readOnlyHint":  true,
+                         "id":  "version",
+                         "destructiveHint":  false
+                     },
+                     {
+                         "args":  "--help",
+                         "idempotentHint":  true,
+                         "readOnlyHint":  true,
+                         "id":  "help",
+                         "destructiveHint":  false
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.fgrep",
+    "safe_to_auto_run":  false,
+    "name":  "GNU fgrep compatibility wrapper",
+    "package_root":  "tools/toolbelt/third_party/fgrep",
+    "executable":  "bin/fgrep.bat.cmd",
+    "version":  "3.0-msys2-usr-compat",
+    "source_type":  "third_party",
+    "expected_sha256":  "3810c49fc7eb0cdde07a5b61d13350272239577015e4b5a4f800dcb6481b166a",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/fgrep",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "expected_size_bytes":  1668,
+    "description":  "Compatibility fgrep wrapper implemented as vendored MSYS2 GNU grep -F.",
+    "maturity":  "vendor-pinned-local-compat",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "grep (GNU grep) 3.0",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "suite_commands":  {
+                           "args":  [
+                                        {
+                                            "kind":  "string",
+                                            "tool_flag":  "",
+                                            "flags":  "--pattern",
+                                            "name":  "pattern",
+                                            "help":  "Fixed string to search for.",
+                                            "required":  true
+                                        },
+                                        {
+                                            "action":  "store_true",
+                                            "kind":  "bool",
+                                            "tool_flag":  "-i",
+                                            "flags":  "--ignore-case",
+                                            "name":  "ignore_case",
+                                            "help":  "Case-insensitive search."
+                                        },
+                                        {
+                                            "action":  "store_true",
+                                            "kind":  "bool",
+                                            "tool_flag":  "-w",
+                                            "flags":  "--word",
+                                            "name":  "word",
+                                            "help":  "Match whole words only."
+                                        },
+                                        {
+                                            "kind":  "path_list",
+                                            "tool_flag":  "",
+                                            "nargs":  "+",
+                                            "flags":  "files",
+                                            "positional":  true,
+                                            "name":  "files",
+                                            "help":  "Files to search.",
+                                            "required":  true
+                                        }
+                                    ],
+                           "riskTier":  "read_only",
+                           "id":  "fgrep-files",
+                           "positional_args":  [
+                                                   "pattern",
+                                                   "files"
+                                               ],
+                           "tool_args":  "-n",
+                           "description":  "Run GNU fgrep as a safe fixed-string search wrapper.",
+                           "title":  "Fixed-string search files"
+                       },
+    "layout_note":  "fgrep compatibility wrapper over grep -F; no separate fgrep.exe exists in MSYS2 usr."
 }

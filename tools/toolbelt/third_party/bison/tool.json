@@ -1,64 +1,65 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.bison",
-  "version": "3.8.2-msys2-usr",
-  "name": "GNU Bison",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/bison",
-  "root": "tools/toolbelt/third_party/bison",
-  "executable": "bin/bison.exe",
-  "expected_sha256": "669d6187293f8b15652c1d831d0d78b1b8b9a1e02ec16d4b2f4a2433ab907eed",
-  "expected_size_bytes": 515980,
-  "description": "MSYS2 usr GNU Bison executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU Bison version/help.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU Bison help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "bison (GNU Bison) 3.8.2"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries. bison carries m4.exe as same-bin runtime companion because GNU bison invokes m4 as a subprocess.",
-  "runtime_files": [
-    {
-      "path": "bin/m4.exe",
-      "role": "bison companion executable",
-      "sha256": "204cc820650b970b479b5e8329e31cfa89ef6b8d44ddf218dc1f795c3d70e074",
-      "size": 263912
-    }
-  ]
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU Bison version/help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU Bison help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.bison",
+    "safe_to_auto_run":  false,
+    "name":  "GNU Bison",
+    "package_root":  "tools/toolbelt/third_party/bison",
+    "executable":  "bin/bison.cmd",
+    "version":  "3.8.2-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "47e6fd20975be0222e58291c8573fec20c68ae54295f702c082b21e996170f4c",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/bison",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "expected_size_bytes":  1664,
+    "description":  "MSYS2 usr GNU Bison executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "bison (GNU Bison) 3.8.2",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "runtime_files":  {
+                          "path":  "bin/m4.exe",
+                          "sha256":  "204cc820650b970b479b5e8329e31cfa89ef6b8d44ddf218dc1f795c3d70e074",
+                          "size":  263912,
+                          "role":  "bison companion executable"
+                      },
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries. bison carries m4.exe as same-bin runtime companion because GNU bison invokes m4 as a subprocess."
 }

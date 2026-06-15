@@ -1,110 +1,105 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.diff3",
-  "version": "3.12-msys2-usr",
-  "name": "GNU diff3",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/diff3",
-  "root": "tools/toolbelt/third_party/diff3",
-  "executable": "bin/diff3.exe",
-  "expected_sha256": "913e23ff6b2f9dc204b92a181ac993e3ce7c8c5bcd68db3f7662224a1896a975",
-  "expected_size_bytes": 60138,
-  "description": "MSYS2 usr GNU diff3 executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU diff3 version/help.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU diff3 help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "diff3 (GNU diffutils) 3.12"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries. diff3 carries diff.exe as same-bin runtime companion because GNU diff3 invokes diff by name.",
-  "runtime_files": [
-    {
-      "path": "bin/diff.exe",
-      "role": "diff3 companion executable",
-      "sha256": "d64621f766d8910a92cb3d99bd7f23c0b1c736eece0e19dccbccead93aa81854",
-      "size": 279886
-    }
-  ],
-  "suite_commands": [
-    {
-      "id": "diff3-files",
-      "title": "Three-way diff files",
-      "description": "Run GNU diff3 as a safe three-way merge report wrapper.",
-      "tool_args": [],
-      "args": [
-        {
-          "name": "base",
-          "flags": [
-            "--base"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Base/common ancestor file path.",
-          "tool_flag": ""
-        },
-        {
-          "name": "mine",
-          "flags": [
-            "--mine"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Mine/current file path.",
-          "tool_flag": ""
-        },
-        {
-          "name": "theirs",
-          "flags": [
-            "--theirs"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Theirs/incoming file path.",
-          "tool_flag": ""
-        }
-      ],
-      "positional_args": [
-        "mine",
-        "base",
-        "theirs"
-      ],
-      "riskTier": "read_only"
-    }
-  ]
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU diff3 version/help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU diff3 help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.diff3",
+    "safe_to_auto_run":  false,
+    "name":  "GNU diff3",
+    "package_root":  "tools/toolbelt/third_party/diff3",
+    "executable":  "bin/diff3.cmd",
+    "version":  "3.12-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "d90dc753c1bf77ce1f41b0af32ac419853028666ada05a86296060282bfe8e8c",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/diff3",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "expected_size_bytes":  1664,
+    "description":  "MSYS2 usr GNU diff3 executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "diff3 (GNU diffutils) 3.12",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "runtime_files":  {
+                          "path":  "bin/diff.exe",
+                          "sha256":  "d64621f766d8910a92cb3d99bd7f23c0b1c736eece0e19dccbccead93aa81854",
+                          "size":  279886,
+                          "role":  "diff3 companion executable"
+                      },
+    "suite_commands":  {
+                           "args":  [
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--base",
+                                            "name":  "base",
+                                            "help":  "Base/common ancestor file path.",
+                                            "required":  true
+                                        },
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--mine",
+                                            "name":  "mine",
+                                            "help":  "Mine/current file path.",
+                                            "required":  true
+                                        },
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--theirs",
+                                            "name":  "theirs",
+                                            "help":  "Theirs/incoming file path.",
+                                            "required":  true
+                                        }
+                                    ],
+                           "riskTier":  "read_only",
+                           "id":  "diff3-files",
+                           "positional_args":  [
+                                                   "mine",
+                                                   "base",
+                                                   "theirs"
+                                               ],
+                           "tool_args":  {
+
+                                         },
+                           "description":  "Run GNU diff3 as a safe three-way merge report wrapper.",
+                           "title":  "Three-way diff files"
+                       },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries. diff3 carries diff.exe as same-bin runtime companion because GNU diff3 invokes diff by name."
 }

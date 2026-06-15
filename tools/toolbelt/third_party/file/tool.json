@@ -1,65 +1,66 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.file",
-  "version": "5.46-msys2-usr",
-  "name": "GNU file",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/file",
-  "root": "tools/toolbelt/third_party/file",
-  "executable": "bin/file.exe",
-  "expected_sha256": "6e20e8a0a681a46ef2c6e87c67502754fa2df7dd6da907b4e4720623f7c4b163",
-  "expected_size_bytes": 24225,
-  "description": "GNU/MSYS2 file executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print file version.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print file help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "file-5.46"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
-  "data_files": [
-    {
-      "path": "share/misc/magic.mgc",
-      "description": "libmagic compiled magic database copied from C:/msys64/usr/share/misc/magic.mgc"
-    }
-  ],
-  "environment": {
-    "MAGIC": "tools/toolbelt/third_party/file/share/misc/magic.mgc"
-  }
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print file version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print file help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.file",
+    "safe_to_auto_run":  false,
+    "name":  "GNU file",
+    "package_root":  "tools/toolbelt/third_party/file",
+    "executable":  "bin/file.cmd",
+    "version":  "5.46-msys2-usr",
+    "data_files":  {
+                       "path":  "share/misc/magic.mgc",
+                       "description":  "libmagic compiled magic database copied from C:/msys64/usr/share/misc/magic.mgc"
+                   },
+    "source_type":  "third_party",
+    "expected_sha256":  "47caabbdb6ba7e34f054ce32a7f8e4f9a90fa1518b2f9663218e771524e38799",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/file",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "expected_size_bytes":  1663,
+    "description":  "GNU/MSYS2 file executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "file-5.46",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "environment":  {
+                        "MAGIC":  "tools/toolbelt/third_party/file/share/misc/magic.mgc"
+                    },
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

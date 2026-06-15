@@ -1,56 +1,59 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.m4",
-  "version": "1.4.19-msys2-usr",
-  "name": "GNU M4",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/m4",
-  "root": "tools/toolbelt/third_party/m4",
-  "executable": "bin/m4.exe",
-  "expected_sha256": "204cc820650b970b479b5e8329e31cfa89ef6b8d44ddf218dc1f795c3d70e074",
-  "expected_size_bytes": 263912,
-  "description": "MSYS2 usr GNU M4 executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU M4 version/help.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU M4 help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "m4 (GNU M4) 1.4.19"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU M4 version/help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU M4 help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.m4",
+    "safe_to_auto_run":  false,
+    "name":  "GNU M4",
+    "package_root":  "tools/toolbelt/third_party/m4",
+    "executable":  "bin/m4.cmd",
+    "version":  "1.4.19-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "d62717eb2e8b9f4cb844410614fabbaaf13549ff294b31a93d607a176083c3b3",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/m4",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "expected_size_bytes":  1661,
+    "description":  "MSYS2 usr GNU M4 executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "m4 (GNU M4) 1.4.19",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

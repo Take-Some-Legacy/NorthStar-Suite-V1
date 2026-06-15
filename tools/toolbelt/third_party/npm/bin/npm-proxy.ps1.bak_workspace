@@ -1,0 +1,231 @@
+param(
+  [Parameter(ValueFromRemainingArguments = $true)]
+  [string[]]$NpmArgs
+)
+
+$ErrorActionPreference = "Stop"
+
+function Write-ProxyError {
+  param([string]$Message)
+  [Console]::Error.WriteLine($Message)
+}
+
+function Test-PackageRoot {
+  param([string]$Path)
+  return ($Path -and (Test-Path (Join-Path $Path "package.json")))
+}
+
+function Resolve-NpmCommand {
+  $candidates = @()
+
+  if ($env:ProgramFiles) {
+    $candidates += Join-Path $env:ProgramFiles "nodejs\npm.cmd"
+  }
+
+  if (${env:ProgramFiles(x86)}) {
+    $candidates += Join-Path ${env:ProgramFiles(x86)} "nodejs\npm.cmd"
+  }
+
+  foreach ($candidate in $candidates) {
+    if ($candidate -and (Test-Path $candidate)) {
+      return (Resolve-Path $candidate).Path
+    }
+  }
+
+  $cmd = Get-Command npm.cmd -ErrorAction SilentlyContinue
+  if ($cmd) {
+    return $cmd.Source
+  }
+
+  $cmd = Get-Command npm -ErrorAction SilentlyContinue
+  if ($cmd) {
+    return $cmd.Source
+  }
+
+  return $null
+}
+
+function Resolve-DevSuiteRootFromScript {
+  $bin = Split-Path -Parent $PSCommandPath
+  # bin -> npm -> third_party -> toolbelt -> tools -> TakeSomeDevSuite
+  return (Resolve-Path (Join-Path $bin "..\..\..\..\..")).Path
+}
+
+function Get-WorkspaceCandidates {
+  $devSuiteRoot = Resolve-DevSuiteRootFromScript
+  $current = (Get-Location).Path
+  $candidates = New-Object System.Collections.Generic.List[string]
+
+  foreach ($name in @(
+    "TAKESOME_WORKSPACE_ROOT",
+    "NORTHSTAR_WORKSPACE_ROOT",
+    "NEWENGINE_PROJECT_ROOT",
+    "WORKSPACE_ROOT",
+    "PROJECT_ROOT",
+    "VITE_WORKSPACE_ROOT"
+  )) {
+    $value = [Environment]::GetEnvironmentVariable($name)
+    if ($value) {
+      $candidates.Add($value)
+    }
+  }
+
+  $candidates.Add($current)
+
+  if ($devSuiteRoot) {
+    $candidates.Add($devSuiteRoot)
+    $parent = Split-Path -Parent $devSuiteRoot
+    if ($parent) {
+      foreach ($siblingName in @(
+        "TakeSomeWebsite",
+        "TakeSomeWebSite",
+        "TakeSomeSPA",
+        "TakeSomeFrontend",
+        "TakeSomeLanding",
+        "TakeSomeApp"
+      )) {
+        $candidates.Add((Join-Path $parent $siblingName))
+      }
+
+      Get-ChildItem -LiteralPath $parent -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -like "TakeSome*" -or $_.Name -like "*Website*" -or $_.Name -like "*Frontend*" } |
+        ForEach-Object { $candidates.Add($_.FullName) }
+    }
+  }
+
+  $seen = @{}
+  $result = New-Object System.Collections.Generic.List[string]
+  foreach ($candidate in $candidates) {
+    if (-not $candidate) { continue }
+    try {
+      $resolved = (Resolve-Path $candidate -ErrorAction Stop).Path
+    } catch {
+      continue
+    }
+    $key = $resolved.ToLowerInvariant()
+    if (-not $seen.ContainsKey($key)) {
+      $seen[$key] = $true
+      $result.Add($resolved)
+    }
+  }
+
+  return $result
+}
+
+function Command-RequiresWorkspace {
+  param([string[]]$Args)
+
+  if (-not $Args -or $Args.Count -eq 0) {
+    return $false
+  }
+
+  if ($Args[0] -in @("--version", "-version", "-v", "--help", "help", "config")) {
+    return $false
+  }
+
+  if ($Args[0] -in @("run", "install", "ci", "audit", "outdated", "update", "exec", "test", "start", "publish", "pack", "rebuild")) {
+    return $true
+  }
+
+  return $false
+}
+
+function Resolve-WorkingDirectory {
+  param([string[]]$Args)
+
+  $current = (Get-Location).Path
+  if (-not (Command-RequiresWorkspace -Args $Args)) {
+    return $current
+  }
+
+  foreach ($candidate in (Get-WorkspaceCandidates)) {
+    if (Test-PackageRoot $candidate) {
+      return $candidate
+    }
+  }
+
+  return $current
+}
+
+function Needs-GuardForBuildLikeCommand {
+  param([string[]]$Args)
+
+  if (-not $Args -or $Args.Count -eq 0) {
+    return $false
+  }
+
+  $joined = ($Args -join " ").ToLowerInvariant()
+
+  return (
+    $joined -match '(^| )run (build|typecheck|lint|test|check)( |$)' -or
+    $joined -match '(^| )(build|typecheck|lint|test|check)( |$)'
+  )
+}
+
+if ($NpmArgs.Count -gt 0 -and $NpmArgs[0] -eq "--") {
+  $NpmArgs = $NpmArgs[1..($NpmArgs.Count - 1)]
+}
+
+$npm = Resolve-NpmCommand
+if (-not $npm) {
+  Write-ProxyError "npm was not found. Install Node.js or expose npm.cmd on PATH."
+  exit 9009
+}
+
+$workingDirectory = Resolve-WorkingDirectory -Args $NpmArgs
+
+if ((Command-RequiresWorkspace -Args $NpmArgs) -and -not (Test-PackageRoot $workingDirectory)) {
+  Write-ProxyError "npm workspace was not found. No package.json in current directory or configured workspace roots."
+  Write-ProxyError "Current directory: $((Get-Location).Path)"
+  Write-ProxyError "Set TAKESOME_WORKSPACE_ROOT or NORTHSTAR_WORKSPACE_ROOT to a directory containing package.json."
+  exit 2
+}
+
+$oldLocation = (Get-Location).Path
+$output = @()
+$exitCode = 0
+
+try {
+  Push-Location $workingDirectory
+  $output = & $npm @NpmArgs 2>&1
+  $exitCode = if ($null -ne $LASTEXITCODE) { [int]$LASTEXITCODE } else { 0 }
+} catch {
+  $output += $_.Exception.Message
+  $exitCode = 1
+} finally {
+  Pop-Location
+}
+
+foreach ($line in $output) {
+  Write-Output $line
+}
+
+$text = ($output | ForEach-Object { [string]$_ }) -join "`n"
+
+$guardFailed = $false
+
+if ($text -match '(?im)^\s*npm\s+(ERR!|error)\b' -or
+    $text -match '(?im)\bENOENT\b' -or
+    $text -match '(?im)Could not read package\.json' -or
+    $text -match '(?im)Missing script:') {
+  $guardFailed = $true
+}
+
+if (Needs-GuardForBuildLikeCommand -Args $NpmArgs) {
+  if ($text -match '(?im)\berror\s+TS\d+\b' -or
+      $text -match '(?im)Failed to compile' -or
+      $text -match '(?im)\bSyntaxError\b' -or
+      $text -match '(?im)\bTypeError\b' -or
+      $text -match '(?im)\bCannot find module\b' -or
+      $text -match '(?im)\bvue-tsc\b.*\berror\b' -or
+      $text -match '(?im)\bRollupError\b' -or
+      $text -match '(?im)\bVite\b.*\berror\b') {
+    $guardFailed = $true
+  }
+}
+
+if ($guardFailed -and $exitCode -eq 0) {
+  $exitCode = 1
+}
+
+exit $exitCode

@@ -1,0 +1,39 @@
+{
+    "output_mode":  "process_exit",
+    "progress_total":  1,
+    "action_id":  "npm.preview",
+    "progress_unit":  "step",
+    "output_schema":  null,
+    "target_domain":  "npm",
+    "outputs":  {
+
+                },
+    "label":  "Run npm preview server",
+    "idempotentHint":  false,
+    "command":  "tools",
+    "cwd_policy":  "active_workspace",
+    "detail":  "Run npm run preview --if-present in the active workspace through DevSuite vendor.npm. Long-running.",
+    "safe_for_menu":  false,
+    "category":  "npm",
+    "readOnlyHint":  false,
+    "args":  [
+                 "run",
+                 "vendor.npm",
+                 "--",
+                 "run",
+                 "preview",
+                 "--if-present"
+             ],
+    "chips":  [
+                  "npm",
+                  "workspace",
+                  "script_env"
+              ],
+    "primary_tag":  "NPM",
+    "risk_level":  "long_running",
+    "profile":  "",
+    "requires_workspace":  [
+                               "package.json"
+                           ],
+    "destructiveHint":  false
+}

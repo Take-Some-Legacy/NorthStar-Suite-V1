@@ -1,5 +1,8 @@
 # North Star / Take Some local generated state
-.takesome/
+.takesome/*
+!.takesome/config/
+!.takesome/config/**
+
 .northstar/
 NewEngine/
 Plugins/
@@ -51,3 +54,16 @@ __pycache__/
 Thumbs.db
 .vs/
 .idea/
+
+# Aurelia Suite machine-local runtime / secrets
+.suite-runtime/
+AureliaSuite/
+**/authority/
+**/oauth/tokens/
+**/oauth/used_codes/
+**/*token*.txt
+**/*secret*.json
+**/endpoint.json
+**/agent-status.json
+**/patch-backups/
+*.pid

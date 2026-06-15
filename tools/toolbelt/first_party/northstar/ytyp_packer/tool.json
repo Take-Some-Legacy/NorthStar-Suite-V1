@@ -10,7 +10,7 @@
   "root": ".",
   "package_root": "tools/toolbelt/first_party/northstar/ytyp_packer",
   "source_root": "tools/toolsSrc/ytyp_packer",
-  "executable": "bin/northstar-ytyp-packer.exe",
+  "executable": "bin/northstar-ytyp-packer.cmd",
   "install_path": "tools/toolbelt/first_party/northstar/ytyp_packer/bin/northstar-ytyp-packer.exe",
   "cargo_manifest": "tools/toolsSrc/ytyp_packer/Cargo.toml",
   "safe_for_build": true,
@@ -173,5 +173,9 @@
       ],
       "riskTier": "read_only"
     }
-  ]
+  ],
+  "expected_sha256": "a12dff56d5b616ae33e2a03613f5aa89bd41df9a39de335333b5bd3bf675e6c6",
+  "expected_size_bytes": 893,
+  "availability": "launcher_present_binary_requires_build",
+  "backend_executable": "northstar-ytyp-packer.exe"
 }

@@ -1,0 +1,310 @@
+{
+  "schema": "takesome.tool.v2",
+  "id": "vendor.imagemagick.magick",
+  "version": "7.x-local-or-vendored",
+  "name": "ImageMagick magick",
+  "kind": "external-cli",
+  "source_type": "third_party",
+  "owner": "ImageMagick Studio LLC",
+  "maturity": "vendor-adapter-local",
+  "safe_to_auto_run": false,
+  "package_root": "tools/toolbelt/third_party/imagemagick",
+  "root": "tools/toolbelt/third_party/imagemagick",
+  "executable": "bin/magick.cmd",
+  "expected_sha256": "f130920c6f04b7e22af68da9070816a0dd22d02086e0ae0a8f0d08234f87b0b4",
+  "expected_size_bytes": 578,
+  "description": "ImageMagick magick CLI adapter for image inspection, conversion, resizing, thumbnails and format normalization.",
+  "commands": [
+    {
+      "id": "version",
+      "description": "Print ImageMagick version.",
+      "args": [
+        "-version"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "help",
+      "description": "Print ImageMagick help.",
+      "args": [
+        "-help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    },
+    {
+      "id": "identify-help",
+      "description": "Print ImageMagick identify help.",
+      "args": [
+        "identify",
+        "-help"
+      ],
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true
+    }
+  ],
+  "default_args": [
+    "-version"
+  ],
+  "validation": {
+    "mode": "presence_hash_version",
+    "args": [
+      "-version"
+    ],
+    "expect_stdout_contains": "ImageMagick"
+  },
+  "layout_note": "Local adapter descriptor. Put magick.exe next to bin/magick.cmd or install ImageMagick globally and expose magick.exe on PATH.",
+  "capabilities": [
+    "image.identify",
+    "image.convert",
+    "image.resize",
+    "image.thumbnail",
+    "image.metadata.strip",
+    "image.format.normalize"
+  ],
+  "suite_commands": [
+    {
+      "id": "image-identify",
+      "title": "Identify image",
+      "description": "Inspect image dimensions, format and metadata through ImageMagick identify.",
+      "tool_args": [
+        "identify"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Input image path.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "input"
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "image-identify-verbose",
+      "title": "Identify image verbosely",
+      "description": "Inspect image through ImageMagick identify -verbose.",
+      "tool_args": [
+        "identify",
+        "-verbose"
+      ],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Input image path.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "input"
+      ],
+      "riskTier": "read_only"
+    },
+    {
+      "id": "image-convert",
+      "title": "Convert image",
+      "description": "Convert one image into another format through ImageMagick.",
+      "tool_args": [],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Input image path.",
+          "tool_flag": ""
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Output image path.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "input",
+        "output"
+      ],
+      "riskTier": "write"
+    },
+    {
+      "id": "image-strip-convert",
+      "title": "Convert image and strip metadata",
+      "description": "Convert image and remove metadata through ImageMagick -strip.",
+      "tool_args": [],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Input image path.",
+          "tool_flag": ""
+        },
+        {
+          "name": "strip_flag",
+          "flags": [
+            "--strip-flag"
+          ],
+          "kind": "string",
+          "required": false,
+          "default": "-strip",
+          "help": "Internal literal flag for descriptor command ordering.",
+          "tool_flag": ""
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Output image path.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "input",
+        "strip_flag",
+        "output"
+      ],
+      "riskTier": "write"
+    },
+    {
+      "id": "image-resize-fit",
+      "title": "Resize image to fit",
+      "description": "Resize image preserving aspect ratio through ImageMagick -resize.",
+      "tool_args": [],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Input image path.",
+          "tool_flag": ""
+        },
+        {
+          "name": "resize_flag",
+          "flags": [
+            "--resize-flag"
+          ],
+          "kind": "string",
+          "required": false,
+          "default": "-resize",
+          "help": "Internal literal flag for descriptor command ordering.",
+          "tool_flag": ""
+        },
+        {
+          "name": "geometry",
+          "flags": [
+            "--geometry"
+          ],
+          "kind": "string",
+          "required": true,
+          "help": "Resize geometry, for example 1200x1200 or 1200x.",
+          "tool_flag": ""
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Output image path.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "input",
+        "resize_flag",
+        "geometry",
+        "output"
+      ],
+      "riskTier": "write"
+    },
+    {
+      "id": "image-thumbnail",
+      "title": "Create image thumbnail",
+      "description": "Create thumbnail through ImageMagick -thumbnail.",
+      "tool_args": [],
+      "args": [
+        {
+          "name": "input",
+          "flags": [
+            "--input"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Input image path.",
+          "tool_flag": ""
+        },
+        {
+          "name": "thumbnail_flag",
+          "flags": [
+            "--thumbnail-flag"
+          ],
+          "kind": "string",
+          "required": false,
+          "default": "-thumbnail",
+          "help": "Internal literal flag for descriptor command ordering.",
+          "tool_flag": ""
+        },
+        {
+          "name": "geometry",
+          "flags": [
+            "--geometry"
+          ],
+          "kind": "string",
+          "required": true,
+          "help": "Thumbnail geometry, for example 512x512.",
+          "tool_flag": ""
+        },
+        {
+          "name": "output",
+          "flags": [
+            "--output"
+          ],
+          "kind": "path",
+          "required": true,
+          "help": "Output image path.",
+          "tool_flag": ""
+        }
+      ],
+      "positional_args": [
+        "input",
+        "thumbnail_flag",
+        "geometry",
+        "output"
+      ],
+      "riskTier": "write"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+    "output_mode":  "process_exit",
+    "progress_total":  1,
+    "action_id":  "npm.version",
+    "progress_unit":  "step",
+    "output_schema":  null,
+    "target_domain":  "npm",
+    "outputs":  {
+
+                },
+    "label":  "Show npm version",
+    "idempotentHint":  true,
+    "command":  "tools",
+    "cwd_policy":  "active_workspace",
+    "detail":  "Print npm version through DevSuite vendor.npm.",
+    "safe_for_menu":  true,
+    "category":  "npm",
+    "readOnlyHint":  true,
+    "args":  [
+                 "run",
+                 "vendor.npm",
+                 "--",
+                 "--version"
+             ],
+    "chips":  [
+                  "npm",
+                  "workspace",
+                  "script_env"
+              ],
+    "primary_tag":  "NPM",
+    "risk_level":  "safe",
+    "profile":  "",
+    "destructiveHint":  false
+}

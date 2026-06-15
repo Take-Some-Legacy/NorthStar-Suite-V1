@@ -10,7 +10,7 @@
   "root": ".",
   "package_root": "tools/toolbelt/first_party/northstar/neui_packer",
   "source_root": "tools/toolsSrc/neui_packer",
-  "executable": "bin/northstar-neui-packer.exe",
+  "executable": "bin/northstar-neui-packer.cmd",
   "install_path": "tools/toolbelt/first_party/northstar/neui_packer/bin/northstar-neui-packer.exe",
   "cargo_manifest": "tools/toolsSrc/neui_packer/Cargo.toml",
   "safe_for_build": true,
@@ -173,5 +173,9 @@
       ],
       "riskTier": "read_only"
     }
-  ]
+  ],
+  "expected_sha256": "44d3591e8b33b15f2807f46b3496e69804f87840f2cf96ad53e0ddb6e72e8abf",
+  "expected_size_bytes": 893,
+  "availability": "launcher_present_binary_requires_build",
+  "backend_executable": "northstar-neui-packer.exe"
 }

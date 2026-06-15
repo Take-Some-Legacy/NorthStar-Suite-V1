@@ -1,100 +1,95 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.touch",
-  "version": "8.32-msys2-usr",
-  "name": "GNU touch",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/touch",
-  "root": "tools/toolbelt/third_party/touch",
-  "executable": "bin/touch.exe",
-  "expected_sha256": "1d895e0f77cbc8b77c3a38da009e8ad8d23a371afd398da5408bdeffcddf5fc0",
-  "expected_size_bytes": 107463,
-  "description": "MSYS2 usr GNU touch executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU touch version.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU touch help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "GNU coreutils) 8.32"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
-  "suite_commands": [
-    {
-      "id": "touch-file",
-      "title": "Touch file",
-      "description": "Run GNU touch as a timestamp/create-file wrapper.",
-      "tool_args": [],
-      "args": [
-        {
-          "name": "path",
-          "flags": [
-            "--path"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "File to touch/create.",
-          "tool_flag": ""
-        },
-        {
-          "name": "no_create",
-          "flags": [
-            "--no-create"
-          ],
-          "kind": "bool",
-          "action": "store_true",
-          "help": "Do not create the file if it does not exist.",
-          "tool_flag": "--no-create"
-        },
-        {
-          "name": "reference",
-          "flags": [
-            "--reference"
-          ],
-          "kind": "path",
-          "default": "",
-          "help": "Copy timestamp from another file.",
-          "tool_flag": "-r"
-        }
-      ],
-      "positional_args": [
-        "path"
-      ],
-      "riskTier": "write"
-    }
-  ]
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU touch version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU touch help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.touch",
+    "safe_to_auto_run":  false,
+    "name":  "GNU touch",
+    "package_root":  "tools/toolbelt/third_party/touch",
+    "executable":  "bin/touch.cmd",
+    "version":  "8.32-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "c1e973f625ab9e50ff30be8d79a9a37b1ef793be2ad72b48f5bdaf03d1afc0cc",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/touch",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "expected_size_bytes":  1664,
+    "description":  "MSYS2 usr GNU touch executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "GNU coreutils) 8.32",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "suite_commands":  {
+                           "args":  [
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--path",
+                                            "name":  "path",
+                                            "help":  "File to touch/create.",
+                                            "required":  true
+                                        },
+                                        {
+                                            "action":  "store_true",
+                                            "kind":  "bool",
+                                            "tool_flag":  "--no-create",
+                                            "flags":  "--no-create",
+                                            "name":  "no_create",
+                                            "help":  "Do not create the file if it does not exist."
+                                        },
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "-r",
+                                            "default":  "",
+                                            "flags":  "--reference",
+                                            "name":  "reference",
+                                            "help":  "Copy timestamp from another file."
+                                        }
+                                    ],
+                           "riskTier":  "write",
+                           "id":  "touch-file",
+                           "positional_args":  "path",
+                           "tool_args":  {
+
+                                         },
+                           "description":  "Run GNU touch as a timestamp/create-file wrapper.",
+                           "title":  "Touch file"
+                       },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

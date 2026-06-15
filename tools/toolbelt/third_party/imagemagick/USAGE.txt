@@ -1,0 +1,27 @@
+ImageMagick CLI examples
+
+Version:
+  tools\toolbelt\third_party\imagemagick\bin\magick.cmd -version
+
+Identify image:
+  tools\toolbelt\third_party\imagemagick\bin\magick.cmd identify input.png
+
+Verbose identify:
+  tools\toolbelt\third_party\imagemagick\bin\magick.cmd identify -verbose input.png
+
+Convert PNG to WebP:
+  tools\toolbelt\third_party\imagemagick\bin\magick.cmd input.png -strip -quality 92 output.webp
+
+Resize preserving aspect ratio:
+  tools\toolbelt\third_party\imagemagick\bin\magick.cmd input.png -resize 1200x1200 output.webp
+
+Fill/crop to exact square:
+  tools\toolbelt\third_party\imagemagick\bin\magick.cmd input.png -resize 1200x1200^ -gravity center -extent 1200x1200 output.webp
+
+Thumbnail:
+  tools\toolbelt\third_party\imagemagick\bin\magick.cmd input.png -thumbnail 512x512 output.webp
+
+Suite command examples:
+  py tools\scripts\takesome.py image-identify --input assets\source.png
+  py tools\scripts\takesome.py image-resize-fit --input assets\source.png --geometry 1200x1200 --output build\source.webp
+  py tools\scripts\takesome.py image-thumbnail --input assets\source.png --geometry 512x512 --output build\thumb.webp

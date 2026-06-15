@@ -1,0 +1,37 @@
+{
+    "output_mode":  "process_exit",
+    "progress_total":  1,
+    "action_id":  "npm.audit",
+    "progress_unit":  "step",
+    "output_schema":  null,
+    "target_domain":  "npm",
+    "outputs":  {
+
+                },
+    "label":  "Audit npm dependencies",
+    "idempotentHint":  true,
+    "command":  "tools",
+    "cwd_policy":  "active_workspace",
+    "detail":  "Run npm audit in the active workspace through DevSuite vendor.npm.",
+    "safe_for_menu":  true,
+    "category":  "npm",
+    "readOnlyHint":  true,
+    "args":  [
+                 "run",
+                 "vendor.npm",
+                 "--",
+                 "audit"
+             ],
+    "chips":  [
+                  "npm",
+                  "workspace",
+                  "script_env"
+              ],
+    "primary_tag":  "NPM",
+    "risk_level":  "safe",
+    "profile":  "",
+    "requires_workspace":  [
+                               "package.json"
+                           ],
+    "destructiveHint":  false
+}

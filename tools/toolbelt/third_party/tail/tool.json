@@ -1,90 +1,87 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.tail",
-  "version": "8.32-msys2-usr",
-  "name": "GNU tail",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/tail",
-  "root": "tools/toolbelt/third_party/tail",
-  "executable": "bin/tail.exe",
-  "expected_sha256": "8608c4138642de6dca0806b266b3009c137dc373171978cf47418056a5e05c55",
-  "expected_size_bytes": 56617,
-  "description": "MSYS2 usr GNU tail executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print GNU tail version.",
-      "args": [
-        "--version"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print GNU tail help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "--version"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "--version"
-    ],
-    "expect_stdout_contains": "GNU coreutils) 8.32"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries.",
-  "suite_commands": [
-    {
-      "id": "tail-file",
-      "title": "Tail file",
-      "description": "Run GNU tail as a bounded last-lines reader.",
-      "tool_args": [],
-      "args": [
-        {
-          "name": "input",
-          "flags": [
-            "--input"
-          ],
-          "kind": "path",
-          "required": true,
-          "help": "Input text file.",
-          "tool_flag": ""
-        },
-        {
-          "name": "lines",
-          "flags": [
-            "--lines"
-          ],
-          "kind": "string",
-          "default": "80",
-          "help": "Number of lines to read, clamped by caller policy.",
-          "tool_flag": "-n"
-        }
-      ],
-      "positional_args": [
-        "input"
-      ],
-      "riskTier": "read_only"
-    }
-  ]
+    "commands":  [
+                     {
+                         "args":  "--version",
+                         "id":  "version",
+                         "description":  "Print GNU tail version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print GNU tail help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.tail",
+    "safe_to_auto_run":  false,
+    "name":  "GNU tail",
+    "package_root":  "tools/toolbelt/third_party/tail",
+    "executable":  "bin/tail.cmd",
+    "version":  "8.32-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "829ed61d41447cb885a36a0653781e3db81e75cec2b76022ee59046b0aae1975",
+    "default_args":  "--version",
+    "root":  "tools/toolbelt/third_party/tail",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "expected_size_bytes":  1663,
+    "description":  "MSYS2 usr GNU tail executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "--version",
+                       "expect_stdout_contains":  "GNU coreutils) 8.32",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "suite_commands":  {
+                           "args":  [
+                                        {
+                                            "kind":  "path",
+                                            "tool_flag":  "",
+                                            "flags":  "--input",
+                                            "name":  "input",
+                                            "help":  "Input text file.",
+                                            "required":  true
+                                        },
+                                        {
+                                            "kind":  "string",
+                                            "tool_flag":  "-n",
+                                            "default":  "80",
+                                            "flags":  "--lines",
+                                            "name":  "lines",
+                                            "help":  "Number of lines to read, clamped by caller policy."
+                                        }
+                                    ],
+                           "riskTier":  "read_only",
+                           "id":  "tail-file",
+                           "positional_args":  "input",
+                           "tool_args":  {
+
+                                         },
+                           "description":  "Run GNU tail as a bounded last-lines reader.",
+                           "title":  "Tail file"
+                       },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

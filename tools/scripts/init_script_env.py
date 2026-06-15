@@ -130,16 +130,16 @@ def main(argv: list[str]) -> int:
 
     cargo_toml = engine_root / "Cargo.toml"
     if not cargo_toml.exists():
-        print("[WARN] NorthStarSuite Script Env was not installed.")
-        print(f"[WARN] Engine workspace was not found: {cargo_toml}")
-        print("[WARN] EngineRepo may be missing or NORTHSTAR_ENGINE_REPO may point to an incomplete layout.")
-        return 11
+        print("[WARN] Engine workspace was not found; generating Suite-only Script Env.")
+        print(f"[WARN] Missing optional engine workspace: {cargo_toml}")
+        engine_root = project_root
+        plugin_source_root = project_root / "Plugins"
+        plugin_dir = suite_dir / "plugins"
 
     if not plugin_source_root.exists():
-        print("[WARN] NorthStarSuite Script Env was not installed.")
-        print(f"[WARN] Plugin source directory was not found: {plugin_source_root}")
-        print("[WARN] EngineRepo layout is incomplete.")
-        return 12
+        print("[WARN] Plugin source directory was not found; continuing with Suite-local plugin directory.")
+        print(f"[WARN] Missing optional plugin source directory: {plugin_source_root}")
+        plugin_dir = suite_dir / "plugins"
 
     if not script_root.exists():
         print("[WARN] NorthStarSuite Script Env was not installed.")

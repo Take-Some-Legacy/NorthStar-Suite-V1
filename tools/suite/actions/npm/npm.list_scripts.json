@@ -1,0 +1,35 @@
+{
+  "output_mode": "process_exit",
+  "progress_total": 1,
+  "action_id": "npm.list_scripts",
+  "progress_unit": "step",
+  "output_schema": null,
+  "target_domain": "npm",
+  "outputs": [],
+  "label": "List npm scripts",
+  "idempotentHint": true,
+  "command": "tools",
+  "cwd_policy": "active_workspace",
+  "detail": "List package.json scripts in the active workspace through DevSuite vendor.npm.",
+  "safe_for_menu": true,
+  "category": "npm",
+  "readOnlyHint": true,
+  "args": [
+    "run",
+    "vendor.npm",
+    "--",
+    "run"
+  ],
+  "chips": [
+    "npm",
+    "workspace",
+    "script_env"
+  ],
+  "primary_tag": "NPM",
+  "risk_level": "safe",
+  "profile": "",
+  "requires_workspace": [
+    "package.json"
+  ],
+  "destructiveHint": false
+}

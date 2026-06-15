@@ -10,7 +10,7 @@
   "root": ".",
   "package_root": "tools/toolbelt/first_party/northstar/ytd_packer",
   "source_root": "tools/toolsSrc/ytd_packer",
-  "executable": "bin/northstar-ytd-packer.exe",
+  "executable": "bin/northstar-ytd-packer.cmd",
   "install_path": "tools/toolbelt/first_party/northstar/ytd_packer/bin/northstar-ytd-packer.exe",
   "cargo_manifest": "tools/toolsSrc/ytd_packer/Cargo.toml",
   "safe_for_build": true,
@@ -262,5 +262,9 @@
       ],
       "riskTier": "write"
     }
-  ]
+  ],
+  "expected_sha256": "1778021e3cc83b8e99377ac982af92263fa72b2955c8d138c5f3876fca497fc7",
+  "expected_size_bytes": 891,
+  "availability": "launcher_present_binary_requires_build",
+  "backend_executable": "northstar-ytd-packer.exe"
 }

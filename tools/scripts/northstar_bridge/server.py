@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 from . import access, dataset, oauth, release_info, repo, status as bridge_status
+from .cluster_doctor import run_cluster_doctor
+from .cluster_topology import cluster_summary
 from .console import emit
 from .contracts import BRIDGE_VERSION, BridgeContext
 from .registry import build_tools
@@ -29,6 +31,7 @@ _MAX_FAVICON_BYTES = 256 * 1024
 _FAVICON_CANDIDATES = (
     "favicon.ico",
     "docs/favicon.ico",
+    ".takesome/config/favicon.ico",
     "config/suite/favicon.ico",
     "tools/scripts/northstar_bridge/favicon.ico",
     "NewEngine/neocore2/assets/favicon.ico",
@@ -268,7 +271,39 @@ class Handler(http.server.BaseHTTPRequestHandler):
             elif path == "/favicon.ico":
                 self._send_favicon(ctx, request_id=request_id, started=started)
             elif path == "/health":
-                self._send({"ok": True, "name": "northstar-ai-bridge", "version": BRIDGE_VERSION, "releaseName": release_info.BRIDGE_RELEASE_NAME, "releaseNotes": release_info.BRIDGE_RELEASE_NOTES, "mode": "http", "endpoints": [*ctx.mcp_routes.mcp_paths, "/status", "/tools", "/dataset", "/logs", "/favicon.ico"]}, request_id=request_id, started=started)
+                binding = ctx.host_binding
+                self._send(
+                    {
+                        "schema": "noesis.suite.health.v1",
+                        "ok": True,
+                        "name": "northstar-ai-bridge",
+                        "version": BRIDGE_VERSION,
+                        "releaseName": release_info.BRIDGE_RELEASE_NAME,
+                        "releaseNotes": release_info.BRIDGE_RELEASE_NOTES,
+                        "mode": "http",
+                        "machine_id": binding.machine_id if binding else "",
+                        "cluster_id": binding.cluster_id if binding else "",
+                        "machine_role": binding.role if binding else "",
+                        "endpoint_url": binding.endpoint_url if binding else "",
+                        "health_url": binding.health_url if binding else "",
+                        "is_clustered": binding.is_clustered if binding else False,
+                        "endpoints": [*ctx.mcp_routes.mcp_paths, "/status", "/cluster", "/cluster/doctor", "/tools", "/dataset", "/logs", "/favicon.ico"],
+                    },
+                    request_id=request_id,
+                    started=started,
+                    trace={"machine": binding.machine_id if binding else "", "cluster": binding.cluster_id if binding else ""},
+                )
+            elif path == "/cluster":
+                self._send(cluster_summary(ctx.host_binding), request_id=request_id, started=started)
+            elif path == "/cluster/doctor":
+                params = _query_params(self.path)
+                doctor = run_cluster_doctor(
+                    ctx.host_binding,
+                    timeout_sec=params.get("timeout", "1.5"),
+                    include_status=_query_truthy(params, "status", True),
+                    include_disabled=_query_truthy(params, "include_disabled", False),
+                )
+                self._send(doctor, request_id=request_id, started=started, trace={"cluster_result": doctor.get("result"), "request_count": (doctor.get("summary") or {}).get("request_count")})
             elif is_discovery_path(path, ctx.mcp_routes):
                 payload = discovery_payload(tools, ctx.mcp_routes)
                 accept = self.headers.get("Accept", "")
@@ -358,6 +393,20 @@ def _find_favicon(ctx: BridgeContext) -> Optional[Path]:
 
 def _request_path(raw: str) -> str:
     return urllib.parse.urlparse(raw).path or "/"
+
+
+
+
+def _query_params(raw: str) -> Dict[str, str]:
+    parsed = urllib.parse.urlparse(raw)
+    query = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+    return {str(key): str(values[-1]) if values else "" for key, values in query.items()}
+
+
+def _query_truthy(params: Dict[str, str], name: str, default: bool = False) -> bool:
+    if name not in params:
+        return default
+    return str(params.get(name, "")).strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _route(path: str) -> str:
@@ -551,7 +600,8 @@ def _sanitize(value: Any) -> Any:
 def _heartbeat(server: ThreadingHTTPServer, interval: int) -> None:
     while True:
         time.sleep(max(5, interval))
-        emit("STATE", "heartbeat", tools=len(server.tools), write=server.ctx.write_enabled)
+        binding = server.ctx.host_binding
+        emit("STATE", "heartbeat", tools=len(server.tools), write=server.ctx.write_enabled, machine=(binding.machine_id if binding else ""), cluster=(binding.cluster_id if binding else ""))
 
 
 def run_http(ctx: BridgeContext, host: str, port: int, status_interval: int = 30) -> int:
@@ -560,7 +610,8 @@ def run_http(ctx: BridgeContext, host: str, port: int, status_interval: int = 30
     server.ctx = ctx
     server.tools = tools
     server.status_interval = status_interval
-    emit("STATE", "http bridge up", host=host, port=port, tools=len(tools), write=ctx.write_enabled)
+    binding = ctx.host_binding
+    emit("STATE", "http bridge up", host=host, port=port, tools=len(tools), write=ctx.write_enabled, machine=(binding.machine_id if binding else ""), cluster=(binding.cluster_id if binding else ""), endpoint=(binding.endpoint_url if binding else ""))
     threading.Thread(target=_heartbeat, args=(server, status_interval), daemon=True).start()
     try:
         server.serve_forever()

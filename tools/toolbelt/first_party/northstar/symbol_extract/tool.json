@@ -10,7 +10,7 @@
   "root": ".",
   "package_root": "tools/toolbelt/first_party/northstar/symbol_extract",
   "source_root": "tools/toolsSrc/symbol_extract",
-  "executable": "bin/northstar-symbol-extract.exe",
+  "executable": "bin/northstar-symbol-extract.cmd",
   "install_path": "tools/toolbelt/first_party/northstar/symbol_extract/bin/northstar-symbol-extract.exe",
   "invocation": {
     "type": "executable",
@@ -98,5 +98,9 @@
       "doctor"
     ]
   },
-  "cargo_manifest": "tools/toolsSrc/symbol_extract/Cargo.toml"
+  "cargo_manifest": "tools/toolsSrc/symbol_extract/Cargo.toml",
+  "expected_sha256": "6022aa2061a1df30b113cdefd80fbfc01f8ef77f1dd8189a0392ec595a9c928c",
+  "expected_size_bytes": 899,
+  "availability": "launcher_present_binary_requires_build",
+  "backend_executable": "northstar-symbol-extract.exe"
 }

@@ -83,8 +83,9 @@ def env_is_valid(root: Path, env_file: Path, *, suite_version: str) -> bool:
         return False
     if loaded.get("NEWENGINE_SUITE_VERSION") != suite_version:
         return False
-    if not (engine / "Cargo.toml").exists():
-        return False
+    # Engine workspace is optional for DevSuite-only operation.
+    # The suite command layer, toolbelt, npm, ImageMagick and file-system actions
+    # must work even when NewEngine/neocore2 is not checked out.
     if not (script_root / "takesome.py").exists():
         return False
     return True

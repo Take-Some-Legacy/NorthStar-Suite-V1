@@ -5,6 +5,7 @@ from typing import Any, Dict
 
 from . import dataset, memory, repo
 from .auth import openai_status
+from .cluster_topology import cluster_summary
 from .contracts import BRIDGE_VERSION, BridgeContext
 from .paths import latest_existing, load_config
 
@@ -81,6 +82,14 @@ def status(ctx: BridgeContext, args: Dict[str, Any] | None = None) -> Dict[str, 
             "python_cmd": ctx.python_cmd,
             "platform": platform.platform(),
             "markers": markers,
+        },
+        "host_binding": ctx.host_binding.as_dict() if ctx.host_binding else None,
+        "cluster": cluster_summary(ctx.host_binding),
+        "cluster_doctor": {
+            "active_probe_endpoint": "/cluster/doctor",
+            "active_probe_command": "py tools/scripts/ai_bridge_endpoint.py cluster-doctor --json",
+            "request_outcome_schema": "noesis.suite.request_outcome.v1",
+            "safe_default": "passive_status_does_not_probe_network",
         },
         "openai": openai_status(ctx),
         "dataset": ds,

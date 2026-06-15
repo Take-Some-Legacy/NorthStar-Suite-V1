@@ -10,7 +10,7 @@
   "root": ".",
   "package_root": "tools/toolbelt/first_party/northstar/ydd_packer",
   "source_root": "tools/toolsSrc/ydd_packer",
-  "executable": "bin/northstar-ydd-packer.exe",
+  "executable": "bin/northstar-ydd-packer.cmd",
   "install_path": "tools/toolbelt/first_party/northstar/ydd_packer/bin/northstar-ydd-packer.exe",
   "cargo_manifest": "tools/toolsSrc/ydd_packer/Cargo.toml",
   "safe_for_build": true,
@@ -294,5 +294,9 @@
       ],
       "riskTier": "write"
     }
-  ]
+  ],
+  "expected_sha256": "77f40cbc58940ffbf9b71ff9d7442e8a118820ab72e6ddadb9cc842edfd725e9",
+  "expected_size_bytes": 891,
+  "availability": "launcher_present_binary_requires_build",
+  "backend_executable": "northstar-ydd-packer.exe"
 }

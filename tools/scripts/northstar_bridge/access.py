@@ -51,7 +51,7 @@ def status(root: Path) -> dict[str, Any]:
     return {
         "enabled": True,
         "scheme": "bearer_or_x_northstar_bridge_token",
-        "token_path": TOKEN_REL.as_posix(),
+        "token_path": (bridge_suite_root(root) / TOKEN_REL).as_posix(),
         "fingerprint": token_fingerprint(token),
     }
 

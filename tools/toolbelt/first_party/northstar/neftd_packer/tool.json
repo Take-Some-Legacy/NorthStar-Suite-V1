@@ -10,7 +10,7 @@
   "root": ".",
   "package_root": "tools/toolbelt/first_party/northstar/neftd_packer",
   "source_root": "tools/toolsSrc/neftd_packer",
-  "executable": "bin/northstar-neftd-packer.exe",
+  "executable": "bin/northstar-neftd-packer.cmd",
   "install_path": "tools/toolbelt/first_party/northstar/neftd_packer/bin/northstar-neftd-packer.exe",
   "cargo_manifest": "tools/toolsSrc/neftd_packer/Cargo.toml",
   "safe_for_build": true,
@@ -53,5 +53,9 @@
   "capabilities": [
     "assets.listfile.nef8.font_dictionary"
   ],
-  "sha256": "3584a75d817f73e30e86a623b96ae8e006c37d70857c1469a43bb577225e978d"
+  "sha256": "3584a75d817f73e30e86a623b96ae8e006c37d70857c1469a43bb577225e978d",
+  "expected_sha256": "2f81c58e61218a55d621588cc4d4f5f54b2c1bdd99958c67f961fd1bca03b071",
+  "expected_size_bytes": 895,
+  "availability": "launcher_present_binary_requires_build",
+  "backend_executable": "northstar-neftd-packer.exe"
 }

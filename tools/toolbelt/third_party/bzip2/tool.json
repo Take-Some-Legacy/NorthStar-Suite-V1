@@ -1,56 +1,59 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.bzip2",
-  "version": "1.0.8-msys2-usr",
-  "name": "GNU bzip2",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "GNU/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/bzip2",
-  "root": "tools/toolbelt/third_party/bzip2",
-  "executable": "bin/bzip2.exe",
-  "expected_sha256": "ac027e648f7d4bb8172d13a1bc27ac71784d193109aa48e76eff703aeb0f520d",
-  "expected_size_bytes": 92176,
-  "description": "GNU/MSYS2 bzip2 executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "version",
-      "description": "Print bzip2 version.",
-      "args": [
-        "-V"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "help",
-      "description": "Print bzip2 help.",
-      "args": [
-        "--help"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "-V"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "-V"
-    ],
-    "expect_stdout_contains": "bzip2, a block-sorting file compressor.  Version 1.0.8"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+    "commands":  [
+                     {
+                         "args":  "-V",
+                         "id":  "version",
+                         "description":  "Print bzip2 version.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "--help",
+                         "id":  "help",
+                         "description":  "Print bzip2 help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.bzip2",
+    "safe_to_auto_run":  false,
+    "name":  "GNU bzip2",
+    "package_root":  "tools/toolbelt/third_party/bzip2",
+    "executable":  "bin/bzip2.cmd",
+    "version":  "1.0.8-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "b318c7075faa8f428cad746e1218ebbcf8a7a0a524771bdfd6cb752bc94450c5",
+    "default_args":  "-V",
+    "root":  "tools/toolbelt/third_party/bzip2",
+    "owner":  "GNU/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "expected_size_bytes":  1664,
+    "description":  "GNU/MSYS2 bzip2 executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "-V",
+                       "expect_stdout_contains":  "bzip2, a block-sorting file compressor.  Version 1.0.8",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

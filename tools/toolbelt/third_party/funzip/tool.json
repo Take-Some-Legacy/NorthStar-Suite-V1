@@ -1,56 +1,59 @@
 {
-  "schema": "takesome.tool.v2",
-  "id": "vendor.msys2.gnu.funzip",
-  "version": "6.0-msys2-usr",
-  "name": "Info-ZIP funzip",
-  "kind": "external-cli",
-  "source_type": "third_party",
-  "owner": "Info-ZIP/MSYS2",
-  "maturity": "vendor-pinned-local",
-  "safe_to_auto_run": false,
-  "package_root": "tools/toolbelt/third_party/funzip",
-  "root": "tools/toolbelt/third_party/funzip",
-  "executable": "bin/funzip.exe",
-  "expected_sha256": "45e648bd3be4fee5c7c05b7a758b85fc6d284a027ec504a80f687483a7335fb6",
-  "expected_size_bytes": 28476,
-  "description": "MSYS2 usr Info-ZIP funzip executable packaged as a shared-runtime descriptor tool.",
-  "shared_libs": [
-    {
-      "id": "vendor.msys2.runtime.usr",
-      "path": "tools/toolbelt/libraries"
-    }
-  ],
-  "commands": [
-    {
-      "id": "help",
-      "description": "Print Info-ZIP funzip version/help.",
-      "args": [
-        "-h"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    },
-    {
-      "id": "version",
-      "description": "Print Info-ZIP funzip version information.",
-      "args": [
-        "-v"
-      ],
-      "readOnlyHint": true,
-      "destructiveHint": false,
-      "idempotentHint": true
-    }
-  ],
-  "default_args": [
-    "-h"
-  ],
-  "validation": {
-    "mode": "presence_hash_version_and_shared_libs",
-    "args": [
-      "-h"
-    ],
-    "expect_stdout_contains": "funzip"
-  },
-  "layout_note": "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
+    "commands":  [
+                     {
+                         "args":  "-h",
+                         "id":  "help",
+                         "description":  "Print Info-ZIP funzip version/help.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     },
+                     {
+                         "args":  "-v",
+                         "id":  "version",
+                         "description":  "Print Info-ZIP funzip version information.",
+                         "destructiveHint":  false,
+                         "readOnlyHint":  true,
+                         "idempotentHint":  true
+                     }
+                 ],
+    "id":  "vendor.msys2.gnu.funzip",
+    "safe_to_auto_run":  false,
+    "name":  "Info-ZIP funzip",
+    "package_root":  "tools/toolbelt/third_party/funzip",
+    "executable":  "bin/funzip.cmd",
+    "version":  "6.0-msys2-usr",
+    "source_type":  "third_party",
+    "expected_sha256":  "695e06d2409c96fbbdc1c93a577aa8846f073a30308bbf1cb77432ea56c227f2",
+    "default_args":  "-h",
+    "root":  "tools/toolbelt/third_party/funzip",
+    "owner":  "Info-ZIP/MSYS2",
+    "schema":  "takesome.tool.v2",
+    "shared_libs":  {
+                        "id":  "vendor.msys2.runtime.usr",
+                        "path":  "tools/toolbelt/libraries"
+                    },
+    "kind":  "external-cli",
+    "expected_size_bytes":  1665,
+    "description":  "MSYS2 usr Info-ZIP funzip executable packaged as a shared-runtime descriptor tool.",
+    "maturity":  "vendor-pinned-local",
+    "validation":  {
+                       "args":  "-h",
+                       "expect_stdout_contains":  "funzip",
+                       "mode":  "presence_hash_version_and_shared_libs"
+                   },
+    "backend_resolution":  {
+                               "mode":  "system-proxy",
+                               "preferred_env":  "TAKESOME_GNU_BIN",
+                               "search_order":  [
+                                                    "%TAKESOME_GNU_BIN%",
+                                                    "%ProgramFiles%/Git/usr/bin",
+                                                    "%ProgramFiles(x86)%/Git/usr/bin",
+                                                    "%LOCALAPPDATA%/Programs/Git/usr/bin",
+                                                    "C:/msys64/usr/bin",
+                                                    "C:/msys64/mingw64/bin",
+                                                    "PATH"
+                                                ]
+                           },
+    "layout_note":  "Direct third_party package; shared runtime lives flat in tools/toolbelt/libraries."
 }

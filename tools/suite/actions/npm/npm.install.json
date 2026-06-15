@@ -1,0 +1,38 @@
+{
+    "output_mode":  "process_exit",
+    "progress_total":  1,
+    "action_id":  "npm.install",
+    "progress_unit":  "step",
+    "output_schema":  null,
+    "target_domain":  "npm",
+    "outputs":  [
+                    "node_modules/",
+                    "package-lock.json"
+                ],
+    "label":  "Install npm dependencies",
+    "idempotentHint":  false,
+    "command":  "tools",
+    "cwd_policy":  "active_workspace",
+    "detail":  "Run npm install in the active workspace through DevSuite vendor.npm.",
+    "safe_for_menu":  true,
+    "category":  "npm",
+    "readOnlyHint":  false,
+    "args":  [
+                 "run",
+                 "vendor.npm",
+                 "--",
+                 "install"
+             ],
+    "chips":  [
+                  "npm",
+                  "workspace",
+                  "script_env"
+              ],
+    "primary_tag":  "NPM",
+    "risk_level":  "writes_workspace",
+    "profile":  "",
+    "requires_workspace":  [
+                               "package.json"
+                           ],
+    "destructiveHint":  false
+}

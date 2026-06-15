@@ -1,46 +1,26 @@
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 from typing import Any
 
-WORKSPACE_CONFIG_REL = Path("config") / "suite" / "workspace.v1.json"
+from .config_loader import CONFIG_ROOT_REL, LEGACY_CONFIG_ROOT_REL, load_config_json, resolve_user_path
+
+WORKSPACE_CONFIG_NAME = "workspace.v1.json"
+WORKSPACE_CONFIG_REL = CONFIG_ROOT_REL / WORKSPACE_CONFIG_NAME
+LEGACY_WORKSPACE_CONFIG_REL = LEGACY_CONFIG_ROOT_REL / WORKSPACE_CONFIG_NAME
 WORKSPACE_ROOT_ENVS = ("NORTHSTAR_WORKSPACE_ROOT", "NORTHSTAR_SUITE_WORKSPACE_ROOT", "TAKESOME_WORKSPACE_ROOT")
 TOOL_ROOT_ENVS = ("NORTHSTAR_TOOL_ROOT", "NORTHSTAR_SUITE_TOOL_ROOT", "TAKESOME_TOOL_ROOT")
 
 
-def _read_json(path: Path) -> dict[str, Any]:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8-sig"))
-        return data if isinstance(data, dict) else {}
-    except Exception:
-        return {}
-
-
 def load_workspace_config(launch_root: Path, config_path: str | Path | None = None) -> dict[str, Any]:
-    raw = str(config_path or os.environ.get("NORTHSTAR_SUITE_WORKSPACE_CONFIG") or "").strip()
-    if raw:
-        path = Path(raw).expanduser()
-        if not path.is_absolute():
-            path = (launch_root / path).resolve()
-    else:
-        path = (launch_root / WORKSPACE_CONFIG_REL).resolve()
-    data = _read_json(path)
-    if data:
-        data.setdefault("_config_path", str(path))
-    return data
-
-
-def _resolve_config_path(launch_root: Path, raw: object) -> Path | None:
-    text = str(raw or "").strip()
-    if not text:
-        return None
-    text = os.path.expandvars(text)
-    path = Path(text).expanduser()
-    if not path.is_absolute():
-        path = (launch_root / path).resolve()
-    return path
+    loaded = load_config_json(
+        launch_root,
+        WORKSPACE_CONFIG_NAME,
+        explicit_path=config_path,
+        env_var="NORTHSTAR_SUITE_WORKSPACE_CONFIG",
+    )
+    return loaded.with_metadata() if loaded.data else {}
 
 
 def resolve_workspace_root(launch_root: Path, cli_root: str | Path | None, config: dict[str, Any]) -> Path:
@@ -55,7 +35,7 @@ def resolve_workspace_root(launch_root: Path, cli_root: str | Path | None, confi
             return Path(raw).expanduser().resolve()
 
     workspace = config.get("workspace") if isinstance(config.get("workspace"), dict) else {}
-    configured = _resolve_config_path(launch_root, workspace.get("root"))
+    configured = resolve_user_path(launch_root, workspace.get("root"))
     return configured or launch_root.resolve()
 
 
@@ -71,7 +51,7 @@ def resolve_tool_root(launch_root: Path, config: dict[str, Any]) -> Path:
             return Path(raw).expanduser().resolve()
 
     workspace = config.get("workspace") if isinstance(config.get("workspace"), dict) else {}
-    configured = _resolve_config_path(launch_root, workspace.get("tool_root") or config.get("tool_root"))
+    configured = resolve_user_path(launch_root, workspace.get("tool_root") or config.get("tool_root"))
     return configured or launch_root.resolve()
 
 

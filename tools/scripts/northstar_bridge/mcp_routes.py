@@ -1,42 +1,23 @@
 from __future__ import annotations
 
-import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
 
-from .http_mounts import HTTP_MOUNTS, direct_tool_call_paths, operator_get_paths
+from .config_loader import load_config_json
+from .http_mounts import HTTP_MOUNTS, operator_get_paths
+from .net_address import normalize_http_path, unique_http_paths
 
-BRIDGE_PUBLIC_ORIGIN_CONFIG_REL = Path("config") / "suite" / "bridge_public_origin.v1.json"
-
-
-def _normalize_path(value: object, default: str = "/mcp") -> str:
-    text = str(value or "").strip()
-    if not text:
-        text = default
-    if not text.startswith("/"):
-        text = "/" + text
-    if len(text) > 1:
-        text = text.rstrip("/")
-    return text or default
-
-
-def _unique_paths(values: Iterable[object]) -> tuple[str, ...]:
-    out: list[str] = []
-    for value in values:
-        path = _normalize_path(value, "")
-        if path and path not in out:
-            out.append(path)
-    return tuple(out)
+BRIDGE_PUBLIC_ORIGIN_CONFIG_NAME = "bridge_public_origin.v1.json"
 
 
 @dataclass(frozen=True)
 class McpRouteProfile:
     """Canonical MCP HTTP route policy.
 
-    Route names are data-driven.  The default profile is intentionally minimal;
-    deployment-specific paths such as /mcp-v2 must come from config or env.
+    Routes are config-driven.  Deployment-specific paths such as /mcp-v2 belong
+    to .takesome/config/bridge_public_origin.v1.json or environment overrides,
+    not scattered constants.
     """
 
     endpoint: str = "/mcp"
@@ -50,34 +31,16 @@ class McpRouteProfile:
 DEFAULT_MCP_ROUTES = McpRouteProfile()
 
 
-def _read_json(path: Path) -> dict:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8-sig"))
-        return data if isinstance(data, dict) else {}
-    except Exception:
-        return {}
-
-
-def _route_data_from_config(root: Path) -> dict:
-    public = _read_json(root / BRIDGE_PUBLIC_ORIGIN_CONFIG_REL)
+def _route_data_from_config(root: Path, operator_root: Path | None = None) -> dict:
+    public = load_config_json(root, BRIDGE_PUBLIC_ORIGIN_CONFIG_NAME, operator_root=operator_root).data
     mcp = public.get("mcp") if isinstance(public.get("mcp"), dict) else {}
     return mcp if isinstance(mcp, dict) else {}
 
 
-def load_mcp_route_profile(root: Path) -> McpRouteProfile:
-    """Load MCP route policy from config with environment override.
-
-    Supported config shape in config/suite/bridge_public_origin.v1.json:
-      "mcp": {
-        "endpoint": "/mcp-v2",
-        "aliases": ["/mcp"],
-        "discovery_paths": ["/", "/mcp-v2", "/mcp"],
-        "public_get_paths": ["/", "/mcp-v2", "/mcp", "/health", "/favicon.ico"],
-        "direct_tool_call_path": "/tools/call"
-      }
-    """
-    data = _route_data_from_config(root)
-    endpoint = _normalize_path(
+def load_mcp_route_profile(root: Path, operator_root: Path | None = None) -> McpRouteProfile:
+    """Load MCP route policy from .takesome/config with legacy fallback."""
+    data = _route_data_from_config(root, operator_root)
+    endpoint = normalize_http_path(
         os.environ.get("NORTHSTAR_MCP_ENDPOINT_PATH")
         or os.environ.get("NORTHSTAR_PUBLIC_MCP_PATH")
         or data.get("endpoint")
@@ -85,10 +48,10 @@ def load_mcp_route_profile(root: Path) -> McpRouteProfile:
         or DEFAULT_MCP_ROUTES.endpoint,
         DEFAULT_MCP_ROUTES.endpoint,
     )
-    aliases = _unique_paths(data.get("aliases") or data.get("mcp_paths") or [])
-    mcp_paths = _unique_paths((endpoint, *aliases)) or (endpoint,)
-    discovery_paths = _unique_paths(data.get("discovery_paths") or ("/", *mcp_paths))
-    public_get_paths = _unique_paths(data.get("public_get_paths") or (*discovery_paths, HTTP_MOUNTS.health, HTTP_MOUNTS.favicon))
+    aliases = unique_http_paths(data.get("aliases") or data.get("mcp_paths") or [])
+    mcp_paths = unique_http_paths((endpoint, *aliases)) or (endpoint,)
+    discovery_paths = unique_http_paths(data.get("discovery_paths") or ("/", *mcp_paths))
+    public_get_paths = unique_http_paths(data.get("public_get_paths") or (*discovery_paths, HTTP_MOUNTS.health, HTTP_MOUNTS.favicon))
     if HTTP_MOUNTS.health not in public_get_paths:
         public_get_paths = (*public_get_paths, HTTP_MOUNTS.health)
     if HTTP_MOUNTS.favicon not in public_get_paths:
@@ -99,7 +62,7 @@ def load_mcp_route_profile(root: Path) -> McpRouteProfile:
         mcp_paths=mcp_paths,
         public_get_paths=public_get_paths,
         operator_get_paths=operator_get_paths(),
-        direct_tool_call_path=_normalize_path(data.get("direct_tool_call_path"), DEFAULT_MCP_ROUTES.direct_tool_call_path),
+        direct_tool_call_path=normalize_http_path(data.get("direct_tool_call_path"), DEFAULT_MCP_ROUTES.direct_tool_call_path),
     )
 
 

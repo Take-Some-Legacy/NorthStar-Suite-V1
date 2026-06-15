@@ -1,0 +1,31 @@
+npm CLI adapter usage
+
+Version:
+  tools run vendor.npm -- --version
+
+List package scripts:
+  tools run vendor.npm -- run
+
+Install dependencies:
+  tools run vendor.npm -- install
+
+Clean install from lockfile:
+  tools run vendor.npm -- ci
+
+Build:
+  tools run vendor.npm -- run build
+
+Typecheck if present:
+  tools run vendor.npm -- run typecheck --if-present
+
+Lint if present:
+  tools run vendor.npm -- run lint --if-present
+
+Test if present:
+  tools run vendor.npm -- run test --if-present
+
+Dev server if present:
+  tools run vendor.npm -- run dev --if-present
+
+Preview server if present:
+  tools run vendor.npm -- run preview --if-present

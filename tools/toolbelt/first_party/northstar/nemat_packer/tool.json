@@ -10,7 +10,7 @@
   "root": ".",
   "package_root": "tools/toolbelt/first_party/northstar/nemat_packer",
   "source_root": "tools/toolsSrc/nemat_packer",
-  "executable": "bin/northstar-nemat-packer.exe",
+  "executable": "bin/northstar-nemat-packer.cmd",
   "install_path": "tools/toolbelt/first_party/northstar/nemat_packer/bin/northstar-nemat-packer.exe",
   "cargo_manifest": "tools/toolsSrc/nemat_packer/Cargo.toml",
   "safe_for_build": true,
@@ -402,5 +402,9 @@
       ],
       "riskTier": "read_only"
     }
-  ]
+  ],
+  "expected_sha256": "9e9456582a197a3077b4227ec7147b4b6e67413160abec00099ff1980bb511f4",
+  "expected_size_bytes": 895,
+  "availability": "launcher_present_binary_requires_build",
+  "backend_executable": "northstar-nemat-packer.exe"
 }
