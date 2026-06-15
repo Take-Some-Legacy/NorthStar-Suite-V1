@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .operator_response import default_assignment_candidate
 
 DECISION_SCHEMA = "noesis.suite.workloop_decision.v1"
-WRITE_RISKS = {"writes_workspace", "write", "sudo_write", "destructive", "dangerous"}
 CONTROL_DIR = ".takesome"
 
 
@@ -26,41 +26,6 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
     tmp.replace(path)
 
 
-def _response_kind(response: dict[str, Any] | None) -> str:
-    response = response if isinstance(response, dict) else {}
-    if response.get("timed_out"):
-        return "timed_out"
-    if not response.get("available"):
-        return "missing"
-    text = str(response.get("text") or "").strip().upper()
-    if text.startswith("APPROVE"):
-        return "approved"
-    if text.startswith("OVERRIDE"):
-        return "override"
-    if text.startswith("NOTE"):
-        return "note"
-    return "freeform"
-
-
-def _override_candidate(response: dict[str, Any] | None) -> dict[str, Any] | None:
-    response = response if isinstance(response, dict) else {}
-    text = str(response.get("text") or "").strip()
-    if not text.upper().startswith("OVERRIDE"):
-        return None
-    value = text.split(":", 1)[1].strip() if ":" in text else text
-    if not value:
-        return None
-    return {
-        "action_id": value,
-        "label": value,
-        "detail": "operator override from operator-response.md",
-        "risk_level": "unknown",
-        "requires_approval": True,
-        "final_score": 1.0,
-        "classification_reasons": ["operator override"],
-    }
-
-
 def decide_next_assignment(
     *,
     root: Path,
@@ -71,7 +36,9 @@ def decide_next_assignment(
     classified: dict[str, Any],
     operator_response: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    kind = _response_kind(operator_response)
+    response = stage.get("operator_response") if isinstance(stage.get("operator_response"), dict) else {}
+    response_policy = response.get("policy") if isinstance(response.get("policy"), dict) else {}
+    kind = str(response.get("kind") or "missing")
     stage_name = str(stage.get("stage") or "")
     ready = bool(stage.get("ready_to_assign"))
     blocked = bool(stage.get("blocked"))
@@ -84,36 +51,23 @@ def decide_next_assignment(
 
     if blocked:
         reasons.append("stage is blocked; do not assign new executable work")
-    elif kind == "approved":
-        reasons.append("operator approved existing request; no replacement assignment")
-    elif kind == "override":
-        selected = _override_candidate(operator_response)
-        assign = selected is not None
-        status = "needs_approval"
-        execution_policy = "requires_explicit_approval_no_auto_execute"
-        reasons.append("operator supplied override; record it as a controlled assignment")
+    elif response_policy and response_policy.get("assign") is False:
+        reasons.append("operator-response markdown policy disabled new assignment")
+    elif response.get("candidate"):
+        selected = response.get("candidate")
+        assign = bool(response_policy.get("assign", True))
+        status = str(response_policy.get("status") or ("needs_approval" if selected.get("requires_approval") else "assigned"))
+        execution_policy = str(response_policy.get("execution_policy") or "assignment_only_no_auto_execute")
+        reasons.append("selected candidate from operator-response markdown rules")
     elif ready:
         selected = candidates[0] if candidates else None
         if selected is None:
-            selected = {
-                "action_id": "suite.doctor",
-                "label": "Run Suite doctor and summarize blocking issues",
-                "risk_level": "read_only",
-                "requires_approval": False,
-                "final_score": 0.5,
-                "classification_reasons": ["fallback maintenance task"],
-            }
+            selected = default_assignment_candidate(root=root)
         assign = True
-        risk = str(selected.get("risk_level") or "").lower()
-        requires_approval = bool(selected.get("requires_approval")) or risk in WRITE_RISKS
-        if requires_approval:
-            status = "needs_approval"
-            execution_policy = "requires_explicit_approval_no_auto_execute"
-            reasons.append("selected task may write or is unknown; explicit approval required")
-        else:
-            status = "assigned"
-            execution_policy = "assignment_only_no_auto_execute"
-            reasons.append("selected safest available task for current stage")
+        requires_approval = bool(selected.get("requires_approval"))
+        status = "needs_approval" if requires_approval else "assigned"
+        execution_policy = "requires_explicit_approval_no_auto_execute" if requires_approval else "assignment_only_no_auto_execute"
+        reasons.append("selected safest available task for current stage")
     else:
         reasons.append("stage is not ready for a new assignment")
 
@@ -123,6 +77,7 @@ def decide_next_assignment(
         "cycle": cycle.get("cycle"),
         "stage": stage_name,
         "operator_response_kind": kind,
+        "operator_response_intent": response.get("intent", ""),
         "assign": assign,
         "status": status,
         "execution_policy": execution_policy,
@@ -133,6 +88,7 @@ def decide_next_assignment(
             "dangerous_requires_explicit_approval": True,
             "write_requires_explicit_approval": True,
             "assignment_is_not_execution": True,
+            "operator_rules_source": response.get("rules_source", ""),
         },
         "memory_summary": memory.get("summary") if isinstance(memory.get("summary"), dict) else {},
     }

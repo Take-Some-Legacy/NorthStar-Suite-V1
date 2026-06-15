@@ -406,13 +406,14 @@ def render_cycle_line(cycle: dict[str, Any]) -> str:
     checks = cycle.get("self_checks", []) if isinstance(cycle.get("self_checks"), list) else []
     failed = [check for check in checks if not check.get("ok")]
     recommendations = cycle.get("recommendations", []) if isinstance(cycle.get("recommendations"), list) else []
-    top_action = str(recommendations[0].get("action_id")) if recommendations and isinstance(recommendations[0], dict) else "none"
+    decision = cycle.get("workloop_decision", {}) if isinstance(cycle.get("workloop_decision"), dict) else {}
+    selected = decision.get("selected_candidate") if isinstance(decision.get("selected_candidate"), dict) else {}
+    top_action = str(selected.get("action_id") or (recommendations[0].get("action_id") if recommendations and isinstance(recommendations[0], dict) else "none"))
     openai = cycle.get("openai", {}) if isinstance(cycle.get("openai"), dict) else {}
     openai_state = "ok" if openai.get("ok") else ("attempted_failed" if openai.get("attempted") else "skipped")
     response = cycle.get("operator_response", {}) if isinstance(cycle.get("operator_response"), dict) else {}
     response_state = "available" if response.get("available") else "none"
     stage = cycle.get("stage", {}) if isinstance(cycle.get("stage"), dict) else {}
-    decision = cycle.get("workloop_decision", {}) if isinstance(cycle.get("workloop_decision"), dict) else {}
     tag = "OK" if not failed else "WARN"
     return f"[{tag}] intelligence cycle={cycle.get('cycle')} stage={stage.get('stage', 'unknown')} decision={decision.get('status', 'none')} checks_failed={len(failed)} openai={openai_state} operator_response={response_state} next={top_action}"
 

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .operator_response import classify_operator_response, default_assignment_candidate
 
 PRESENCE_SCHEMA = "noesis.suite.assistant_presence.v1"
 ASSIGNMENT_SCHEMA = "noesis.suite.assigned_task.v1"
@@ -53,23 +54,6 @@ def _text(value: Any) -> str:
     return str(value or "").strip()
 
 
-def classify_operator_response(response: dict[str, Any] | None) -> dict[str, Any]:
-    response = response if isinstance(response, dict) else {}
-    text = _text(response.get("text"))
-    upper = text.upper()
-    if response.get("timed_out"):
-        return {"state": "waiting", "kind": "timed_out", "available": False, "summary": "operator response timed out"}
-    if not response.get("available"):
-        return {"state": "waiting", "kind": "missing", "available": False, "summary": "operator response is not available"}
-    if upper.startswith("APPROVE"):
-        return {"state": "working", "kind": "approved", "available": True, "summary": "operator approved current request"}
-    if upper.startswith("OVERRIDE"):
-        return {"state": "working", "kind": "override", "available": True, "summary": "operator supplied override"}
-    if upper.startswith("NOTE"):
-        return {"state": "waiting", "kind": "note", "available": True, "summary": "operator supplied a note"}
-    return {"state": "waiting", "kind": "freeform", "available": True, "summary": "operator supplied freeform response"}
-
-
 def _recommendations(cycle: dict[str, Any]) -> list[dict[str, Any]]:
     value = cycle.get("recommendations")
     return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
@@ -77,15 +61,16 @@ def _recommendations(cycle: dict[str, Any]) -> list[dict[str, Any]]:
 
 def should_assign_task(cycle: dict[str, Any], operator_response: dict[str, Any] | None) -> tuple[bool, str]:
     response = classify_operator_response(operator_response)
-    if response["kind"] in {"approved", "override"}:
-        return False, "operator already selected next work"
-    if response["kind"] in {"missing", "timed_out"}:
+    policy_candidate = response.get("candidate")
+    if isinstance(policy_candidate, dict):
+        return True, "operator response rules produced an assignment candidate"
+    if not response.get("available"):
         return True, "no operator task is available; assigning the next safe recommendation"
-    if response["kind"] == "note" and _recommendations(cycle):
-        return True, "operator note received; preserving next recommendation as assignment"
+    if response.get("ready_to_assign") and _recommendations(cycle):
+        return True, "operator response rules allow assignment from recommendations"
     if not _recommendations(cycle):
         return True, "no recommendation exists; assigning default read-only maintenance"
-    return False, "operator response is present"
+    return False, "operator response rules did not request a new assignment"
 
 
 def candidate_task_id(candidate: dict[str, Any]) -> str:
@@ -119,9 +104,9 @@ def build_assigned_task(
     task_id = candidate_task_id(top)
     label = candidate_label(top, task_id)
     if not task_id:
-        task_id = "suite.doctor"
-        label = "Run Suite doctor and summarize blocking issues"
-        top = {"action_id": task_id, "risk_level": "read_only", "reason": "no recommendations were produced"}
+        top = default_assignment_candidate(root=root)
+        task_id = candidate_task_id(top)
+        label = candidate_label(top, task_id)
     return {
         "schema": ASSIGNMENT_SCHEMA,
         "generated_utc": utc_iso(),
@@ -129,7 +114,7 @@ def build_assigned_task(
         "status": status,
         "execution_policy": execution_policy,
         "reason": reason,
-        "operator_response": classify_operator_response(operator_response),
+        "operator_response": classify_operator_response(operator_response, root=root),
         "stage": stage or {},
         "decision": decision or {},
         "task": {"id": task_id, "label": label, "candidate": top},
@@ -177,7 +162,7 @@ def update_assistant_presence(
 ) -> dict[str, Any]:
     cycle = cycle if isinstance(cycle, dict) else {}
     state = state if state in VALID_STATES else "error"
-    response = classify_operator_response(operator_response)
+    response = classify_operator_response(operator_response, root=root)
     state_dir = presence_dir(root)
     payload = {
         "schema": PRESENCE_SCHEMA,
@@ -206,7 +191,8 @@ def update_assistant_presence(
         "",
         message or "No message.",
         "",
-        f"operator_response: `{response.get('kind')}` — {response.get('summary')}",
+        f"operator_response: `{response.get('kind')}` / `{response.get('intent', '')}` — {response.get('summary')}",
+        f"rules_source: `{response.get('rules_source', '')}`",
         f"assigned_task: `{task.get('id', '')}` {task.get('label', '')}",
         "",
     ]

@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+from .operator_response import evaluate_operator_response
 
 STAGE_SCHEMA = "noesis.suite.stage.v1"
 
@@ -18,7 +19,7 @@ def detect_workloop_stage(
     task_scan: dict[str, Any],
     operator_response: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    response = operator_response if isinstance(operator_response, dict) else {}
+    response_eval = evaluate_operator_response(operator_response)
     scan_signals = task_scan.get("signals") if isinstance(task_scan.get("signals"), dict) else {}
     repo = task_scan.get("repo") if isinstance(task_scan.get("repo"), dict) else {}
     cycle_info = task_scan.get("cycle") if isinstance(task_scan.get("cycle"), dict) else {}
@@ -37,25 +38,14 @@ def detect_workloop_stage(
         ready_to_assign = False
         blocked = True
         reasons.append("runtime-like .takesome files are visible in git status")
-    elif response.get("available"):
-        text = str(response.get("text") or "").strip().upper()
-        if text.startswith("APPROVE"):
-            stage = "operator_approved"
-            state = "working"
-            ready_to_assign = False
-            busy = True
-            reasons.append("operator approved current task")
-        elif text.startswith("OVERRIDE"):
-            stage = "operator_override"
-            state = "working"
-            ready_to_assign = True
-            busy = True
-            reasons.append("operator supplied override/new task")
-        else:
-            stage = "operator_note_available"
-            state = "waiting"
-            ready_to_assign = True
-            reasons.append("operator note/freeform response should influence next task")
+    elif response_eval.get("available") and response_eval.get("stage"):
+        stage = str(response_eval.get("stage"))
+        state = str(response_eval.get("state") or "waiting")
+        ready_to_assign = bool(response_eval.get("ready_to_assign"))
+        blocked = bool(response_eval.get("blocked"))
+        busy = bool(response_eval.get("busy"))
+        reasons.extend(str(item) for item in response_eval.get("reasons", []) if item)
+        reasons.append("operator-response stage selected by markdown rules")
     elif cycle_info.get("failing_check_count"):
         stage = "self_checks_failing"
         state = "working"
@@ -99,6 +89,7 @@ def detect_workloop_stage(
         "busy": busy,
         "blocked": blocked,
         "ready_to_assign": ready_to_assign,
+        "operator_response": response_eval,
         "reasons": reasons,
         "memory_hint": mem_summary,
     }
