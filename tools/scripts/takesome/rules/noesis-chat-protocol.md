@@ -11,7 +11,13 @@ Python must execute the generic protocol and must not hard-code semantic routing
     "default_to": "assistant",
     "default_from": "noesis",
     "requires_response": true,
-    "emit_when_stage_any": ["self_improvement_requested", "operator_note_available", "assignment_pending", "blocked_runtime_state_in_worktree"],
+    "emit_when_stage_any": [
+      "self_improvement_requested",
+      "operator_note_available",
+      "assignment_pending",
+      "blocked_runtime_state_in_worktree",
+      "operator_task_requested"
+    ],
     "dedupe_same_cycle": true,
     "dedupe_same_stage_and_task": false
   },
@@ -23,7 +29,13 @@ Python must execute the generic protocol and must not hard-code semantic routing
         "workloop_decision",
         "workloop_trace_summary",
         "assigned_task_md",
-        "task_scan"
+        "task_scan",
+        "operator_response",
+        "task_artifact_current_review_request",
+        "task_artifact_current_review_packet",
+        "source_apply_state",
+        "source_apply_executor_state",
+        "config_override_state"
       ]
     }
   },
