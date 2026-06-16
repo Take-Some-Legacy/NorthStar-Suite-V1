@@ -1,5 +1,15 @@
 from __future__ import annotations
 
+try:
+    from .noesis_improvement_writer import maybe_write_improvement_artifacts
+except Exception:  # pragma: no cover - improvement writer must never break the workloop
+    maybe_write_improvement_artifacts = None
+
+try:
+    from .noesis_chat import emit_from_current_state
+except Exception:  # pragma: no cover - chat must never break the workloop
+    emit_from_current_state = None
+
 import argparse
 import json
 import os
@@ -205,6 +215,18 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
         with events_path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(cycle, ensure_ascii=False) + "\n")
         append_workloop_trace(root, state_dir, cycle=cycle, phase="cycle_persisted", message="Full cycle state and event payload were persisted.", stage=stage, decision=decision, assignment=assignment, operator_response=cycle["operator_response"], extra={"state": rel(root, state_path), "events": rel(root, events_path)})
+        # noesis_improvement_writer_after_cycle_persisted
+        if maybe_write_improvement_artifacts is not None:
+            try:
+                maybe_write_improvement_artifacts(root, force=False)
+            except Exception as exc:
+                print(f"[WARN] noesis improvement writer failed: {exc}", flush=True)
+        # noesis_chat_emit_after_cycle_persisted
+        if emit_from_current_state is not None:
+            try:
+                emit_from_current_state(root, force=False)
+            except Exception as exc:
+                print(f"[WARN] noesis chat emit failed: {exc}", flush=True)
 
         if json_mode:
             print(json.dumps(cycle, ensure_ascii=False, indent=2))
