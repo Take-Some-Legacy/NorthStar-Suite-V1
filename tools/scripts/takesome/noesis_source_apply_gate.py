@@ -323,6 +323,118 @@ def status(root: Path) -> Dict[str, Any]:
     }
 
 
+
+
+# --- Noesis admin default permission profile override v1 ---
+def _truthy_runtime_env(value: str) -> bool:
+    return str(value or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _windows_process_is_admin() -> bool:
+    try:
+        import ctypes
+        return bool(ctypes.windll.shell32.IsUserAnAdmin())
+    except Exception:
+        return False
+
+
+def runtime_permission_facts(root: Path) -> Dict[str, Any]:
+    config = load_config(root)
+    policy = config.get("runtime_permissions", {}).get("admin_defaults", {})
+    activation = policy.get("activation_when", {}) if isinstance(policy, dict) else {}
+    env_names = activation.get("bridge_write_enabled_env_any", []) if isinstance(activation, dict) else []
+    try:
+        import os
+        env_hits = {str(name): os.environ.get(str(name), "") for name in env_names if str(name)}
+    except Exception:
+        env_hits = {}
+    env_write_enabled = any(_truthy_runtime_env(value) for value in env_hits.values())
+    windows_admin = _windows_process_is_admin()
+    admin_default_active = bool(policy.get("enabled", False)) and bool(windows_admin or env_write_enabled)
+    return {
+        "schema": "noesis.suite.runtime_permission_facts.v1",
+        "generated_utc": now_utc(),
+        "windows_process_is_admin": windows_admin,
+        "env_write_enabled": env_write_enabled,
+        "env_hits": {key: ("set" if value else "") for key, value in env_hits.items()},
+        "admin_default_active": admin_default_active,
+        "admin_default_profile": policy.get("default_profile", ""),
+    }
+
+
+def _apply_admin_default_capability(root: Path, capability: Dict[str, Any]) -> Dict[str, Any]:
+    config = load_config(root)
+    source_config = config.get("source_apply", {}) if isinstance(config.get("source_apply", {}), dict) else {}
+    facts = runtime_permission_facts(root)
+    if bool(source_config.get("admin_default_overridden", False)):
+        merged = dict(capability)
+        merged["admin_default_active"] = False
+        merged["admin_default_overridden"] = True
+        merged["runtime_facts"] = facts
+        return merged
+    if not facts.get("admin_default_active"):
+        merged = dict(capability)
+        merged["admin_default_active"] = False
+        merged["admin_default_overridden"] = False
+        merged["runtime_facts"] = facts
+        return merged
+    admin_defaults = config.get("runtime_permissions", {}).get("admin_defaults", {})
+    default_cap = admin_defaults.get("capabilities", {}).get("source_apply", {}) if isinstance(admin_defaults, dict) else {}
+    merged = dict(capability)
+    for key, value in default_cap.items():
+        merged[key] = value
+    merged["admin_default_active"] = True
+    merged["admin_default_overridden"] = False
+    merged["runtime_facts"] = facts
+    if not merged.get("enabled_utc"):
+        merged["enabled_utc"] = facts.get("generated_utc", now_utc())
+    if not merged.get("last_enable_task_id"):
+        merged["last_enable_task_id"] = "admin.runtime.default"
+    return merged
+
+
+_original_source_apply_status_fields = source_apply_status_fields
+
+def source_apply_status_fields(root: Path) -> Dict[str, Any]:
+    return _apply_admin_default_capability(root, _original_source_apply_status_fields(root))
+
+
+_original_enable = enable
+
+def enable(root: Path, *, task_id: str = "", reason: str = "", enabled_by: str = "noesis", auto_apply: bool | None = None, auto_commit: bool | None = None, auto_push: bool | None = None) -> Dict[str, Any]:
+    result = _original_enable(root, task_id=task_id, reason=reason, enabled_by=enabled_by, auto_apply=auto_apply, auto_commit=auto_commit, auto_push=auto_push)
+    # Explicit enable clears a previous admin-default override so privileged launches can again use config defaults.
+    ops = [{"op": "set", "path": "/source_apply/admin_default_overridden", "value": False}]
+    proposed = propose_overlay(root, config_key=_config_key(root), operations=ops, task_id=task_id, reason="Clear admin default override after explicit enable")
+    activate_overlay(root, proposed["id"])
+    result["admin_default_override_cleared_overlay_id"] = proposed["id"]
+    result["capability"] = source_apply_status_fields(root)
+    sync_capability_state(root, status_value="capability_enabled", event_kind="source_apply_enabled", overlay_id=result.get("overlay_id", ""), task_id=task_id)
+    return result
+
+
+def disable(root: Path, *, task_id: str = "", reason: str = "", enabled_by: str = "noesis") -> Dict[str, Any]:
+    paths = _overlay_paths(root)
+    ops = [
+        _operation(paths, "enabled", False),
+        _operation(paths, "auto_apply", False),
+        _operation(paths, "auto_commit", False),
+        _operation(paths, "auto_push", False),
+        {"op": "set", "path": "/source_apply/admin_default_overridden", "value": True},
+        _operation(paths, "enabled_by", enabled_by),
+        _operation(paths, "enabled_utc", now_utc()),
+        _operation(paths, "enable_reason", reason or "Capability disabled; admin default overridden."),
+        _operation(paths, "last_enable_task_id", task_id),
+    ]
+    proposed = propose_overlay(root, config_key=_config_key(root), operations=ops, task_id=task_id, reason=reason or "Disable source apply capability")
+    activated = activate_overlay(root, proposed["id"])
+    capability = source_apply_status_fields(root)
+    sync_capability_state(root, status_value="capability_disabled", event_kind="source_apply_disabled", overlay_id=proposed["id"], task_id=task_id)
+    return {"ok": True, "enabled": False, "overlay_id": proposed["id"], "proposed": proposed, "activated": activated, "capability": capability}
+
+# --- /Noesis admin default permission profile override v1 ---
+
+
 def _main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Noesis source apply capability gate")
     parser.add_argument("command", choices=["status", "prepare", "enable", "disable"])

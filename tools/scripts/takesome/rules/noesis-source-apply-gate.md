@@ -41,6 +41,7 @@ The source-apply capability is not permanently locked. Noesis may enable or disa
     "capability_status",
     "enable_capability_overlay_if_task_requires_it",
     "approval_required",
+    "approval_executor",
     "patch_apply_after_approval",
     "validate",
     "commit_request",
@@ -48,3 +49,6 @@ The source-apply capability is not permanently locked. Noesis may enable or disa
   ]
 }
 ```
+
+Admin runtime default: when the Suite process is launched with administrator/write privileges and config `runtime_permissions.admin_defaults.enabled` is true, permissions are active by default. Explicit disable creates a runtime overlay with `source_apply.admin_default_overridden=true`.
+

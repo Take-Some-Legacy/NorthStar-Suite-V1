@@ -112,7 +112,17 @@
     "source_apply_request_current": "${source_apply_root}/current/request.md",
     "source_apply_state": "${source_apply_root}/state.json",
     "source_apply_events": "${source_apply_root}/events.jsonl",
-    "source_apply_requests_dir": "${source_apply_root}/requests"
+    "source_apply_requests_dir": "${source_apply_root}/requests",
+    "source_apply_approval_current": "${source_apply_root}/approval/current/approval.json",
+    "source_apply_approvals_dir": "${source_apply_root}/approval/approvals",
+    "source_apply_executor_state": "${source_apply_root}/executor/state.json",
+    "source_apply_executor_events": "${source_apply_root}/executor/events.jsonl",
+    "source_apply_executions_dir": "${source_apply_root}/executor/executions",
+    "source_apply_patch_staging_dir": "${source_apply_root}/executor/patches",
+    "source_apply_validation_current": "${source_apply_root}/validation/current/report.json",
+    "source_apply_validation_reports_dir": "${source_apply_root}/validation/reports",
+    "source_apply_commit_request_current": "${source_apply_root}/commit/current/request.md",
+    "source_apply_commit_requests_dir": "${source_apply_root}/commit/requests"
   },
   "self": {
     "config_key": "noesis_roots_config",
@@ -136,6 +146,50 @@
     "enabled_by": "",
     "enabled_utc": "",
     "enable_reason": "",
-    "last_enable_task_id": ""
+    "last_enable_task_id": "",
+    "admin_default_overridden": false
+  },
+  "runtime_permissions": {
+    "admin_defaults": {
+      "schema": "noesis.suite.runtime_admin_defaults.v1",
+      "enabled": true,
+      "activation_when": {
+        "windows_process_is_admin": true,
+        "bridge_write_enabled_env_any": [
+          "NOESIS_SUITE_WRITE_ENABLED",
+          "NORTHSTAR_WRITE_ENABLED",
+          "SUITE_WRITE_ENABLED"
+        ],
+        "env_truthy_values": [
+          "1",
+          "true",
+          "yes",
+          "on"
+        ]
+      },
+      "default_profile": "all_permissions_active",
+      "capabilities": {
+        "source_apply": {
+          "enabled": true,
+          "enablement_mode": "admin_runtime_default",
+          "approval_required": false,
+          "direct_source_write_without_approval": true,
+          "auto_apply": true,
+          "auto_commit": true,
+          "auto_push": true,
+          "validation_required": true,
+          "commit_requires_separate_request": false,
+          "push_requires_separate_request": false,
+          "enabled_by": "admin_runtime_default",
+          "enable_reason": "Suite process is running with administrator/write privileges; default permissions are active by config policy."
+        }
+      },
+      "audit": {
+        "runtime_fact_required": true,
+        "effective_state_must_report_admin_default": true,
+        "explicit_disable_sets_admin_default_overridden": true,
+        "base_config_mutation_required": false
+      }
+    }
   }
 }
