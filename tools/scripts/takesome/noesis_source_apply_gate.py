@@ -214,6 +214,35 @@ def prepare(root: Path, *, reason: str = "") -> Dict[str, Any]:
     return {"ok": True, "request": envelope, "request_md": str(paths["request_current"])}
 
 
+def sync_capability_state(root: Path, *, status_value: str, event_kind: str, overlay_id: str = "", task_id: str = "") -> Dict[str, Any]:
+    paths = configured_paths(root)
+    created = now_utc()
+    capability = source_apply_status_fields(root)
+    enabled = bool(capability.get("enabled"))
+    existing = read_json(paths["state"])
+    state = {
+        "schema": "noesis.suite.source_apply_state.v1",
+        "updated_utc": created,
+        "status": status_value,
+        "source_apply_enabled": enabled,
+        "capability": capability,
+        "current_request_id": existing.get("current_request_id", ""),
+        "current_request": existing.get("current_request", str(paths["request_current"])),
+        "last_capability_overlay_id": overlay_id,
+        "last_capability_task_id": task_id,
+    }
+    write_json(paths["state"], state)
+    append_jsonl(paths["events"], {
+        "schema": "noesis.suite.source_apply_event.v1",
+        "created_utc": created,
+        "kind": event_kind,
+        "overlay_id": overlay_id,
+        "task_id": task_id,
+        "source_apply_enabled": enabled,
+    })
+    return state
+
+
 def _overlay_paths(root: Path) -> Dict[str, str]:
     config = rules_config(root)
     paths = config.get("overlay_paths")
@@ -255,9 +284,8 @@ def enable(root: Path, *, task_id: str = "", reason: str = "", enabled_by: str =
             operations.append(_operation(paths, name, bool(current.get(name))))
     proposed = propose_overlay(root, config_key=_config_key(root), operations=operations, task_id=task_id, reason=reason)
     activated = activate_overlay(root, proposed["id"])
-    paths_cfg = configured_paths(root)
-    append_jsonl(paths_cfg["events"], {"schema": "noesis.suite.source_apply_event.v1", "created_utc": created, "kind": "capability_enabled", "overlay_id": proposed["id"], "task_id": task_id})
-    return {"ok": True, "enabled": True, "overlay_id": proposed["id"], "proposed": proposed, "activated": activated, "capability": source_apply_status_fields(root)}
+    state = sync_capability_state(root, status_value="capability_enabled", event_kind="capability_enabled", overlay_id=proposed["id"], task_id=task_id)
+    return {"ok": True, "enabled": True, "overlay_id": proposed["id"], "proposed": proposed, "activated": activated, "capability": source_apply_status_fields(root), "state": state}
 
 
 def disable(root: Path, *, task_id: str = "", reason: str = "", enabled_by: str = "noesis") -> Dict[str, Any]:
@@ -275,9 +303,8 @@ def disable(root: Path, *, task_id: str = "", reason: str = "", enabled_by: str 
     ]
     proposed = propose_overlay(root, config_key=_config_key(root), operations=operations, task_id=task_id, reason=reason)
     activated = activate_overlay(root, proposed["id"])
-    paths_cfg = configured_paths(root)
-    append_jsonl(paths_cfg["events"], {"schema": "noesis.suite.source_apply_event.v1", "created_utc": created, "kind": "capability_disabled", "overlay_id": proposed["id"], "task_id": task_id})
-    return {"ok": True, "enabled": False, "overlay_id": proposed["id"], "proposed": proposed, "activated": activated, "capability": source_apply_status_fields(root)}
+    state = sync_capability_state(root, status_value="capability_disabled", event_kind="capability_disabled", overlay_id=proposed["id"], task_id=task_id)
+    return {"ok": True, "enabled": False, "overlay_id": proposed["id"], "proposed": proposed, "activated": activated, "capability": source_apply_status_fields(root), "state": state}
 
 
 def status(root: Path) -> Dict[str, Any]:

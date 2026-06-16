@@ -217,7 +217,7 @@ def _active_overlay_files_for(config: Dict[str, Any], suite_root: Path, config_k
     active_dir = files.get("config_override_active_dir")
     if not active_dir or not active_dir.exists():
         return []
-    candidates: List[tuple[str, Path]] = []
+    candidates: List[tuple[tuple[int, str, str], Path]] = []
     for path in sorted(active_dir.glob("*.json")):
         try:
             overlay = json.loads(path.read_text(encoding="utf-8-sig"))
@@ -225,8 +225,13 @@ def _active_overlay_files_for(config: Dict[str, Any], suite_root: Path, config_k
             continue
         if str(overlay.get("config_key") or "") != config_key:
             continue
-        order = str(overlay.get("created_utc") or "") + " " + str(overlay.get("id") or path.stem)
-        candidates.append((order, path))
+        try:
+            seq = int(overlay.get("activation_seq") or 0)
+        except Exception:
+            seq = 0
+        stamp = str(overlay.get("activated_utc") or overlay.get("updated_utc") or overlay.get("created_utc") or "")
+        oid = str(overlay.get("id") or path.stem)
+        candidates.append(((seq, stamp, oid), path))
     return [path for _, path in sorted(candidates)]
 
 
@@ -239,7 +244,7 @@ def apply_active_overlays(config: Dict[str, Any], suite_root: Path, config_key: 
         if not isinstance(operations, list):
             continue
         effective = apply_overlay_operations(effective, operations)
-        applied.append({"id": overlay.get("id"), "path": str(path)})
+        applied.append({"id": overlay.get("id"), "path": str(path), "activation_seq": overlay.get("activation_seq")})
     if applied:
         effective.setdefault("_effective", {})
         if isinstance(effective["_effective"], dict):

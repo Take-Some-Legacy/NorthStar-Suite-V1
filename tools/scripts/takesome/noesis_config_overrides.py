@@ -157,18 +157,26 @@ def activate(root: Path, overlay_id_value: str) -> Dict[str, Any]:
     overlay = read_json(source)
     if not overlay:
         raise RuntimeError(f"Invalid overlay JSON: {source}")
-    overlay["status"] = "active"
-    overlay["updated_utc"] = now_utc()
-    target = paths["active_dir"] / f"{overlay_id_value}.json"
-    write_json(target, overlay)
     state = read_json(paths["state"])
+    try:
+        activation_seq = int(state.get("last_activation_seq") or 0) + 1
+    except Exception:
+        activation_seq = 1
     active = state.get("active_overlay_ids") if isinstance(state.get("active_overlay_ids"), list) else []
     if overlay_id_value not in active:
         active.append(overlay_id_value)
+    activated_utc = now_utc()
+    overlay["status"] = "active"
+    overlay["updated_utc"] = activated_utc
+    overlay["activated_utc"] = activated_utc
+    overlay["activation_seq"] = activation_seq
+    target = paths["active_dir"] / f"{overlay_id_value}.json"
+    write_json(target, overlay)
     state.update({
         "schema": "noesis.suite.config_override_state.v1",
         "updated_utc": now_utc(),
         "active_overlay_ids": active,
+        "last_activation_seq": activation_seq,
     })
     write_json(paths["state"], state)
     event(root, "activated", {"id": overlay_id_value, "config_key": overlay.get("config_key"), "path": str(target)})
@@ -205,7 +213,7 @@ def effective(root: Path, *, config_key: str, write_cache: bool = False) -> Dict
     if not base:
         raise RuntimeError(f"Invalid or missing base config for {config_key}: {base_path}")
     active = [x for x in list_overlays(root) if x.get("bucket") == "active" and x.get("config_key") == config_key]
-    active.sort(key=lambda x: (str(x.get("created_utc") or ""), str(x.get("id") or "")))
+    active.sort(key=lambda x: (int(x.get("activation_seq") or 0), str(x.get("activated_utc") or x.get("updated_utc") or x.get("created_utc") or ""), str(x.get("id") or "")))
     result = base
     applied: List[Dict[str, Any]] = []
     for overlay in active:
@@ -213,7 +221,7 @@ def effective(root: Path, *, config_key: str, write_cache: bool = False) -> Dict
         if not isinstance(operations, list):
             continue
         result = apply_overlay_operations(result, operations)
-        applied.append({"id": overlay.get("id"), "path": overlay.get("path")})
+        applied.append({"id": overlay.get("id"), "path": overlay.get("path"), "activation_seq": overlay.get("activation_seq")})
     envelope = {
         "schema": "noesis.suite.effective_config_result.v1",
         "ok": True,
