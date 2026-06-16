@@ -69,6 +69,8 @@ LOCAL_HOST = "127.0.0.1"
 LOCAL_PORT = 8797
 LOCAL_ORIGIN = f"http://{LOCAL_HOST}:{LOCAL_PORT}"
 LOCAL_HEALTH = f"{LOCAL_ORIGIN}/health"
+OWNER_LOCK_FILE = "suite-intelligence-owner.json"
+
 
 
 
@@ -857,9 +859,69 @@ def suite_env_file(root: Path) -> Path:
     return root / ".takesome" / "script-env.cmd"
 
 
+def suite_intelligence_single_owner_guard_enabled() -> bool:
+    value = os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_SINGLE_OWNER_GUARD", "1").strip().lower()
+    return value not in {"0", "false", "no", "off"}
+
+
+def suite_intelligence_owner_ttl_sec() -> float:
+    raw = os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_OWNER_TTL_SEC", "180").strip()
+    try:
+        return max(30.0, float(raw))
+    except Exception:
+        return 180.0
+
+
+def read_suite_intelligence_owner(tool_root: Path) -> dict[str, object]:
+    path = tool_root / ".takesome" / "intelligence" / OWNER_LOCK_FILE
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def suppress_resident_for_main_task_owner(root: Path, tool_root: Path) -> bool:
+    if not suite_intelligence_single_owner_guard_enabled():
+        return False
+    owner = read_suite_intelligence_owner(tool_root)
+    if owner.get("role") != "main_task_loop":
+        return False
+    try:
+        age = time.time() - float(owner.get("updated_epoch") or 0.0)
+    except Exception:
+        return False
+    if age > suite_intelligence_owner_ttl_sec():
+        return False
+    state_dir = root / ".takesome" / "intelligence"
+    try:
+        state_dir.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "schema": "noesis.suite.resident_loop_suppression.v1",
+            "updated_utc": dt.datetime.now(dt.timezone.utc).isoformat().replace("+00:00", "Z"),
+            "reason": "main_task_loop_owner_lock_active",
+            "owner": owner,
+            "workspace_root": str(root),
+            "tool_root": str(tool_root),
+        }
+        (state_dir / "resident-loop-suppressed.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    except Exception:
+        pass
+    emit(
+        "STATE",
+        "Suite Intelligence resident loop suppressed; main task loop owner is active",
+        owner_pid=owner.get("pid"),
+        owner_cycle=owner.get("cycle"),
+        owner_age_seconds=round(age, 1),
+    )
+    return True
+
+
 def spawn_suite_intelligence(root: Path, tool_root: Path, q: "queue.Queue[tuple[str, str]]") -> Optional[subprocess.Popen[str]]:
     if not suite_intelligence_enabled():
         emit("STATE", "Suite Intelligence autostart disabled", env="NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART")
+        return None
+    if suppress_resident_for_main_task_owner(root, tool_root):
         return None
     takesome = tool_root / "tools" / "scripts" / "takesome.py"
     if not takesome.exists():
@@ -920,6 +982,8 @@ def ensure_suite_intelligence_alive(root: Path, tool_root: Path, proc: Optional[
         return proc
     if proc is not None and proc.poll() is None:
         return proc
+    if suppress_resident_for_main_task_owner(root, tool_root):
+        return None
     if proc is not None:
         emit("WARN", "Suite Intelligence resident loop exited; restarting", exit_code=proc.returncode)
     return spawn_suite_intelligence(root, tool_root, q)

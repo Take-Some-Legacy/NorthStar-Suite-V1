@@ -11,6 +11,7 @@ except Exception:  # pragma: no cover - chat must never break the workloop
     emit_from_current_state = None
 
 import argparse
+import datetime as dt
 import json
 import os
 import time
@@ -47,6 +48,50 @@ DEFAULT_GOAL = "Keep Noesis Suite healthy: detect bugs, errors, stale tools, and
 DEFAULT_LOCAL_MODEL_ROOT = Path(r"D:\LLM\DeepSeek-R1-Distill-Qwen-7B-PyTorch")
 
 
+OWNER_LOCK_FILE = "suite-intelligence-owner.json"
+
+
+def _owner_lock_root(root: Path) -> Path:
+    for name in ("NORTHSTAR_SUITE_TOOL_ROOT", "NORTHSTAR_TOOL_ROOT", "TAKESOME_TOOL_ROOT", "NEWENGINE_REPO_ROOT"):
+        raw = os.environ.get(name, "").strip()
+        if raw:
+            return Path(raw)
+    return root
+
+
+def _loop_owner_role(*, cycles: int, args: argparse.Namespace) -> str:
+    if cycles > 0 or bool(getattr(args, "once", False)):
+        return "main_task_loop"
+    return "resident_loop"
+
+
+def _write_loop_owner(root: Path, *, role: str, cycle_index: int, args: argparse.Namespace, state_dir: Path) -> None:
+    lock_root = _owner_lock_root(root)
+    lock_dir = lock_root / ".takesome" / "intelligence"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    now = dt.datetime.now(dt.timezone.utc)
+    payload = {
+        "schema": "noesis.suite.intelligence_owner.v1",
+        "updated_utc": now.isoformat().replace("+00:00", "Z"),
+        "updated_epoch": time.time(),
+        "pid": os.getpid(),
+        "role": role,
+        "cycle": cycle_index,
+        "workspace_root": str(root),
+        "owner_lock_root": str(lock_root),
+        "state_dir": str(state_dir),
+        "args": {
+            "cycles": getattr(args, "cycles", None),
+            "once": bool(getattr(args, "once", False)),
+            "interval_sec": getattr(args, "interval_sec", None),
+            "top": getattr(args, "top", None),
+            "no_openai": bool(getattr(args, "no_openai", False)),
+            "goal": str(getattr(args, "goal", "") or ""),
+        },
+    }
+    (lock_dir / OWNER_LOCK_FILE).write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int:
     """Resident Suite Intelligence loop.
 
@@ -73,6 +118,8 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
 
     state_dir = root / ".takesome" / "intelligence"
     state_dir.mkdir(parents=True, exist_ok=True)
+    owner_role = _loop_owner_role(cycles=cycles, args=args)
+    _write_loop_owner(root, role=owner_role, cycle_index=0, args=args, state_dir=state_dir)
     state_path = state_dir / "loop-state.json"
     events_path = state_dir / "loop-events.jsonl"
     inbox_path = state_dir / "inbox.md"
@@ -98,6 +145,7 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
     cycle_index = 0
     while True:
         cycle_index += 1
+        _write_loop_owner(root, role=owner_role, cycle_index=cycle_index, args=args, state_dir=state_dir)
         update_assistant_presence(
             root,
             state="thinking",
