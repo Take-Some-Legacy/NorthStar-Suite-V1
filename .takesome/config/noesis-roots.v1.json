@@ -1,0 +1,95 @@
+{
+  "schema": "noesis.suite.roots.v1",
+  "roots": {
+    "suite_root": {
+      "path": "${suite_input_root}"
+    },
+    "tool_root": {
+      "path": "${suite_root}/tools"
+    },
+    "toolbelt_root": {
+      "path": "${tool_root}"
+    },
+    "workspace_root": {
+      "env": [
+        "NOESIS_WORKSPACE_ROOT",
+        "NORTHSTAR_WORKSPACE_ROOT",
+        "TAKESOME_WORKSPACE_ROOT",
+        "NEWENGINE_REPO_ROOT"
+      ],
+      "fallback": "${suite_root}"
+    },
+    "runtime_root": {
+      "env": [
+        "NOESIS_RUNTIME_ROOT",
+        "NOESIS_SUITE_RUNTIME_ROOT",
+        "NORTHSTAR_SUITE_RUNTIME_ROOT"
+      ],
+      "fallback": "${machine_runtime_root}"
+    },
+    "config_root": {
+      "path": "${suite_root}/.takesome/config"
+    },
+    "intelligence_root": {
+      "path": "${suite_root}/.takesome/intelligence"
+    },
+    "chat_root": {
+      "path": "${intelligence_root}/chat"
+    },
+    "task_artifacts_root": {
+      "path": "${intelligence_root}/task-artifacts"
+    }
+  },
+  "root_metadata": {
+    "suite_root": {
+      "purpose": "Noesis Suite source and control repository"
+    },
+    "tool_root": {
+      "purpose": "Suite tool descriptors and scripts"
+    },
+    "toolbelt_root": {
+      "purpose": "Self-contained toolbelt root"
+    },
+    "workspace_root": {
+      "purpose": "External project workspace operated by Suite"
+    },
+    "runtime_root": {
+      "purpose": "Machine-local runtime/state root"
+    },
+    "config_root": {
+      "purpose": "Versioned Noesis configuration root"
+    },
+    "intelligence_root": {
+      "purpose": "Noesis intelligence runtime artifacts"
+    },
+    "chat_root": {
+      "purpose": "Noesis/assistant chat channel"
+    },
+    "task_artifacts_root": {
+      "purpose": "Generic artifacts produced for the currently assigned task."
+    }
+  },
+  "files": {
+    "workloop_decision": "${intelligence_root}/workloop-decision.json",
+    "workloop_trace_summary": "${intelligence_root}/workloop-trace.md",
+    "assigned_task_md": "${intelligence_root}/assigned-task.md",
+    "task_scan": "${intelligence_root}/task-scan.json",
+    "chat_journal": "${chat_root}/noesis-chat.jsonl",
+    "chat_state": "${chat_root}/chat-state.json",
+    "chat_noesis_to_assistant": "${chat_root}/noesis-to-assistant.md",
+    "chat_assistant_to_noesis": "${chat_root}/assistant-to-noesis.md",
+    "chat_unread_for_assistant": "${chat_root}/unread-for-assistant.json",
+    "chat_unread_for_noesis": "${chat_root}/unread-for-noesis.json",
+    "operator_response": "${intelligence_root}/operator-response.md",
+    "task_artifact_current_proposal": "${task_artifacts_root}/current/proposal.md",
+    "task_artifact_current_draft": "${task_artifacts_root}/current/draft.md",
+    "task_artifact_current_review_packet": "${task_artifacts_root}/current/review-packet.json",
+    "task_artifact_current_review_request": "${task_artifacts_root}/current/review-request.md",
+    "task_artifact_writer_state": "${task_artifacts_root}/writer-state.json",
+    "task_artifact_writer_events": "${task_artifacts_root}/writer-events.jsonl",
+    "task_artifact_proposals_dir": "${task_artifacts_root}/proposals",
+    "task_artifact_drafts_dir": "${task_artifacts_root}/drafts",
+    "task_artifact_review_packets_dir": "${task_artifacts_root}/review-packets",
+    "task_artifact_review_requests_dir": "${task_artifacts_root}/review-requests"
+  }
+}

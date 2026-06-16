@@ -5,14 +5,18 @@ import datetime as dt
 import hashlib
 import json
 import re
+import runpy
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
 RULES_PATH = Path("tools/scripts/takesome/rules/noesis-chat-protocol.md")
-DECISION_PATH = Path(".takesome/intelligence/workloop-decision.json")
-TRACE_SUMMARY_PATH = Path(".takesome/intelligence/workloop-trace.md")
-ASSIGNED_TASK_PATH = Path(".takesome/intelligence/assigned-task.md")
-TASK_SCAN_PATH = Path(".takesome/intelligence/task-scan.json")
+
+try:
+    from .noesis_roots import resolve_files, root_context
+except Exception:
+    _module = runpy.run_path(str(Path(__file__).resolve().with_name("noesis_roots.py")))
+    resolve_files = _module["resolve_files"]
+    root_context = _module["root_context"]
 
 
 def now_utc() -> str:
@@ -65,157 +69,176 @@ def extract_json_block(markdown: str) -> Dict[str, Any]:
 
 def load_rules(root: Path) -> Dict[str, Any]:
     value = extract_json_block(read_text(root / RULES_PATH))
-    if isinstance(value, dict) and value:
+    if value:
         return value
     raise RuntimeError(f"Missing or invalid Noesis chat rules file: {root / RULES_PATH}")
 
 
-def chat_paths(root: Path, rules: Dict[str, Any]) -> Dict[str, Path]:
-    cfg = rules.get("chat", {}) if isinstance(rules.get("chat"), dict) else {}
-    directory = root / str(cfg.get("directory", ".takesome/intelligence/chat"))
+def chat_paths(root: Path) -> Dict[str, Path]:
+    files = resolve_files(root)
+    required = {
+        "decision": "workloop_decision",
+        "journal": "chat_journal",
+        "state": "chat_state",
+        "noesis_md": "chat_noesis_to_assistant",
+        "assistant_md": "chat_assistant_to_noesis",
+        "unread_assistant": "chat_unread_for_assistant",
+        "unread_noesis": "chat_unread_for_noesis",
+    }
+    missing = [file_key for file_key in required.values() if file_key not in files]
+    if missing:
+        raise RuntimeError("Noesis chat missing configured file keys: " + ", ".join(sorted(missing)))
+    paths = {role: files[file_key] for role, file_key in required.items()}
+    paths["dir"] = paths["journal"].parent
+    return paths
+
+
+def _flatten_decision(decision: Dict[str, Any]) -> Dict[str, Any]:
+    final = decision.get("final") if isinstance(decision.get("final"), dict) else {}
+    selected = decision.get("selected_candidate") if isinstance(decision.get("selected_candidate"), dict) else {}
+    assigned = decision.get("assigned_task") if isinstance(decision.get("assigned_task"), dict) else {}
     return {
-        "dir": directory,
-        "journal": directory / str(cfg.get("journal", "noesis-chat.jsonl")),
-        "state": directory / str(cfg.get("state", "chat-state.json")),
-        "noesis_md": directory / str(cfg.get("latest_noesis_to_assistant", "noesis-to-assistant.md")),
-        "assistant_md": directory / str(cfg.get("latest_assistant_to_noesis", "assistant-to-noesis.md")),
-        "unread_assistant": directory / str(cfg.get("unread_for_assistant", "unread-for-assistant.json")),
-        "unread_noesis": directory / str(cfg.get("unread_for_noesis", "unread-for-noesis.json")),
+        "cycle": int(final.get("cycle") or decision.get("cycle") or 0),
+        "stage": str(final.get("stage") or decision.get("stage") or ""),
+        "task_id": str(final.get("assigned_task_id") or final.get("selected_action_id") or assigned.get("id") or selected.get("action_id") or ""),
+        "decision_status": str(decision.get("status") or ""),
+        "checks_failed": int(final.get("checks_failed") or decision.get("checks_failed") or 0),
     }
 
 
-def _decision(root: Path) -> Dict[str, Any]:
-    return read_json(root / DECISION_PATH)
-
-
-def _selected_action_id(decision: Dict[str, Any]) -> str:
-    final = decision.get("final") if isinstance(decision.get("final"), dict) else {}
-    candidate = decision.get("selected_candidate") if isinstance(decision.get("selected_candidate"), dict) else {}
-    assigned = decision.get("assigned_task") if isinstance(decision.get("assigned_task"), dict) else {}
-    return str(final.get("assigned_task_id") or final.get("selected_action_id") or assigned.get("id") or candidate.get("action_id") or "")
-
-
-def should_emit(decision: Dict[str, Any], rules: Dict[str, Any], force: bool = False) -> bool:
+def should_emit(facts: Dict[str, Any], rules: Dict[str, Any], state: Dict[str, Any], *, force: bool = False) -> bool:
     if force:
         return True
     policy = rules.get("emit_policy", {}) if isinstance(rules.get("emit_policy"), dict) else {}
-    stages = policy.get("emit_when_stage_any")
-    if isinstance(stages, list) and stages:
-        return str(decision.get("stage", "")) in {str(x) for x in stages}
-    return False
+    stages = {str(x) for x in policy.get("emit_when_stage_any", []) if isinstance(x, str)}
+    if stages and facts["stage"] not in stages:
+        return False
+    last = state.get("last_noesis_message") if isinstance(state.get("last_noesis_message"), dict) else {}
+    if policy.get("dedupe_same_cycle", True) and int(last.get("cycle") or -1) == facts["cycle"]:
+        return False
+    if policy.get("dedupe_same_stage_and_task", False):
+        if str(last.get("stage") or "") == facts["stage"] and str(last.get("task_id") or "") == facts["task_id"]:
+            return False
+    return True
+
+
+def _attachment_paths(root: Path, template: Dict[str, Any]) -> List[str]:
+    files = resolve_files(root)
+    result: List[str] = []
+    for key in template.get("attachment_file_keys", []):
+        if isinstance(key, str) and key in files:
+            result.append(str(files[key]))
+    return result
 
 
 def make_message(root: Path, rules: Dict[str, Any], *, force: bool = False) -> Dict[str, Any]:
-    decision = _decision(root)
-    policy = rules.get("emit_policy", {}) if isinstance(rules.get("emit_policy"), dict) else {}
+    paths = chat_paths(root)
+    decision = read_json(paths["decision"])
+    facts = _flatten_decision(decision)
     template_root = rules.get("message_templates", {}) if isinstance(rules.get("message_templates"), dict) else {}
     template = template_root.get("noesis_cycle_message", {}) if isinstance(template_root.get("noesis_cycle_message"), dict) else {}
-    stage = str(decision.get("stage") or "unknown")
-    task_id = _selected_action_id(decision) or "unknown"
-    decision_status = str(decision.get("status") or "unknown")
-    final = decision.get("final") if isinstance(decision.get("final"), dict) else {}
-    checks_failed = str(final.get("checks_failed") or decision.get("checks_failed") or "")
-    text_template = str(template.get("text_template") or "Noesis status: stage={stage}, task={task_id}.")
-    text = text_template.format(stage=stage, task_id=task_id, decision_status=decision_status, checks_failed=checks_failed)
-    cycle = int(decision.get("cycle") or final.get("cycle") or 0)
-    created = now_utc()
-    raw_id = f"{created}|{cycle}|{stage}|{task_id}|{decision_status}"
-    message_id = "msg-" + hashlib.sha256(raw_id.encode("utf-8")).hexdigest()[:16]
-    attachments = template.get("attachments") if isinstance(template.get("attachments"), list) else []
+    policy = rules.get("emit_policy", {}) if isinstance(rules.get("emit_policy"), dict) else {}
+    generated = now_utc()
+    attachments = _attachment_paths(root, template)
+    text_template = str(template.get("text_template") or "")
+    text = text_template.format(**facts, generated_utc=generated)
+    digest = hashlib.sha256((generated + text).encode("utf-8")).hexdigest()[:16]
     return {
         "schema": "noesis.suite.chat_message.v1",
-        "id": message_id,
-        "created_utc": created,
-        "cycle": cycle,
+        "id": f"msg-{facts['cycle']:06d}-{digest}",
+        "created_utc": generated,
+        "cycle": facts["cycle"],
         "from": str(policy.get("default_from") or "noesis"),
         "to": str(policy.get("default_to") or "assistant"),
         "kind": str(policy.get("default_kind") or "status_request"),
-        "stage": stage,
-        "task": task_id,
-        "decision_status": decision_status,
-        "text": text,
-        "attachments": [str(x) for x in attachments],
+        "stage": facts["stage"],
+        "task_id": facts["task_id"],
+        "decision_status": facts["decision_status"],
+        "checks_failed": facts["checks_failed"],
         "requires_response": bool(policy.get("requires_response", True)),
+        "text": text,
+        "attachments": attachments,
+        "root_context": root_context(root),
         "ack": False,
-        "force": bool(force),
     }
 
 
 def render_noesis_message(message: Dict[str, Any]) -> str:
-    attachments = "\n".join(f"- `{x}`" for x in message.get("attachments", []))
+    attachments = "\n".join(f"- `{item}`" for item in message.get("attachments", []) if isinstance(item, str))
     return (
         "# Noesis -> Assistant\n\n"
-        f"id: `{message.get('id')}`\n"
         f"created_utc: {message.get('created_utc')}\n"
         f"cycle: {message.get('cycle')}\n"
         f"stage: {message.get('stage')}\n"
-        f"task: `{message.get('task')}`\n"
-        f"decision_status: {message.get('decision_status')}\n"
+        f"task_id: `{message.get('task_id')}`\n"
+        f"kind: {message.get('kind')}\n"
         f"requires_response: {message.get('requires_response')}\n\n"
-        "## Message\n\n"
-        f"{message.get('text')}\n\n"
+        f"{message.get('text', '')}\n\n"
         "## Attachments\n\n"
-        f"{attachments or "- none"}\n"
+        f"{attachments}\n"
     )
 
 
 def emit_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
     rules = load_rules(root)
-    paths = chat_paths(root, rules)
-    decision = _decision(root)
-    if not should_emit(decision, rules, force=force):
-        return {"ok": True, "emitted": False, "reason": "emit_policy_not_matched"}
+    paths = chat_paths(root)
+    state = read_json(paths["state"])
+    decision = read_json(paths["decision"])
+    facts = _flatten_decision(decision)
+    if not should_emit(facts, rules, state, force=force):
+        return {"ok": True, "emitted": False, "reason": "emit_policy_not_matched_or_deduped", "facts": facts}
     message = make_message(root, rules, force=force)
     append_jsonl(paths["journal"], message)
     write_text(paths["noesis_md"], render_noesis_message(message))
     write_json(paths["unread_assistant"], message)
     state = {
         "schema": "noesis.suite.chat_state.v1",
-        "updated_utc": now_utc(),
-        "last_noesis_message_id": message.get("id"),
-        "last_cycle": message.get("cycle"),
+        "updated_utc": message["created_utc"],
+        "last_noesis_message": {"id": message["id"], "cycle": message["cycle"], "stage": message["stage"], "task_id": message["task_id"]},
         "unread_for_assistant": True,
         "unread_for_noesis": paths["unread_noesis"].exists(),
         "chat_dir": str(paths["dir"]),
     }
     write_json(paths["state"], state)
-    return {"ok": True, "emitted": True, "message": message, "state": state}
+    return {"ok": True, "emitted": True, "message": message}
 
 
 def reply(root: Path, text: str, *, kind: str = "assistant_reply") -> Dict[str, Any]:
     rules = load_rules(root)
-    paths = chat_paths(root, rules)
+    paths = chat_paths(root)
+    policy = rules.get("reply_policy", {}) if isinstance(rules.get("reply_policy"), dict) else {}
     message = {
         "schema": "noesis.suite.chat_message.v1",
-        "id": "msg-" + hashlib.sha256((now_utc() + text).encode("utf-8")).hexdigest()[:16],
+        "id": "reply-" + hashlib.sha256((now_utc() + text).encode("utf-8")).hexdigest()[:16],
         "created_utc": now_utc(),
         "from": "assistant",
         "to": "noesis",
-        "kind": kind,
+        "kind": str(policy.get("default_reply_kind") or kind),
         "text": text,
         "ack": False,
     }
     append_jsonl(paths["journal"], message)
     write_text(paths["assistant_md"], "# Assistant -> Noesis\n\n" + text.rstrip() + "\n")
     write_json(paths["unread_noesis"], message)
-    reply_policy = rules.get("reply_policy", {}) if isinstance(rules.get("reply_policy"), dict) else {}
-    if reply_policy.get("mirror_to_operator_response", True):
-        op_path = root / str(reply_policy.get("operator_response_path", ".takesome/intelligence/operator-response.md"))
-        write_text(op_path, text.rstrip() + "\n")
+    if policy.get("mirror_to_operator_response", True):
+        files = resolve_files(root)
+        key = str(policy.get("operator_response_file_key") or "operator_response")
+        if key not in files:
+            raise RuntimeError(f"Noesis chat reply policy references missing file key: {key}")
+        write_text(files[key], text.rstrip() + "\n")
     state = read_json(paths["state"])
     state.update({
         "schema": "noesis.suite.chat_state.v1",
-        "updated_utc": now_utc(),
-        "last_assistant_message_id": message.get("id"),
+        "updated_utc": message["created_utc"],
+        "last_assistant_reply": {"id": message["id"], "kind": message["kind"]},
         "unread_for_noesis": True,
     })
     write_json(paths["state"], state)
-    return {"ok": True, "message": message, "state": state}
+    return {"ok": True, "message": message}
 
 
 def status(root: Path) -> Dict[str, Any]:
-    rules = load_rules(root)
-    paths = chat_paths(root, rules)
+    paths = chat_paths(root)
     state = read_json(paths["state"])
     return {
         "schema": "noesis.suite.chat_status.v1",
@@ -231,24 +254,23 @@ def status(root: Path) -> Dict[str, Any]:
 
 
 def read_messages(root: Path, tail: int = 10) -> List[Dict[str, Any]]:
-    rules = load_rules(root)
-    journal = chat_paths(root, rules)["journal"]
+    journal = chat_paths(root)["journal"]
     if not journal.exists():
         return []
-    lines = journal.read_text(encoding="utf-8", errors="replace").splitlines()
-    result: List[Dict[str, Any]] = []
-    for line in lines[-max(1, tail):]:
+    lines = journal.read_text(encoding="utf-8-sig", errors="replace").splitlines()[-max(1, tail):]
+    out: List[Dict[str, Any]] = []
+    for line in lines:
         try:
             value = json.loads(line)
         except Exception:
             continue
         if isinstance(value, dict):
-            result.append(value)
-    return result
+            out.append(value)
+    return out
 
 
 def _main(argv: Iterable[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Noesis file-based assistant chat protocol")
+    parser = argparse.ArgumentParser(description="Noesis file-based assistant chat")
     parser.add_argument("command", choices=["emit-from-state", "status", "read", "reply"])
     parser.add_argument("--root", default=".")
     parser.add_argument("--force", action="store_true")
@@ -267,15 +289,15 @@ def _main(argv: Iterable[str] | None = None) -> int:
         return 0
     if ns.command == "reply":
         if not ns.text:
-            raise SystemExit("--text is required")
+            raise SystemExit("--text is required for reply")
         print(json.dumps(reply(root, ns.text), ensure_ascii=False, indent=2))
         return 0
     return 2
 
 
-if __name__ == "__main__":
-    raise SystemExit(_main())
-
-
 def emit_from_current_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
     return emit_from_state(root, force=force)
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())

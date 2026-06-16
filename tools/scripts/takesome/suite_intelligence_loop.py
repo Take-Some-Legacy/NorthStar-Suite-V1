@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 try:
-    from .noesis_improvement_writer import maybe_write_improvement_artifacts
-except Exception:  # pragma: no cover - improvement writer must never break the workloop
-    maybe_write_improvement_artifacts = None
+    from .noesis_task_artifact_writer import maybe_write_task_artifacts
+except Exception:  # pragma: no cover - task artifact writer must never break the workloop
+    maybe_write_task_artifacts = None
 
 try:
     from .noesis_chat import emit_from_current_state
@@ -25,7 +25,6 @@ from .task_classifier import classify_task_candidates
 from .task_scanner import scan_task_context, write_task_scan
 from .workloop_policy import decide_next_assignment
 from .workloop_trace import append_workloop_trace, finalize_workloop_decision
-from .noesis_chat import emit_from_state as emit_noesis_chat_from_state
 from .suite.registry import build_suite_registry
 from .suite_intelligence import (
     ask_openai_for_task_plan,
@@ -216,12 +215,12 @@ def suite_intelligence_loop_command(root: Path, args: argparse.Namespace) -> int
         with events_path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(cycle, ensure_ascii=False) + "\n")
         append_workloop_trace(root, state_dir, cycle=cycle, phase="cycle_persisted", message="Full cycle state and event payload were persisted.", stage=stage, decision=decision, assignment=assignment, operator_response=cycle["operator_response"], extra={"state": rel(root, state_path), "events": rel(root, events_path)})
-        # noesis_improvement_writer_after_cycle_persisted
-        if maybe_write_improvement_artifacts is not None:
+        # noesis_task_artifact_writer_after_cycle_persisted
+        if maybe_write_task_artifacts is not None:
             try:
-                maybe_write_improvement_artifacts(root, force=False)
+                maybe_write_task_artifacts(root, force=False)
             except Exception as exc:
-                print(f"[WARN] noesis improvement writer failed: {exc}", flush=True)
+                print(f"[WARN] noesis task artifact writer failed: {exc}", flush=True)
         # noesis_chat_emit_after_cycle_persisted
         if emit_from_current_state is not None:
             try:

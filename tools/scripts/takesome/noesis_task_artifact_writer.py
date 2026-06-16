@@ -5,14 +5,18 @@ import datetime as dt
 import hashlib
 import json
 import re
+import runpy
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
-RULES_PATH = Path("tools/scripts/takesome/rules/noesis-improvement-writer.md")
-DECISION_PATH = Path(".takesome/intelligence/workloop-decision.json")
-TRACE_PATH = Path(".takesome/intelligence/workloop-trace.md")
-ASSIGNMENT_PATH = Path(".takesome/intelligence/assigned-task.md")
-TASK_SCAN_PATH = Path(".takesome/intelligence/task-scan.json")
+RULES_PATH = Path("tools/scripts/takesome/rules/noesis-task-artifact-writer.md")
+
+try:
+    from .noesis_roots import resolve_files, root_context
+except Exception:
+    _module = runpy.run_path(str(Path(__file__).resolve().with_name("noesis_roots.py")))
+    resolve_files = _module["resolve_files"]
+    root_context = _module["root_context"]
 
 
 def now_utc() -> str:
@@ -65,29 +69,30 @@ def extract_json_block(markdown: str) -> Dict[str, Any]:
 
 def load_rules(root: Path) -> Dict[str, Any]:
     rules = extract_json_block(read_text(root / RULES_PATH))
-    if isinstance(rules, dict) and rules:
+    if rules:
         return rules
-    raise RuntimeError(f"Missing or invalid Noesis improvement writer rules file: {root / RULES_PATH}")
+    raise RuntimeError(f"Missing or invalid Noesis task artifact writer rules file: {root / RULES_PATH}")
 
 
-def _paths(root: Path, rules: Dict[str, Any]) -> Dict[str, Path]:
-    cfg = rules.get("paths")
-    if not isinstance(cfg, dict):
-        raise RuntimeError("Noesis improvement rules missing paths object")
-    base = root / str(cfg["root"])
-    return {
-        "base": base,
-        "proposal_current": base / str(cfg["proposal_current"]),
-        "draft_current": base / str(cfg["draft_current"]),
-        "review_current": base / str(cfg["review_current"]),
-        "request_current": base / str(cfg["request_current"]),
-        "state": base / str(cfg["state"]),
-        "events": base / str(cfg["events"]),
-        "proposals_dir": base / str(cfg["proposals_dir"]),
-        "drafts_dir": base / str(cfg["drafts_dir"]),
-        "review_packets_dir": base / str(cfg["review_packets_dir"]),
-        "review_requests_dir": base / str(cfg["review_requests_dir"]),
+def configured_paths(root: Path) -> Dict[str, Path]:
+    files = resolve_files(root)
+    required = {
+        "decision": "workloop_decision",
+        "proposal_current": "task_artifact_current_proposal",
+        "draft_current": "task_artifact_current_draft",
+        "review_current": "task_artifact_current_review_packet",
+        "request_current": "task_artifact_current_review_request",
+        "state": "task_artifact_writer_state",
+        "events": "task_artifact_writer_events",
+        "proposals_dir": "task_artifact_proposals_dir",
+        "drafts_dir": "task_artifact_drafts_dir",
+        "review_packets_dir": "task_artifact_review_packets_dir",
+        "review_requests_dir": "task_artifact_review_requests_dir",
     }
+    missing = [file_key for file_key in required.values() if file_key not in files]
+    if missing:
+        raise RuntimeError("Noesis task artifact writer missing configured file keys: " + ", ".join(sorted(missing)))
+    return {role: files[file_key] for role, file_key in required.items()}
 
 
 def _flatten_decision(decision: Dict[str, Any]) -> Dict[str, Any]:
@@ -107,15 +112,15 @@ def _flatten_decision(decision: Dict[str, Any]) -> Dict[str, Any]:
 def _match_condition(facts: Dict[str, Any], condition: Dict[str, Any]) -> bool:
     field = str(condition.get("field") or "")
     op = str(condition.get("op") or "")
-    values = condition.get("values") if isinstance(condition.get("values"), list) else []
     current = facts.get(field)
     if op == "in":
+        values = condition.get("values") if isinstance(condition.get("values"), list) else []
         return str(current) in {str(x) for x in values}
     if op == "equals":
         return str(current) == str(condition.get("value") or "")
     if op == "nonempty":
         return bool(str(current or ""))
-    raise RuntimeError(f"Unsupported Noesis improvement activation operator: {op}")
+    raise RuntimeError(f"Unsupported Noesis task artifact activation operator: {op}")
 
 
 def should_write(decision: Dict[str, Any], rules: Dict[str, Any], *, force: bool = False) -> bool:
@@ -126,50 +131,61 @@ def should_write(decision: Dict[str, Any], rules: Dict[str, Any], *, force: bool
     return all(_match_condition(facts, item) for item in activation if isinstance(item, dict))
 
 
-def _format(template: str, facts: Dict[str, Any], rules: Dict[str, Any], generated_utc: str) -> str:
+def _attachment_paths(root: Path, rules: Dict[str, Any]) -> List[str]:
+    files = resolve_files(root)
+    result: List[str] = []
+    for key in rules.get("attachment_file_keys", []):
+        if isinstance(key, str) and key in files:
+            result.append(str(files[key]))
+    return result
+
+
+def _format(template: str, facts: Dict[str, Any], rules: Dict[str, Any], generated_utc: str, attachments: List[str]) -> str:
     data = dict(facts)
     data["generated_utc"] = generated_utc
     data["focus"] = "\n".join(f"- {x}" for x in rules.get("focus", []) if isinstance(x, str))
-    data["attachments"] = "\n".join(f"- `{x}`" for x in rules.get("attachments", []) if isinstance(x, str))
+    data["attachments"] = "\n".join(f"- `{x}`" for x in attachments)
     return template.format(**data)
 
 
 def write_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
     rules = load_rules(root)
-    decision = read_json(root / DECISION_PATH)
+    paths = configured_paths(root)
+    decision = read_json(paths["decision"])
     if not should_write(decision, rules, force=force):
         return {"ok": True, "written": False, "reason": "activation_not_matched"}
     facts = _flatten_decision(decision)
     generated = now_utc()
-    paths = _paths(root, rules)
     templates = rules.get("templates") if isinstance(rules.get("templates"), dict) else {}
+    attachments = _attachment_paths(root, rules)
     suffix = f"cycle-{facts['cycle']:06d}-" + hashlib.sha256((generated + facts["assigned_task_id"]).encode("utf-8")).hexdigest()[:8]
     proposal = (
         f"# {templates['proposal_title']}\n\n"
         f"generated_utc: {generated}\ncycle: {facts['cycle']}\nstage: {facts['stage']}\nassigned_task_id: `{facts['assigned_task_id']}`\nmode: {rules.get('artifact_mode')}\n\n"
-        f"## Proposal\n\n{_format(str(templates['proposal_body']), facts, rules, generated)}\n\n"
-        f"## Focus\n\n{_format('{focus}', facts, rules, generated)}\n\n"
-        f"## Attachments\n\n{_format('{attachments}', facts, rules, generated)}\n"
+        f"## Proposal\n\n{_format(str(templates['proposal_body']), facts, rules, generated, attachments)}\n\n"
+        f"## Focus\n\n{_format('{focus}', facts, rules, generated, attachments)}\n\n"
+        f"## Attachments\n\n{_format('{attachments}', facts, rules, generated, attachments)}\n"
     )
     draft = (
         f"# {templates['draft_title']}\n\n"
         f"generated_utc: {generated}\ncycle: {facts['cycle']}\nstage: {facts['stage']}\nassigned_task_id: `{facts['assigned_task_id']}`\n\n"
-        f"{_format(str(templates['draft_body']), facts, rules, generated)}\n\n"
-        "## Approval Gate\n\nThis is an artifact-only draft. Source changes, commits and pushes require explicit approval.\n"
+        f"{_format(str(templates['draft_body']), facts, rules, generated, attachments)}\n\n"
+        "## Review Gate\n\nThis is an artifact-only draft. Source changes, config writes, commits and pushes require explicit approval.\n"
     )
     request = (
         f"# {templates['review_request_title']}\n\n"
         f"generated_utc: {generated}\ncycle: {facts['cycle']}\nstage: {facts['stage']}\nassigned_task_id: `{facts['assigned_task_id']}`\n\n"
-        f"{_format(str(templates['review_request_body']), facts, rules, generated)}\n"
+        f"{_format(str(templates['review_request_body']), facts, rules, generated, attachments)}\n"
     )
     packet = {
-        "schema": "noesis.suite.improvement_review_packet.v1",
+        "schema": "noesis.suite.task_artifact_packet.v1",
         "generated_utc": generated,
         "mode": rules.get("artifact_mode"),
         "safety": rules.get("safety", {}),
         "facts": facts,
+        "root_context": root_context(root),
         "paths": {},
-        "attachments": rules.get("attachments", []),
+        "attachments": attachments,
     }
     proposal_path = paths["proposals_dir"] / f"{suffix}.md"
     draft_path = paths["drafts_dir"] / f"{suffix}.md"
@@ -196,21 +212,20 @@ def write_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
     }
     write_json(paths["review_current"], packet)
     write_json(packet_path, packet)
-    event = {"schema": "noesis.suite.improvement_writer_event.v1", "generated_utc": generated, "written": True, "facts": facts, "paths": packet["paths"]}
+    event = {"schema": "noesis.suite.task_artifact_writer_event.v1", "generated_utc": generated, "written": True, "facts": facts, "paths": packet["paths"]}
     append_jsonl(paths["events"], event)
-    write_json(paths["state"], {"schema": "noesis.suite.improvement_writer_state.v1", "updated_utc": generated, "last_event": event})
+    write_json(paths["state"], {"schema": "noesis.suite.task_artifact_writer_state.v1", "updated_utc": generated, "last_event": event})
     return {"ok": True, "written": True, "event": event}
 
 
-def maybe_write_improvement_artifacts(root: Path, *, force: bool = False) -> Dict[str, Any]:
+def maybe_write_task_artifacts(root: Path, *, force: bool = False) -> Dict[str, Any]:
     return write_from_state(root, force=force)
 
 
 def status(root: Path) -> Dict[str, Any]:
-    rules = load_rules(root)
-    paths = _paths(root, rules)
+    paths = configured_paths(root)
     return {
-        "schema": "noesis.suite.improvement_writer_status.v1",
+        "schema": "noesis.suite.task_artifact_writer_status.v1",
         "ok": True,
         "rules": str(root / RULES_PATH),
         "state_exists": paths["state"].exists(),
@@ -222,7 +237,7 @@ def status(root: Path) -> Dict[str, Any]:
 
 
 def _main(argv: Iterable[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Noesis improvement artifact writer")
+    parser = argparse.ArgumentParser(description="Noesis generic task artifact writer")
     parser.add_argument("command", choices=["write-from-state", "status"])
     parser.add_argument("--root", default=".")
     parser.add_argument("--force", action="store_true")

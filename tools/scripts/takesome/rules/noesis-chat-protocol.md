@@ -1,20 +1,11 @@
 # Noesis Chat Protocol Rules
 
-This file is the source of truth for the Noesis file-based assistant chat protocol.
-Python code must execute this protocol and must not hard-code semantic routing policy.
+This file dictates chat behavior and message content. Storage paths are configured in `.takesome/config/noesis-roots.v1.json`.
+Python must execute the generic protocol and must not hard-code semantic routing policy.
 
 ```json noesis-chat-protocol.v1
 {
   "schema": "noesis.suite.chat_protocol_rules.v1",
-  "chat": {
-    "directory": ".takesome/intelligence/chat",
-    "journal": "noesis-chat.jsonl",
-    "state": "chat-state.json",
-    "latest_noesis_to_assistant": "noesis-to-assistant.md",
-    "latest_assistant_to_noesis": "assistant-to-noesis.md",
-    "unread_for_assistant": "unread-for-assistant.json",
-    "unread_for_noesis": "unread-for-noesis.json"
-  },
   "emit_policy": {
     "default_kind": "status_request",
     "default_to": "assistant",
@@ -28,17 +19,17 @@ Python code must execute this protocol and must not hard-code semantic routing p
     "noesis_cycle_message": {
       "title": "Noesis -> Assistant",
       "text_template": "I am in stage `{stage}` with task `{task_id}`. Decision status is `{decision_status}`. Checks failed: `{checks_failed}`. Please review my current trace and tell me the next safe step.",
-      "attachments": [
-        ".takesome/intelligence/workloop-decision.json",
-        ".takesome/intelligence/workloop-trace.md",
-        ".takesome/intelligence/assigned-task.md",
-        ".takesome/intelligence/task-scan.json"
+      "attachment_file_keys": [
+        "workloop_decision",
+        "workloop_trace_summary",
+        "assigned_task_md",
+        "task_scan"
       ]
     }
   },
   "reply_policy": {
     "mirror_to_operator_response": true,
-    "operator_response_path": ".takesome/intelligence/operator-response.md",
+    "operator_response_file_key": "operator_response",
     "default_reply_kind": "assistant_reply"
   }
 }
