@@ -309,13 +309,27 @@ def disable(root: Path, *, task_id: str = "", reason: str = "", enabled_by: str 
 
 def status(root: Path) -> Dict[str, Any]:
     paths = configured_paths(root)
-    state = read_json(paths["state"])
     capability = source_apply_status_fields(root)
+    enabled = bool(capability.get("enabled"))
+    state = read_json(paths["state"])
+
+    state_enabled = bool(state.get("source_apply_enabled")) if state else False
+    state_status = str(state.get("status", "")) if state else ""
+    expected_status = "capability_enabled" if enabled else "capability_disabled"
+
+    if state_enabled != enabled or state_status not in {expected_status, "approval_required", "request_prepared"}:
+        state = sync_capability_state(
+            root,
+            status_value=expected_status,
+            event_kind="capability_status_sync",
+            task_id=str(capability.get("last_enable_task_id", "")),
+        )
+
     return {
         "schema": "noesis.suite.source_apply_status.v1",
         "ok": True,
         "generated_utc": now_utc(),
-        "source_apply_enabled": bool(capability.get("enabled")),
+        "source_apply_enabled": enabled,
         "capability": capability,
         "state": state,
         "paths": {key: str(value) for key, value in paths.items()},

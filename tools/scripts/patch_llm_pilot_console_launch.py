@@ -64,7 +64,7 @@ if exist "%LLM_PILOT_CONSOLE%" (
   echo [WARN] Missing llmPilotConsole.bat; heartbeat window skipped.
 )
 
-%PYTHON_EXE% %PYTHON_ARGS% "%SUPERVISOR%" --root "%ROOT%" --write --prefer-named --setup-named -sudo
+%PYTHON_EXE% %PYTHON_ARGS% "%SUPERVISOR%" --root "%WORKSPACE_ROOT%" --workspace-config "%WORKSPACE_CONFIG%" --write --prefer-named --setup-named -sudo
 set "RC=%errorlevel%"
 echo.
 if not "%RC%"=="0" echo [ERROR] serverBridge stopped with exit code %RC%.
@@ -116,7 +116,7 @@ echo [INFO] NorthStar LLM Pilot heartbeat console started.
 echo [INFO] Root: %ROOT%
 echo [INFO] Viewer: %VIEWER%
 echo.
-%PYTHON_EXE% %PYTHON_ARGS% "%VIEWER%" --root "%ROOT%" --interval 5
+%PYTHON_EXE% %PYTHON_ARGS% "%VIEWER%" --root "%WORKSPACE_ROOT%" --workspace-config "%WORKSPACE_CONFIG%" --interval 5
 set "RC=%errorlevel%"
 echo.
 echo [INFO] LLM Pilot heartbeat console stopped with exit code %RC%.
