@@ -120,5 +120,22 @@
   },
   "configs": {
     "noesis_roots_config": "${config_root}/noesis-roots.v1.json"
+  },
+  "source_apply": {
+    "schema": "noesis.suite.source_apply_capability.v1",
+    "enabled": false,
+    "enablement_mode": "runtime_config_overlay",
+    "approval_required": true,
+    "direct_source_write_without_approval": false,
+    "auto_apply": false,
+    "auto_commit": false,
+    "auto_push": false,
+    "validation_required": true,
+    "commit_requires_separate_request": true,
+    "push_requires_separate_request": true,
+    "enabled_by": "",
+    "enabled_utc": "",
+    "enable_reason": "",
+    "last_enable_task_id": ""
   }
 }
