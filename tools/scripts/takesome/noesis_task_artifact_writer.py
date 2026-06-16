@@ -159,6 +159,11 @@ def _format(template: str, facts: Dict[str, Any], rules: Dict[str, Any], generat
     data["generated_utc"] = generated_utc
     data["focus"] = "\n".join(f"- {x}" for x in rules.get("focus", []) if isinstance(x, str))
     data["attachments"] = "\n".join(f"- `{x}`" for x in attachments)
+    templates = rules.get("templates")
+    if isinstance(templates, dict):
+        for key, value in templates.items():
+            if isinstance(key, str) and isinstance(value, (str, int, float, bool)):
+                data.setdefault(key, value)
     return template.format(**data)
 
 
@@ -197,7 +202,7 @@ def _unified_diff(rel_path: Path, old_text: str, new_text: str) -> str:
             new_lines,
             fromfile=f"a/{rel_path.as_posix()}",
             tofile=f"b/{rel_path.as_posix()}",
-            lineterm="",
+            lineterm="\n",
         )
     )
 
