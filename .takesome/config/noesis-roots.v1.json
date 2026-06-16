@@ -38,6 +38,12 @@
     },
     "task_artifacts_root": {
       "path": "${intelligence_root}/task-artifacts"
+    },
+    "config_overrides_root": {
+      "path": "${intelligence_root}/config-overrides"
+    },
+    "source_apply_root": {
+      "path": "${intelligence_root}/source-apply"
     }
   },
   "root_metadata": {
@@ -67,6 +73,12 @@
     },
     "task_artifacts_root": {
       "purpose": "Generic artifacts produced for the currently assigned task."
+    },
+    "config_overrides_root": {
+      "purpose": "Task-scoped runtime overlays for configured Noesis config data."
+    },
+    "source_apply_root": {
+      "purpose": "Approval-gated source apply requests and state."
     }
   },
   "files": {
@@ -90,6 +102,23 @@
     "task_artifact_proposals_dir": "${task_artifacts_root}/proposals",
     "task_artifact_drafts_dir": "${task_artifacts_root}/drafts",
     "task_artifact_review_packets_dir": "${task_artifacts_root}/review-packets",
-    "task_artifact_review_requests_dir": "${task_artifacts_root}/review-requests"
+    "task_artifact_review_requests_dir": "${task_artifacts_root}/review-requests",
+    "config_override_proposals_dir": "${config_overrides_root}/proposals",
+    "config_override_active_dir": "${config_overrides_root}/active",
+    "config_override_archive_dir": "${config_overrides_root}/archive",
+    "config_override_state": "${config_overrides_root}/state.json",
+    "config_override_events": "${config_overrides_root}/events.jsonl",
+    "config_override_effective_cache_dir": "${config_overrides_root}/effective",
+    "source_apply_request_current": "${source_apply_root}/current/request.md",
+    "source_apply_state": "${source_apply_root}/state.json",
+    "source_apply_events": "${source_apply_root}/events.jsonl",
+    "source_apply_requests_dir": "${source_apply_root}/requests"
+  },
+  "self": {
+    "config_key": "noesis_roots_config",
+    "base_file": "${config_root}/noesis-roots.v1.json"
+  },
+  "configs": {
+    "noesis_roots_config": "${config_root}/noesis-roots.v1.json"
   }
 }

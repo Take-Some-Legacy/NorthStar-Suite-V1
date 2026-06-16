@@ -186,7 +186,19 @@ def emit_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
     decision = read_json(paths["decision"])
     facts = _flatten_decision(decision)
     if not should_emit(facts, rules, state, force=force):
-        return {"ok": True, "emitted": False, "reason": "emit_policy_not_matched_or_deduped", "facts": facts}
+        heartbeat_utc = now_utc()
+        state.update({
+            "schema": "noesis.suite.chat_state.v1",
+            "updated_utc": heartbeat_utc,
+            "last_noesis_heartbeat_utc": heartbeat_utc,
+            "last_seen_decision": facts,
+            "last_emit_result": "emit_policy_not_matched_or_deduped",
+            "unread_for_assistant": paths["unread_assistant"].exists(),
+            "unread_for_noesis": paths["unread_noesis"].exists(),
+            "chat_dir": str(paths["dir"]),
+        })
+        write_json(paths["state"], state)
+        return {"ok": True, "emitted": False, "heartbeated": True, "reason": "emit_policy_not_matched_or_deduped", "facts": facts}
     message = make_message(root, rules, force=force)
     append_jsonl(paths["journal"], message)
     write_text(paths["noesis_md"], render_noesis_message(message))
