@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import difflib
 import hashlib
 import json
 import re
 import runpy
+import shutil
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterable, List, Tuple
 
 RULES_PATH = Path("tools/scripts/takesome/rules/noesis-task-artifact-writer.md")
 
@@ -82,12 +84,20 @@ def configured_paths(root: Path) -> Dict[str, Path]:
         "draft_current": "task_artifact_current_draft",
         "review_current": "task_artifact_current_review_packet",
         "request_current": "task_artifact_current_review_request",
+        "updated_version_current": "task_artifact_current_updated_version",
         "state": "task_artifact_writer_state",
         "events": "task_artifact_writer_events",
         "proposals_dir": "task_artifact_proposals_dir",
         "drafts_dir": "task_artifact_drafts_dir",
         "review_packets_dir": "task_artifact_review_packets_dir",
         "review_requests_dir": "task_artifact_review_requests_dir",
+        "updated_versions_dir": "task_artifact_updated_versions_dir",
+        "repo_manifest_current": "task_artifact_current_repo_update_manifest",
+        "repo_patch_current": "task_artifact_current_repo_patch",
+        "repo_files_current_dir": "task_artifact_current_repo_files_dir",
+        "repo_manifests_dir": "task_artifact_repo_update_manifests_dir",
+        "repo_patches_dir": "task_artifact_repo_patches_dir",
+        "repo_files_dir": "task_artifact_repo_files_dir",
     }
     missing = [file_key for file_key in required.values() if file_key not in files]
     if missing:
@@ -96,47 +106,51 @@ def configured_paths(root: Path) -> Dict[str, Path]:
 
 
 def _flatten_decision(decision: Dict[str, Any]) -> Dict[str, Any]:
-    final = decision.get("final") if isinstance(decision.get("final"), dict) else {}
     selected = decision.get("selected_candidate") if isinstance(decision.get("selected_candidate"), dict) else {}
     assigned = decision.get("assigned_task") if isinstance(decision.get("assigned_task"), dict) else {}
     return {
-        "stage": str(final.get("stage") or decision.get("stage") or ""),
-        "assigned_task_id": str(final.get("assigned_task_id") or final.get("selected_action_id") or assigned.get("id") or selected.get("action_id") or ""),
-        "selected_action_id": str(final.get("selected_action_id") or selected.get("action_id") or ""),
-        "decision_status": str(decision.get("status") or ""),
-        "cycle": int(final.get("cycle") or decision.get("cycle") or 0),
-        "checks_failed": int(final.get("checks_failed") or decision.get("checks_failed") or 0),
+        "cycle": int(decision.get("cycle") or 0),
+        "stage": str(decision.get("stage") or ""),
+        "decision_status": str(decision.get("decision_status") or decision.get("status") or ""),
+        "selected_action_id": str(selected.get("action_id") or decision.get("selected_action_id") or ""),
+        "assigned_task_id": str(assigned.get("id") or selected.get("action_id") or decision.get("assigned_task_id") or ""),
+        "label": str(assigned.get("label") or selected.get("label") or decision.get("label") or ""),
+        "reason": str(assigned.get("reason") or selected.get("reason") or decision.get("reason") or ""),
     }
 
 
 def _match_condition(facts: Dict[str, Any], condition: Dict[str, Any]) -> bool:
     field = str(condition.get("field") or "")
     op = str(condition.get("op") or "")
-    current = facts.get(field)
-    if op == "in":
-        values = condition.get("values") if isinstance(condition.get("values"), list) else []
-        return str(current) in {str(x) for x in values}
-    if op == "equals":
-        return str(current) == str(condition.get("value") or "")
+    value = facts.get(field)
     if op == "nonempty":
-        return bool(str(current or ""))
-    raise RuntimeError(f"Unsupported Noesis task artifact activation operator: {op}")
+        return bool(str(value or "").strip())
+    if op == "empty":
+        return not bool(str(value or "").strip())
+    if op == "equals":
+        return str(value or "") == str(condition.get("value") or "")
+    if op == "in":
+        return str(value or "") in [str(x) for x in condition.get("values", [])]
+    return False
 
 
 def should_write(decision: Dict[str, Any], rules: Dict[str, Any], *, force: bool = False) -> bool:
     if force:
         return True
-    activation = rules.get("activation") if isinstance(rules.get("activation"), list) else []
     facts = _flatten_decision(decision)
-    return all(_match_condition(facts, item) for item in activation if isinstance(item, dict))
+    activation = rules.get("activation")
+    if not isinstance(activation, list) or not activation:
+        return False
+    return all(_match_condition(facts, c) for c in activation if isinstance(c, dict))
 
 
 def _attachment_paths(root: Path, rules: Dict[str, Any]) -> List[str]:
     files = resolve_files(root)
-    result: List[str] = []
+    result = []
     for key in rules.get("attachment_file_keys", []):
-        if isinstance(key, str) and key in files:
-            result.append(str(files[key]))
+        path = files.get(str(key))
+        if path:
+            result.append(str(path))
     return result
 
 
@@ -146,6 +160,144 @@ def _format(template: str, facts: Dict[str, Any], rules: Dict[str, Any], generat
     data["focus"] = "\n".join(f"- {x}" for x in rules.get("focus", []) if isinstance(x, str))
     data["attachments"] = "\n".join(f"- `{x}`" for x in attachments)
     return template.format(**data)
+
+
+def _safe_repo_relative_path(value: str) -> Path:
+    text = str(value or "").replace("\\", "/").strip().lstrip("/")
+    if not text:
+        raise ValueError("empty repository path")
+    path = Path(text)
+    if path.is_absolute() or any(part in ("", ".", "..") for part in path.parts):
+        raise ValueError(f"unsafe repository path: {value!r}")
+    return path
+
+
+def _target_root(root: Path, rules: Dict[str, Any]) -> Tuple[str, Path, Dict[str, Any]]:
+    repo_cfg = rules.get("repo_file_updates") if isinstance(rules.get("repo_file_updates"), dict) else {}
+    key = str(repo_cfg.get("target_root_key") or "workspace_root")
+    ctx = root_context(root)
+    roots = ctx.get("roots") if isinstance(ctx.get("roots"), dict) else {}
+    entry = roots.get(key) if isinstance(roots.get(key), dict) else {}
+    path = Path(str(entry.get("path") or "")).resolve()
+    if not path.exists():
+        raise RuntimeError(f"target repository root does not exist for root key {key!r}: {path}")
+    return key, path, ctx
+
+
+def _unified_diff(rel_path: Path, old_text: str, new_text: str) -> str:
+    old_lines = old_text.splitlines(keepends=True)
+    new_lines = new_text.splitlines(keepends=True)
+    if old_text and not old_text.endswith("\n"):
+        old_lines.append("\n")
+    if new_text and not new_text.endswith("\n"):
+        new_lines.append("\n")
+    return "".join(
+        difflib.unified_diff(
+            old_lines,
+            new_lines,
+            fromfile=f"a/{rel_path.as_posix()}",
+            tofile=f"b/{rel_path.as_posix()}",
+            lineterm="",
+        )
+    )
+
+
+def _write_repo_file_update_artifacts(
+    root: Path,
+    paths: Dict[str, Path],
+    rules: Dict[str, Any],
+    facts: Dict[str, Any],
+    generated: str,
+    suffix: str,
+    attachments: List[str],
+) -> Dict[str, Any]:
+    repo_cfg = rules.get("repo_file_updates") if isinstance(rules.get("repo_file_updates"), dict) else {}
+    if not repo_cfg.get("enabled", False):
+        return {"enabled": False}
+
+    templates = rules.get("templates") if isinstance(rules.get("templates"), dict) else {}
+    target_root_key, target_root, ctx = _target_root(root, rules)
+    snapshots = repo_cfg.get("file_snapshots")
+    if not isinstance(snapshots, list):
+        snapshots = []
+
+    shutil.rmtree(paths["repo_files_current_dir"], ignore_errors=True)
+    paths["repo_files_current_dir"].mkdir(parents=True, exist_ok=True)
+
+    archive_files_dir = paths["repo_files_dir"] / suffix
+    shutil.rmtree(archive_files_dir, ignore_errors=True)
+    archive_files_dir.mkdir(parents=True, exist_ok=True)
+
+    changes: List[Dict[str, Any]] = []
+    patch_chunks: List[str] = []
+
+    for raw in snapshots:
+        if not isinstance(raw, dict):
+            continue
+        rel_path = _safe_repo_relative_path(str(raw.get("path") or ""))
+        template_name = str(raw.get("content_template") or "")
+        template = str(templates.get(template_name) or raw.get("content") or "")
+        content = _format(template, facts, rules, generated, attachments)
+        if not content.endswith("\n"):
+            content += "\n"
+
+        staged_current = paths["repo_files_current_dir"] / rel_path
+        staged_archive = archive_files_dir / rel_path
+        write_text(staged_current, content)
+        write_text(staged_archive, content)
+
+        target_file = target_root / rel_path
+        old = read_text(target_file)
+        diff = _unified_diff(rel_path, old, content)
+        status = "unchanged" if old == content else ("create" if not target_file.exists() else "modify")
+        if diff.strip():
+            patch_chunks.append(diff if diff.endswith("\n") else diff + "\n")
+
+        changes.append(
+            {
+                "repo_relative_path": rel_path.as_posix(),
+                "status": status,
+                "target_file": str(target_file),
+                "staged_current_file": str(staged_current),
+                "staged_archive_file": str(staged_archive),
+                "description": str(raw.get("description") or ""),
+            }
+        )
+
+    patch_text = "\n".join(patch_chunks)
+    manifest = {
+        "schema": "noesis.suite.repo_file_update_manifest.v1",
+        "generated_utc": generated,
+        "target_root_key": target_root_key,
+        "target_root": str(target_root),
+        "facts": facts,
+        "root_context": ctx,
+        "changes": changes,
+        "patch_current": str(paths["repo_patch_current"]),
+        "files_current_dir": str(paths["repo_files_current_dir"]),
+        "note": "These are repository file update candidates. Applying the patch changes files under the selected target root.",
+    }
+
+    manifest_archive = paths["repo_manifests_dir"] / f"{suffix}.json"
+    patch_archive = paths["repo_patches_dir"] / f"{suffix}.patch"
+    write_json(paths["repo_manifest_current"], manifest)
+    write_json(manifest_archive, manifest)
+    write_text(paths["repo_patch_current"], patch_text)
+    write_text(patch_archive, patch_text)
+
+    return {
+        "enabled": True,
+        "target_root_key": target_root_key,
+        "target_root": str(target_root),
+        "manifest_current": str(paths["repo_manifest_current"]),
+        "manifest": str(manifest_archive),
+        "patch_current": str(paths["repo_patch_current"]),
+        "patch": str(patch_archive),
+        "files_current_dir": str(paths["repo_files_current_dir"]),
+        "files": str(archive_files_dir),
+        "change_count": len(changes),
+        "patch_nonempty": bool(patch_text.strip()),
+    }
 
 
 def write_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
@@ -159,10 +311,20 @@ def write_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
     templates = rules.get("templates") if isinstance(rules.get("templates"), dict) else {}
     attachments = _attachment_paths(root, rules)
     suffix = f"cycle-{facts['cycle']:06d}-" + hashlib.sha256((generated + facts["assigned_task_id"]).encode("utf-8")).hexdigest()[:8]
+
+    repo_update = _write_repo_file_update_artifacts(root, paths, rules, facts, generated, suffix, attachments)
+
     proposal = (
         f"# {templates['proposal_title']}\n\n"
         f"generated_utc: {generated}\ncycle: {facts['cycle']}\nstage: {facts['stage']}\nassigned_task_id: `{facts['assigned_task_id']}`\nmode: {rules.get('artifact_mode')}\n\n"
         f"## Proposal\n\n{_format(str(templates['proposal_body']), facts, rules, generated, attachments)}\n\n"
+        f"## Repository file updates\n\n"
+        f"- target_root_key: `{repo_update.get('target_root_key', '')}`\n"
+        f"- manifest: `{repo_update.get('manifest_current', '')}`\n"
+        f"- patch: `{repo_update.get('patch_current', '')}`\n"
+        f"- staged files: `{repo_update.get('files_current_dir', '')}`\n"
+        f"- change_count: {repo_update.get('change_count', 0)}\n"
+        f"- patch_nonempty: {repo_update.get('patch_nonempty', False)}\n\n"
         f"## Focus\n\n{_format('{focus}', facts, rules, generated, attachments)}\n\n"
         f"## Attachments\n\n{_format('{attachments}', facts, rules, generated, attachments)}\n"
     )
@@ -170,12 +332,30 @@ def write_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
         f"# {templates['draft_title']}\n\n"
         f"generated_utc: {generated}\ncycle: {facts['cycle']}\nstage: {facts['stage']}\nassigned_task_id: `{facts['assigned_task_id']}`\n\n"
         f"{_format(str(templates['draft_body']), facts, rules, generated, attachments)}\n\n"
-        "## Review Gate\n\nThis is an artifact-only draft. Source changes, config writes, commits and pushes require explicit approval.\n"
+        "## Repository file target\n\n"
+        f"- root: `{repo_update.get('target_root_key', '')}`\n"
+        f"- patch: `{repo_update.get('patch_current', '')}`\n"
+        f"- staged files: `{repo_update.get('files_current_dir', '')}`\n"
     )
     request = (
         f"# {templates['review_request_title']}\n\n"
         f"generated_utc: {generated}\ncycle: {facts['cycle']}\nstage: {facts['stage']}\nassigned_task_id: `{facts['assigned_task_id']}`\n\n"
-        f"{_format(str(templates['review_request_body']), facts, rules, generated, attachments)}\n"
+        f"{_format(str(templates['review_request_body']), facts, rules, generated, attachments)}\n\n"
+        "## Repository file update packet\n\n"
+        f"- manifest: `{repo_update.get('manifest_current', '')}`\n"
+        f"- patch: `{repo_update.get('patch_current', '')}`\n"
+        f"- staged files: `{repo_update.get('files_current_dir', '')}`\n"
+    )
+    updated_version = (
+        f"# {templates['updated_version_title']}\n\n"
+        f"generated_utc: {generated}\ncycle: {facts['cycle']}\nstage: {facts['stage']}\nassigned_task_id: `{facts['assigned_task_id']}`\n\n"
+        f"{_format(str(templates['updated_version_body']), facts, rules, generated, attachments)}\n\n"
+        "## Repository file update\n\n"
+        f"- target_root_key: `{repo_update.get('target_root_key', '')}`\n"
+        f"- target_root: `{repo_update.get('target_root', '')}`\n"
+        f"- manifest: `{repo_update.get('manifest_current', '')}`\n"
+        f"- patch: `{repo_update.get('patch_current', '')}`\n"
+        f"- staged files: `{repo_update.get('files_current_dir', '')}`\n"
     )
     packet = {
         "schema": "noesis.suite.task_artifact_packet.v1",
@@ -184,6 +364,7 @@ def write_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
         "safety": rules.get("safety", {}),
         "facts": facts,
         "root_context": root_context(root),
+        "repo_file_updates": repo_update,
         "paths": {},
         "attachments": attachments,
     }
@@ -191,6 +372,7 @@ def write_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
     draft_path = paths["drafts_dir"] / f"{suffix}.md"
     packet_path = paths["review_packets_dir"] / f"{suffix}.json"
     request_path = paths["review_requests_dir"] / f"{suffix}.md"
+    updated_version_path = paths["updated_versions_dir"] / f"{suffix}.md"
     for path, content in [
         (paths["proposal_current"], proposal),
         (proposal_path, proposal),
@@ -198,6 +380,8 @@ def write_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
         (draft_path, draft),
         (paths["request_current"], request),
         (request_path, request),
+        (paths["updated_version_current"], updated_version),
+        (updated_version_path, updated_version),
     ]:
         write_text(path, content)
     packet["paths"] = {
@@ -205,14 +389,19 @@ def write_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
         "proposal": str(proposal_path),
         "draft_current": str(paths["draft_current"]),
         "draft": str(draft_path),
+        "updated_version_current": str(paths["updated_version_current"]),
+        "updated_version": str(updated_version_path),
         "review_current": str(paths["review_current"]),
         "review_packet": str(packet_path),
         "request_current": str(paths["request_current"]),
         "review_request": str(request_path),
+        "repo_update_manifest_current": str(paths["repo_manifest_current"]),
+        "repo_patch_current": str(paths["repo_patch_current"]),
+        "repo_files_current_dir": str(paths["repo_files_current_dir"]),
     }
     write_json(paths["review_current"], packet)
     write_json(packet_path, packet)
-    event = {"schema": "noesis.suite.task_artifact_writer_event.v1", "generated_utc": generated, "written": True, "facts": facts, "paths": packet["paths"]}
+    event = {"schema": "noesis.suite.task_artifact_writer_event.v1", "generated_utc": generated, "written": True, "facts": facts, "paths": packet["paths"], "repo_file_updates": repo_update}
     append_jsonl(paths["events"], event)
     write_json(paths["state"], {"schema": "noesis.suite.task_artifact_writer_state.v1", "updated_utc": generated, "last_event": event})
     return {"ok": True, "written": True, "event": event}
@@ -231,7 +420,11 @@ def status(root: Path) -> Dict[str, Any]:
         "state_exists": paths["state"].exists(),
         "proposal_exists": paths["proposal_current"].exists(),
         "draft_exists": paths["draft_current"].exists(),
+        "updated_version_exists": paths["updated_version_current"].exists(),
         "review_request_exists": paths["request_current"].exists(),
+        "repo_update_manifest_exists": paths["repo_manifest_current"].exists(),
+        "repo_patch_exists": paths["repo_patch_current"].exists(),
+        "repo_files_current_exists": paths["repo_files_current_dir"].exists(),
         "state": read_json(paths["state"]),
     }
 

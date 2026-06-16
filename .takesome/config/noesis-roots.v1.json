@@ -122,7 +122,15 @@
     "source_apply_validation_current": "${source_apply_root}/validation/current/report.json",
     "source_apply_validation_reports_dir": "${source_apply_root}/validation/reports",
     "source_apply_commit_request_current": "${source_apply_root}/commit/current/request.md",
-    "source_apply_commit_requests_dir": "${source_apply_root}/commit/requests"
+    "source_apply_commit_requests_dir": "${source_apply_root}/commit/requests",
+    "task_artifact_current_updated_version": "${task_artifacts_root}/current/updated-version.md",
+    "task_artifact_updated_versions_dir": "${task_artifacts_root}/updated-versions",
+    "task_artifact_current_repo_update_manifest": "${task_artifacts_root}/current/repo-update-manifest.json",
+    "task_artifact_current_repo_patch": "${task_artifacts_root}/current/repo.patch",
+    "task_artifact_current_repo_files_dir": "${task_artifacts_root}/current/repo-files",
+    "task_artifact_repo_update_manifests_dir": "${task_artifacts_root}/repo-update-manifests",
+    "task_artifact_repo_patches_dir": "${task_artifacts_root}/repo-patches",
+    "task_artifact_repo_files_dir": "${task_artifacts_root}/repo-files"
   },
   "self": {
     "config_key": "noesis_roots_config",
