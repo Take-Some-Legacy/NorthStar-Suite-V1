@@ -25,6 +25,7 @@ from .task_classifier import classify_task_candidates
 from .task_scanner import scan_task_context, write_task_scan
 from .workloop_policy import decide_next_assignment
 from .workloop_trace import append_workloop_trace, finalize_workloop_decision
+from .noesis_chat import emit_from_state as emit_noesis_chat_from_state
 from .suite.registry import build_suite_registry
 from .suite_intelligence import (
     ask_openai_for_task_plan,

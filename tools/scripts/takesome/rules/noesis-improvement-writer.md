@@ -1,75 +1,57 @@
 # Noesis Improvement Writer Rules
 
-This file is the declarative source of truth for how Noesis materializes
-self-improvement output artifacts.
+This file is the source of truth for the Noesis improvement artifact writer.
+Python executes this declarative rule set and must not hard-code semantic stages, action ids, focus areas or write policy.
 
-Python code must execute this declarative rule set and must not hard-code
-semantic task ids, stages, improvement vocabulary, output categories or approval policy.
-
-```json
+```json noesis-improvement-writer.v1
 {
   "schema": "noesis.suite.improvement_writer_rules.v1",
-  "protocol": {
-    "schema": "noesis.suite.improvement_packet.v1",
-    "directory": ".takesome/intelligence/improvements",
-    "state": "improvement-writer-state.json",
-    "journal": "improvement-writer-events.jsonl",
-    "current_markdown": "current-improvement.md",
-    "current_draft_markdown": "current-improved-version.md",
-    "current_review_json": "current-review-packet.json",
-    "review_request_markdown": "assistant-review-request.md"
-  },
-  "trigger_policy": {
-    "stage_any": ["self_improvement_requested"],
-    "action_id_any": ["noesis.self_improvement.audit"],
-    "write_once_per_cycle_action": true,
-    "allow_force": true
-  },
-  "safety_policy": {
-    "mode": "artifact_only",
+  "artifact_mode": "artifact_only",
+  "safety": {
     "auto_apply_source_changes": false,
     "auto_commit": false,
     "auto_push": false,
-    "requires_approval_for_source_write": true,
-    "requires_approval_for_destructive": true,
-    "allowed_output_root": ".takesome/intelligence/improvements",
-    "forbidden_roots": [
-      ".takesome/authority",
-      ".takesome/ai-bridge/state",
-      ".takesome/ai-bridge/tmp",
-      ".takesome/ai-bridge/patch-backups"
-    ]
+    "source_write_requires_explicit_approval": true,
+    "destructive_requires_explicit_approval": true
   },
-  "inputs": {
-    "decision": ".takesome/intelligence/workloop-decision.json",
-    "assigned_task": ".takesome/intelligence/assigned-task.json",
-    "task_scan": ".takesome/intelligence/task-scan.json",
-    "workloop_trace": ".takesome/intelligence/workloop-trace.md",
-    "operator_response": ".takesome/intelligence/operator-response.md",
-    "operator_rules": "tools/scripts/takesome/rules/operator-response-rules.md",
-    "chat_rules": "tools/scripts/takesome/rules/noesis-chat-protocol.md"
+  "activation": [
+    {"field": "stage", "op": "in", "values": ["self_improvement_requested"]},
+    {"field": "assigned_task_id", "op": "in", "values": ["noesis.self_improvement.audit"]}
+  ],
+  "paths": {
+    "root": ".takesome/intelligence/improvements",
+    "proposal_current": "current-improvement.md",
+    "draft_current": "current-improved-version.md",
+    "review_current": "current-review-packet.json",
+    "request_current": "assistant-review-request.md",
+    "state": "improvement-writer-state.json",
+    "events": "improvement-writer-events.jsonl",
+    "proposals_dir": "proposals",
+    "drafts_dir": "drafts",
+    "review_packets_dir": "review-packets",
+    "review_requests_dir": "review-requests"
   },
-  "packet": {
-    "title": "Noesis Self-Improvement Packet",
-    "draft_title": "Noesis Improved Version Draft",
-    "review_title": "Noesis Review Request for Assistant",
-    "default_focus": [
-      "remove duplicated decision paths",
-      "keep rules in Markdown rule files",
-      "keep Python as generic protocol executor",
-      "improve config/binding/registry/workloop/chat cohesion",
-      "make status and trace machine-readable",
-      "do not auto-apply source changes without approval"
-    ],
-    "candidate_sections": [
-      "Observed state",
-      "Detected risks",
-      "Proposed improved version",
-      "Draft patch request",
-      "Validation plan",
-      "Approval gate"
-    ],
-    "review_question": "Please review this generated improvement packet and decide which safe patch should be implemented next."
-  }
+  "templates": {
+    "proposal_title": "Noesis self-improvement proposal",
+    "proposal_body": "Noesis is in stage `{stage}` and assigned `{assigned_task_id}`. The next safe improvement is to continue read-only architecture audit, identify duplicated logic, legacy fallbacks and weak coupling, then request approval before source changes.",
+    "draft_title": "Improved Version Draft",
+    "draft_body": "Draft improved version: keep MD rules as source of truth; keep Python as generic executor; emit trace/chat/improvement artifacts from one final decision path; do not auto-apply source writes without approval.",
+    "review_request_title": "Assistant Review Request",
+    "review_request_body": "Please review the generated proposal and draft. Approve a concrete source patch only after checking rule-source compliance, trace consistency and git hygiene."
+  },
+  "focus": [
+    "duplicate config/rule loaders",
+    "trace and decision consistency",
+    "missing Noesis descriptors",
+    "legacy fallback cleanup",
+    "chat protocol integration",
+    "improvement artifact review gate"
+  ],
+  "attachments": [
+    ".takesome/intelligence/workloop-decision.json",
+    ".takesome/intelligence/workloop-trace.md",
+    ".takesome/intelligence/assigned-task.md",
+    ".takesome/intelligence/task-scan.json"
+  ]
 }
 ```

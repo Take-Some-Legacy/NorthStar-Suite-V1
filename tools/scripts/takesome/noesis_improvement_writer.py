@@ -6,56 +6,54 @@ import hashlib
 import json
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-
+from typing import Any, Dict, Iterable, List
 
 RULES_PATH = Path("tools/scripts/takesome/rules/noesis-improvement-writer.md")
+DECISION_PATH = Path(".takesome/intelligence/workloop-decision.json")
+TRACE_PATH = Path(".takesome/intelligence/workloop-trace.md")
+ASSIGNMENT_PATH = Path(".takesome/intelligence/assigned-task.md")
+TASK_SCAN_PATH = Path(".takesome/intelligence/task-scan.json")
 
 
-def utc_now() -> str:
+def now_utc() -> str:
     return dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def read_text(path: Path) -> str:
     try:
-        return path.read_text(encoding="utf-8-sig")
+        return path.read_text(encoding="utf-8-sig", errors="replace")
     except FileNotFoundError:
         return ""
 
 
 def write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(text.rstrip() + "\n", encoding="utf-8", newline="\n")
-    tmp.replace(path)
+    path.write_text(text, encoding="utf-8", newline="\n")
 
 
-def read_json(path: Path, default: Any) -> Any:
-    raw = read_text(path)
-    if not raw.strip():
-        return default
+def read_json(path: Path) -> Dict[str, Any]:
     try:
-        value = json.loads(raw)
+        value = json.loads(read_text(path))
     except Exception:
-        return default
-    return value
+        return {}
+    return value if isinstance(value, dict) else {}
 
 
-def write_json(path: Path, payload: Any) -> None:
+def write_json(path: Path, value: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    tmp.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     tmp.replace(path)
 
 
-def append_jsonl(path: Path, payload: Dict[str, Any]) -> None:
+def append_jsonl(path: Path, value: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8", newline="\n") as fh:
-        fh.write(json.dumps(payload, ensure_ascii=False, sort_keys=True) + "\n")
+    with path.open("a", encoding="utf-8", newline="\n") as stream:
+        stream.write(json.dumps(value, ensure_ascii=False) + "\n")
 
 
 def extract_json_block(markdown: str) -> Dict[str, Any]:
-    match = re.search(r"```json\s*(.*?)\s*```", markdown, re.DOTALL | re.IGNORECASE)
+    match = re.search(r"```json[^\n]*\n(.*?)\n```", markdown, re.S)
     if not match:
         return {}
     try:
@@ -66,373 +64,178 @@ def extract_json_block(markdown: str) -> Dict[str, Any]:
 
 
 def load_rules(root: Path) -> Dict[str, Any]:
-    value = extract_json_block(read_text(root / RULES_PATH))
-    if isinstance(value, dict) and value:
-        return value
+    rules = extract_json_block(read_text(root / RULES_PATH))
+    if isinstance(rules, dict) and rules:
+        return rules
+    raise RuntimeError(f"Missing or invalid Noesis improvement writer rules file: {root / RULES_PATH}")
+
+
+def _paths(root: Path, rules: Dict[str, Any]) -> Dict[str, Path]:
+    cfg = rules.get("paths")
+    if not isinstance(cfg, dict):
+        raise RuntimeError("Noesis improvement rules missing paths object")
+    base = root / str(cfg["root"])
     return {
-        "schema": "noesis.suite.improvement_writer_rules.v1",
-        "protocol": {
-            "schema": "noesis.suite.improvement_packet.v1",
-            "directory": ".takesome/intelligence/improvements",
-            "state": "improvement-writer-state.json",
-            "journal": "improvement-writer-events.jsonl",
-            "current_markdown": "current-improvement.md",
-            "current_draft_markdown": "current-improved-version.md",
-            "current_review_json": "current-review-packet.json",
-            "review_request_markdown": "assistant-review-request.md",
-        },
-        "trigger_policy": {
-            "stage_any": ["self_improvement_requested"],
-            "action_id_any": ["noesis.self_improvement.audit"],
-            "write_once_per_cycle_action": True,
-            "allow_force": True,
-        },
-        "safety_policy": {
-            "mode": "artifact_only",
-            "auto_apply_source_changes": False,
-            "auto_commit": False,
-            "auto_push": False,
-            "requires_approval_for_source_write": True,
-            "requires_approval_for_destructive": True,
-        },
-        "inputs": {
-            "decision": ".takesome/intelligence/workloop-decision.json",
-            "assigned_task": ".takesome/intelligence/assigned-task.json",
-            "task_scan": ".takesome/intelligence/task-scan.json",
-            "workloop_trace": ".takesome/intelligence/workloop-trace.md",
-            "operator_response": ".takesome/intelligence/operator-response.md",
-        },
-        "packet": {
-            "title": "Noesis Self-Improvement Packet",
-            "draft_title": "Noesis Improved Version Draft",
-            "review_title": "Noesis Review Request for Assistant",
-            "default_focus": ["remove duplicated decision paths", "keep rules in Markdown rule files"],
-            "candidate_sections": ["Observed state", "Detected risks", "Proposed improved version", "Draft patch request", "Validation plan", "Approval gate"],
-            "review_question": "Please review this generated improvement packet and decide which safe patch should be implemented next.",
-        },
+        "base": base,
+        "proposal_current": base / str(cfg["proposal_current"]),
+        "draft_current": base / str(cfg["draft_current"]),
+        "review_current": base / str(cfg["review_current"]),
+        "request_current": base / str(cfg["request_current"]),
+        "state": base / str(cfg["state"]),
+        "events": base / str(cfg["events"]),
+        "proposals_dir": base / str(cfg["proposals_dir"]),
+        "drafts_dir": base / str(cfg["drafts_dir"]),
+        "review_packets_dir": base / str(cfg["review_packets_dir"]),
+        "review_requests_dir": base / str(cfg["review_requests_dir"]),
     }
 
 
-def proto(root: Path) -> Dict[str, Any]:
-    value = load_rules(root).get("protocol")
-    return value if isinstance(value, dict) else {}
-
-
-def out_dir(root: Path) -> Path:
-    return root / str(proto(root).get("directory") or ".takesome/intelligence/improvements")
-
-
-def out_path(root: Path, key: str) -> Path:
-    return out_dir(root) / str(proto(root).get(key) or key)
-
-
-def inputs(root: Path) -> Dict[str, Path]:
-    value = load_rules(root).get("inputs")
-    raw = value if isinstance(value, dict) else {}
-    return {str(k): root / str(v) for k, v in raw.items()}
-
-
-def state_path(root: Path) -> Path:
-    return out_path(root, "state")
-
-
-def journal_path(root: Path) -> Path:
-    return out_path(root, "journal")
-
-
-def load_state(root: Path) -> Dict[str, Any]:
-    value = read_json(state_path(root), {})
-    return value if isinstance(value, dict) else {}
-
-
-def save_state(root: Path, state: Dict[str, Any]) -> None:
-    payload = dict(state)
-    payload.setdefault("schema", "noesis.suite.improvement_writer_state.v1")
-    payload["updated_utc"] = utc_now()
-    write_json(state_path(root), payload)
-
-
-def selected_action_id(decision: Dict[str, Any]) -> str:
+def _flatten_decision(decision: Dict[str, Any]) -> Dict[str, Any]:
     final = decision.get("final") if isinstance(decision.get("final"), dict) else {}
     selected = decision.get("selected_candidate") if isinstance(decision.get("selected_candidate"), dict) else {}
     assigned = decision.get("assigned_task") if isinstance(decision.get("assigned_task"), dict) else {}
-    return str(final.get("selected_action_id") or assigned.get("id") or selected.get("action_id") or "")
-
-
-def current_context(root: Path) -> Dict[str, Any]:
-    paths = inputs(root)
-    decision = read_json(paths.get("decision", root / ".takesome/intelligence/workloop-decision.json"), {})
-    scan = read_json(paths.get("task_scan", root / ".takesome/intelligence/task-scan.json"), {})
-    assigned = read_json(paths.get("assigned_task", root / ".takesome/intelligence/assigned-task.json"), {})
-    decision = decision if isinstance(decision, dict) else {}
-    scan = scan if isinstance(scan, dict) else {}
-    assigned = assigned if isinstance(assigned, dict) else {}
-    final = decision.get("final") if isinstance(decision.get("final"), dict) else {}
     return {
-        "generated_utc": utc_now(),
-        "cycle": int(final.get("cycle") or decision.get("cycle") or 0),
         "stage": str(final.get("stage") or decision.get("stage") or ""),
-        "status": str(decision.get("status") or ""),
-        "selected_action_id": selected_action_id(decision),
-        "assigned_task_id": str(final.get("assigned_task_id") or selected_action_id(decision)),
-        "operator_response_kind": str(decision.get("operator_response_kind") or ""),
-        "decision": decision,
-        "task_scan": scan,
-        "assigned": assigned,
-        "operator_response_preview": read_text(paths.get("operator_response", root / ".takesome/intelligence/operator-response.md"))[:4000],
-        "workloop_trace_preview": read_text(paths.get("workloop_trace", root / ".takesome/intelligence/workloop-trace.md"))[:4000],
+        "assigned_task_id": str(final.get("assigned_task_id") or final.get("selected_action_id") or assigned.get("id") or selected.get("action_id") or ""),
+        "selected_action_id": str(final.get("selected_action_id") or selected.get("action_id") or ""),
+        "decision_status": str(decision.get("status") or ""),
+        "cycle": int(final.get("cycle") or decision.get("cycle") or 0),
+        "checks_failed": int(final.get("checks_failed") or decision.get("checks_failed") or 0),
     }
 
 
-def triggered(root: Path, ctx: Dict[str, Any], *, force: bool = False) -> bool:
-    rules = load_rules(root)
-    policy = rules.get("trigger_policy") if isinstance(rules.get("trigger_policy"), dict) else {}
-    if force and bool(policy.get("allow_force", True)):
+def _match_condition(facts: Dict[str, Any], condition: Dict[str, Any]) -> bool:
+    field = str(condition.get("field") or "")
+    op = str(condition.get("op") or "")
+    values = condition.get("values") if isinstance(condition.get("values"), list) else []
+    current = facts.get(field)
+    if op == "in":
+        return str(current) in {str(x) for x in values}
+    if op == "equals":
+        return str(current) == str(condition.get("value") or "")
+    if op == "nonempty":
+        return bool(str(current or ""))
+    raise RuntimeError(f"Unsupported Noesis improvement activation operator: {op}")
+
+
+def should_write(decision: Dict[str, Any], rules: Dict[str, Any], *, force: bool = False) -> bool:
+    if force:
         return True
-    stage_any = [str(x) for x in (policy.get("stage_any") or [])]
-    action_any = [str(x) for x in (policy.get("action_id_any") or [])]
-    if stage_any and str(ctx.get("stage") or "") not in stage_any:
-        return False
-    if action_any and str(ctx.get("selected_action_id") or "") not in action_any:
-        return False
-    if bool(policy.get("write_once_per_cycle_action", True)):
-        state = load_state(root)
-        key = f"{ctx.get('cycle')}::{ctx.get('selected_action_id')}"
-        if key and key == state.get("last_written_key"):
-            return False
-    return True
+    activation = rules.get("activation") if isinstance(rules.get("activation"), list) else []
+    facts = _flatten_decision(decision)
+    return all(_match_condition(facts, item) for item in activation if isinstance(item, dict))
 
 
-def stable_slug(ctx: Dict[str, Any]) -> str:
-    seed = f"{ctx.get('cycle')}:{ctx.get('selected_action_id')}:{ctx.get('stage')}"
-    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:8]
-    cycle = int(ctx.get("cycle") or 0)
-    return f"cycle-{cycle:06d}-{digest}"
+def _format(template: str, facts: Dict[str, Any], rules: Dict[str, Any], generated_utc: str) -> str:
+    data = dict(facts)
+    data["generated_utc"] = generated_utc
+    data["focus"] = "\n".join(f"- {x}" for x in rules.get("focus", []) if isinstance(x, str))
+    data["attachments"] = "\n".join(f"- `{x}`" for x in rules.get("attachments", []) if isinstance(x, str))
+    return template.format(**data)
 
 
-def list_failing_checks(scan: Dict[str, Any]) -> List[str]:
-    cycle = scan.get("cycle") if isinstance(scan.get("cycle"), dict) else {}
-    values = cycle.get("failing_checks") if isinstance(cycle, dict) else []
-    return [str(item) for item in values] if isinstance(values, list) else []
-
-
-def render_proposal(root: Path, ctx: Dict[str, Any], paths: Dict[str, str]) -> str:
+def write_from_state(root: Path, *, force: bool = False) -> Dict[str, Any]:
     rules = load_rules(root)
-    packet = rules.get("packet") if isinstance(rules.get("packet"), dict) else {}
-    safety = rules.get("safety_policy") if isinstance(rules.get("safety_policy"), dict) else {}
-    focus = [str(x) for x in (packet.get("default_focus") or [])]
-    scan = ctx.get("task_scan") if isinstance(ctx.get("task_scan"), dict) else {}
-    failing = list_failing_checks(scan)
-    lines = [
-        f"# {packet.get('title') or 'Noesis Self-Improvement Packet'}",
-        "",
-        f"schema: {proto(root).get('schema') or 'noesis.suite.improvement_packet.v1'}",
-        f"generated_utc: {ctx.get('generated_utc')}",
-        f"cycle: {ctx.get('cycle')}",
-        f"stage: {ctx.get('stage')}",
-        f"selected_action_id: {ctx.get('selected_action_id')}",
-        f"assigned_task_id: {ctx.get('assigned_task_id')}",
-        f"operator_response_kind: {ctx.get('operator_response_kind')}",
-        "",
-        "## Observed state",
-        f"- decision status: `{ctx.get('status')}`",
-        f"- failing checks: `{len(failing)}`",
-        f"- worktree changed files: `{(((scan.get('repo') or {}) if isinstance(scan, dict) else {}).get('changed_file_count', ''))}`",
-        "",
-        "## Detected risks",
-    ]
-    if failing:
-        lines.extend([f"- self-check failing: `{item}`" for item in failing])
-    else:
-        lines.append("- no failing checks listed in task scan")
-    lines.extend([
-        "",
-        "## Proposed improved version",
-    ])
-    if focus:
-        lines.extend([f"- {item}" for item in focus])
-    else:
-        lines.append("- continue read-only architecture audit and generate a concrete patch proposal")
-    lines.extend([
-        "",
-        "## Draft patch request",
-        "Create a reviewed source patch only after explicit approval. The next patch should be small, testable, and limited to the weakest link found by the current scan.",
-        "",
-        "## Validation plan",
-        "- compile changed Python modules",
-        "- run Noesis workloop once in --no-openai mode",
-        "- verify workloop-decision.json, assigned-task.md and workloop-trace.md agree",
-        "- verify git status does not include runtime/secrets",
-        "",
-        "## Approval gate",
-        f"- auto_apply_source_changes: `{bool(safety.get('auto_apply_source_changes', False))}`",
-        f"- auto_commit: `{bool(safety.get('auto_commit', False))}`",
-        f"- auto_push: `{bool(safety.get('auto_push', False))}`",
-        f"- requires_approval_for_source_write: `{bool(safety.get('requires_approval_for_source_write', True))}`",
-        "",
-        "## Generated artifacts",
-    ])
-    lines.extend([f"- `{value}`" for value in paths.values()])
-    return "\n".join(lines).rstrip() + "\n"
-
-
-def render_improved_version(root: Path, ctx: Dict[str, Any]) -> str:
-    packet = load_rules(root).get("packet") if isinstance(load_rules(root).get("packet"), dict) else {}
-    scan = ctx.get("task_scan") if isinstance(ctx.get("task_scan"), dict) else {}
-    failing = list_failing_checks(scan)
-    lines = [
-        f"# {packet.get('draft_title') or 'Noesis Improved Version Draft'}",
-        "",
-        f"generated_utc: {ctx.get('generated_utc')}",
-        f"cycle: {ctx.get('cycle')}",
-        f"source_action: {ctx.get('selected_action_id')}",
-        "",
-        "## Improved behavior draft",
-        "Noesis should produce a concrete improvement packet whenever the active workloop decision asks for self-improvement. The packet is an artifact-only draft and must not mutate source files without approval.",
-        "",
-        "## Current focus",
-    ]
-    if failing:
-        lines.extend([f"- resolve or explain self-check: `{item}`" for item in failing])
-    else:
-        lines.append("- continue architecture improvement scan")
-    lines.extend([
-        "",
-        "## Proposed next source patch",
-        "The assistant/operator should review this draft and select one small source patch. Noesis may then prepare a reviewed patch request, but source edits remain gated by explicit approval.",
-        "",
-        "## Non-goals",
-        "- no model provider required",
-        "- no auto-apply",
-        "- no auto-commit",
-        "- no auto-push",
-        "- no runtime/secrets tracking",
-    ])
-    return "\n".join(lines).rstrip() + "\n"
-
-
-def render_review_request(root: Path, ctx: Dict[str, Any], paths: Dict[str, str]) -> str:
-    packet = load_rules(root).get("packet") if isinstance(load_rules(root).get("packet"), dict) else {}
-    return "\n".join([
-        f"# {packet.get('review_title') or 'Noesis Review Request for Assistant'}",
-        "",
-        f"generated_utc: {ctx.get('generated_utc')}",
-        f"cycle: {ctx.get('cycle')}",
-        f"stage: {ctx.get('stage')}",
-        f"task: {ctx.get('assigned_task_id')}",
-        "",
-        "## Request",
-        str(packet.get("review_question") or "Review the generated improvement packet and choose the next safe patch."),
-        "",
-        "## Artifacts",
-        *[f"- `{value}`" for value in paths.values()],
-    ]).rstrip() + "\n"
-
-
-def write_improvement_artifacts(root: Path, *, force: bool = False) -> Optional[Dict[str, Any]]:
-    ctx = current_context(root)
-    if not triggered(root, ctx, force=force):
-        return None
-    slug = stable_slug(ctx)
-    base = out_dir(root)
-    proposal = base / "proposals" / f"{slug}.md"
-    draft = base / "drafts" / f"{slug}.md"
-    review = base / "review-packets" / f"{slug}.json"
-    review_md = base / "review-requests" / f"{slug}.md"
-    paths = {
-        "proposal": str(proposal.relative_to(root)),
-        "draft": str(draft.relative_to(root)),
-        "review_packet": str(review.relative_to(root)),
-        "review_request": str(review_md.relative_to(root)),
-    }
+    decision = read_json(root / DECISION_PATH)
+    if not should_write(decision, rules, force=force):
+        return {"ok": True, "written": False, "reason": "activation_not_matched"}
+    facts = _flatten_decision(decision)
+    generated = now_utc()
+    paths = _paths(root, rules)
+    templates = rules.get("templates") if isinstance(rules.get("templates"), dict) else {}
+    suffix = f"cycle-{facts['cycle']:06d}-" + hashlib.sha256((generated + facts["assigned_task_id"]).encode("utf-8")).hexdigest()[:8]
+    proposal = (
+        f"# {templates['proposal_title']}\n\n"
+        f"generated_utc: {generated}\ncycle: {facts['cycle']}\nstage: {facts['stage']}\nassigned_task_id: `{facts['assigned_task_id']}`\nmode: {rules.get('artifact_mode')}\n\n"
+        f"## Proposal\n\n{_format(str(templates['proposal_body']), facts, rules, generated)}\n\n"
+        f"## Focus\n\n{_format('{focus}', facts, rules, generated)}\n\n"
+        f"## Attachments\n\n{_format('{attachments}', facts, rules, generated)}\n"
+    )
+    draft = (
+        f"# {templates['draft_title']}\n\n"
+        f"generated_utc: {generated}\ncycle: {facts['cycle']}\nstage: {facts['stage']}\nassigned_task_id: `{facts['assigned_task_id']}`\n\n"
+        f"{_format(str(templates['draft_body']), facts, rules, generated)}\n\n"
+        "## Approval Gate\n\nThis is an artifact-only draft. Source changes, commits and pushes require explicit approval.\n"
+    )
+    request = (
+        f"# {templates['review_request_title']}\n\n"
+        f"generated_utc: {generated}\ncycle: {facts['cycle']}\nstage: {facts['stage']}\nassigned_task_id: `{facts['assigned_task_id']}`\n\n"
+        f"{_format(str(templates['review_request_body']), facts, rules, generated)}\n"
+    )
     packet = {
-        "schema": proto(root).get("schema") or "noesis.suite.improvement_packet.v1",
-        "generated_utc": ctx["generated_utc"],
-        "cycle": ctx["cycle"],
-        "stage": ctx["stage"],
-        "selected_action_id": ctx["selected_action_id"],
-        "assigned_task_id": ctx["assigned_task_id"],
-        "operator_response_kind": ctx["operator_response_kind"],
-        "safety_policy": load_rules(root).get("safety_policy") or {},
-        "inputs": {k: str(v.relative_to(root)) for k, v in inputs(root).items() if v.exists()},
-        "outputs": paths,
-        "summary": {
-            "mode": "artifact_only_improved_version_draft",
-            "requires_review": True,
-            "source_files_modified": False,
-        },
+        "schema": "noesis.suite.improvement_review_packet.v1",
+        "generated_utc": generated,
+        "mode": rules.get("artifact_mode"),
+        "safety": rules.get("safety", {}),
+        "facts": facts,
+        "paths": {},
+        "attachments": rules.get("attachments", []),
     }
-    write_text(proposal, render_proposal(root, ctx, paths))
-    write_text(draft, render_improved_version(root, ctx))
-    write_json(review, packet)
-    write_text(review_md, render_review_request(root, ctx, paths))
-
-    write_text(out_path(root, "current_markdown"), read_text(proposal))
-    write_text(out_path(root, "current_draft_markdown"), read_text(draft))
-    write_json(out_path(root, "current_review_json"), packet)
-    write_text(out_path(root, "review_request_markdown"), read_text(review_md))
-
-    event = {
-        "schema": "noesis.suite.improvement_writer_event.v1",
-        "generated_utc": utc_now(),
-        "cycle": ctx["cycle"],
-        "stage": ctx["stage"],
-        "selected_action_id": ctx["selected_action_id"],
-        "assigned_task_id": ctx["assigned_task_id"],
-        "outputs": paths,
-        "status": "written",
+    proposal_path = paths["proposals_dir"] / f"{suffix}.md"
+    draft_path = paths["drafts_dir"] / f"{suffix}.md"
+    packet_path = paths["review_packets_dir"] / f"{suffix}.json"
+    request_path = paths["review_requests_dir"] / f"{suffix}.md"
+    for path, content in [
+        (paths["proposal_current"], proposal),
+        (proposal_path, proposal),
+        (paths["draft_current"], draft),
+        (draft_path, draft),
+        (paths["request_current"], request),
+        (request_path, request),
+    ]:
+        write_text(path, content)
+    packet["paths"] = {
+        "proposal_current": str(paths["proposal_current"]),
+        "proposal": str(proposal_path),
+        "draft_current": str(paths["draft_current"]),
+        "draft": str(draft_path),
+        "review_current": str(paths["review_current"]),
+        "review_packet": str(packet_path),
+        "request_current": str(paths["request_current"]),
+        "review_request": str(request_path),
     }
-    append_jsonl(journal_path(root), event)
-    state = load_state(root)
-    state["last_written_key"] = f"{ctx.get('cycle')}::{ctx.get('selected_action_id')}"
-    state["last_packet"] = event
-    save_state(root, state)
-    return packet
+    write_json(paths["review_current"], packet)
+    write_json(packet_path, packet)
+    event = {"schema": "noesis.suite.improvement_writer_event.v1", "generated_utc": generated, "written": True, "facts": facts, "paths": packet["paths"]}
+    append_jsonl(paths["events"], event)
+    write_json(paths["state"], {"schema": "noesis.suite.improvement_writer_state.v1", "updated_utc": generated, "last_event": event})
+    return {"ok": True, "written": True, "event": event}
 
 
-def maybe_write_improvement_artifacts(root: Path, *, force: bool = False) -> Optional[Dict[str, Any]]:
-    return write_improvement_artifacts(root, force=force)
+def maybe_write_improvement_artifacts(root: Path, *, force: bool = False) -> Dict[str, Any]:
+    return write_from_state(root, force=force)
 
 
 def status(root: Path) -> Dict[str, Any]:
+    rules = load_rules(root)
+    paths = _paths(root, rules)
     return {
         "schema": "noesis.suite.improvement_writer_status.v1",
-        "generated_utc": utc_now(),
-        "directory": str(out_dir(root)),
-        "state": load_state(root),
-        "current_review_packet": str(out_path(root, "current_review_json")),
-        "current_improvement": str(out_path(root, "current_markdown")),
-        "current_improved_version": str(out_path(root, "current_draft_markdown")),
-        "review_request": str(out_path(root, "review_request_markdown")),
+        "ok": True,
+        "rules": str(root / RULES_PATH),
+        "state_exists": paths["state"].exists(),
+        "proposal_exists": paths["proposal_current"].exists(),
+        "draft_exists": paths["draft_current"].exists(),
+        "review_request_exists": paths["request_current"].exists(),
+        "state": read_json(paths["state"]),
     }
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Noesis improvement artifact writer.")
-    parser.add_argument("--root", default=".", help="Suite root. Defaults to current directory.")
-    sub = parser.add_subparsers(dest="cmd", required=True)
-    write = sub.add_parser("write-from-state")
-    write.add_argument("--force", action="store_true")
-    sub.add_parser("status")
-    sub.add_parser("read-current")
-    return parser
-
-
-def main(argv: Optional[List[str]] = None) -> int:
-    args = build_parser().parse_args(argv)
-    root = Path(args.root).resolve()
-    if args.cmd == "write-from-state":
-        packet = write_improvement_artifacts(root, force=bool(args.force))
-        print(json.dumps(packet or {"ok": True, "written": False, "status": status(root)}, ensure_ascii=False, indent=2))
+def _main(argv: Iterable[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Noesis improvement artifact writer")
+    parser.add_argument("command", choices=["write-from-state", "status"])
+    parser.add_argument("--root", default=".")
+    parser.add_argument("--force", action="store_true")
+    ns = parser.parse_args(list(argv) if argv is not None else None)
+    root = Path(ns.root).resolve()
+    if ns.command == "write-from-state":
+        print(json.dumps(write_from_state(root, force=ns.force), ensure_ascii=False, indent=2))
         return 0
-    if args.cmd == "status":
+    if ns.command == "status":
         print(json.dumps(status(root), ensure_ascii=False, indent=2))
-        return 0
-    if args.cmd == "read-current":
-        print(read_text(out_path(root, "current_markdown")))
         return 0
     return 2
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(_main())
