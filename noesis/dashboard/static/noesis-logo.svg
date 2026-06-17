@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220" fill="none">
+  <defs>
+    <linearGradient id="noesisGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2D27A"/>
+      <stop offset="100%" stop-color="#B8892E"/>
+    </linearGradient>
+    <linearGradient id="noesisSilver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F3F5F8"/>
+      <stop offset="100%" stop-color="#9CA3AF"/>
+    </linearGradient>
+  </defs>
+  <path d="M110 10 L196.6 60 L196.6 160 L110 210 L23.4 160 L23.4 60 Z" stroke="url(#noesisSilver)" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M110 68 L146.4 89 L146.4 131 L110 152 L73.6 131 L73.6 89 Z" stroke="url(#noesisGold)" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M110 10 V68" stroke="url(#noesisSilver)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M110 152 V210" stroke="url(#noesisSilver)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M23.4 60 L73.6 89" stroke="url(#noesisSilver)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M196.6 60 L146.4 89" stroke="url(#noesisSilver)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M23.4 160 L73.6 131" stroke="url(#noesisSilver)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M196.6 160 L146.4 131" stroke="url(#noesisSilver)" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="110" cy="110" r="18" fill="url(#noesisGold)"/>
+  <circle cx="110" cy="10" r="9" fill="url(#noesisSilver)"/>
+  <circle cx="196.6" cy="60" r="9" fill="url(#noesisSilver)"/>
+  <circle cx="196.6" cy="160" r="9" fill="url(#noesisSilver)"/>
+  <circle cx="110" cy="210" r="9" fill="url(#noesisSilver)"/>
+  <circle cx="23.4" cy="160" r="9" fill="url(#noesisSilver)"/>
+  <circle cx="23.4" cy="60" r="9" fill="url(#noesisSilver)"/>
+  <circle cx="73.6" cy="89" r="7" fill="url(#noesisGold)"/>
+  <circle cx="146.4" cy="89" r="7" fill="url(#noesisGold)"/>
+  <circle cx="146.4" cy="131" r="7" fill="url(#noesisGold)"/>
+  <circle cx="73.6" cy="131" r="7" fill="url(#noesisGold)"/>
+</svg>

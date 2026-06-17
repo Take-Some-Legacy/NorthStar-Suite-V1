@@ -1,0 +1,273 @@
+{
+  "applied": [
+    {
+      "operation": "copy",
+      "path": "noesis/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/bridge/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/cli/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/config/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/dataset/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/intelligence/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/intelligence_loop/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/operator/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/registry/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/supervisor/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/verification/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/verification/test_dev_repo/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/verification/test_dev_repo/contract.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/intelligence/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/intelligence/descriptor_paths.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_audit_log.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_task_completion.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_test_dev_repo.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_test_dev_repo_support/__init__.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_test_dev_repo_support/contract.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/rules/noesis-task-completion.md",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/diagnostics/diag.operator.memory.json",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.core.json",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.full.json",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/tools/tools.operator.memory.json",
+      "status": "??"
+    }
+  ],
+  "changedFiles": 26,
+  "entries": [
+    {
+      "oldPath": "",
+      "path": "3537Z/manifest.json",
+      "status": "-0"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/bridge/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/cli/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/config/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/dataset/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/intelligence/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/intelligence_loop/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/operator/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/registry/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/supervisor/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/verification/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/verification/test_dev_repo/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "noesis/verification/test_dev_repo/contract.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/intelligence/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/intelligence/descriptor_paths.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/noesis_audit_log.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/noesis_task_completion.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/noesis_test_dev_repo.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/noesis_test_dev_repo_support/__init__.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/noesis_test_dev_repo_support/contract.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/rules/noesis-task-completion.md",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/suite/actions/diagnostics/diag.operator.memory.json",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.core.json",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.full.json",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/suite/actions/tools/tools.operator.memory.json",
+      "status": "??"
+    }
+  ],
+  "mode": "current_worktree_copy"
+}

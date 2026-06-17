@@ -1,0 +1,35 @@
+{
+  "blockingIssues": [],
+  "commands": [
+    {
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "cwd": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-154636Z/repo",
+      "durationMs": 0,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": "offline snapshot: no .git"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-154636Z/repo",
+      "durationMs": 0,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": "offline snapshot: no .git"
+    }
+  ],
+  "conflicts": [],
+  "name": "audit",
+  "reason": "",
+  "status": "ok"
+}

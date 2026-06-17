@@ -1,0 +1,98 @@
+{
+  "applied": [
+    {
+      "operation": "copy",
+      "path": "tools/scripts/northstar_bridge/bridge_restart.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/northstar_bridge/memory_diagnostics.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/northstar_bridge/memory_schema.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/assistant_presence.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/commands/core_cli.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/suite_intelligence.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/suite_intelligence_loop.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/workloop_trace.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/intelligence/",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_audit_log.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_task_completion.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_test_dev_repo.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_test_dev_repo_support/",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/rules/noesis-task-completion.md",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/diagnostics/",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/tools/tools.operator.memory.json",
+      "status": "??"
+    }
+  ],
+  "changedFiles": 18,
+  "mode": "current_worktree_copy",
+  "sourceRoot": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
+  "workspace": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-100855Z\\repo"
+}

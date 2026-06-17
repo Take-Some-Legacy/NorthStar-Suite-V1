@@ -1,0 +1,222 @@
+{
+  "phases": {
+    "audit": {
+      "blockingIssues": [],
+      "commands": [
+        {
+          "command": [
+            "git",
+            "status",
+            "--short"
+          ],
+          "cwd": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-155107Z/repo",
+          "durationMs": 0,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "",
+          "stdoutTail": "offline snapshot: no .git"
+        },
+        {
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "cwd": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-155107Z/repo",
+          "durationMs": 0,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "",
+          "stdoutTail": "offline snapshot: no .git"
+        }
+      ],
+      "conflicts": [],
+      "name": "audit",
+      "reason": "",
+      "status": "ok"
+    },
+    "build": {
+      "commands": [
+        {
+          "command": [
+            "/opt/pyvenv/bin/python",
+            "-m",
+            "compileall",
+            "-q",
+            "noesis"
+          ],
+          "cwd": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-155107Z/repo",
+          "durationMs": 3704,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "",
+          "stdoutTail": ""
+        }
+      ],
+      "compiledPythonFiles": [],
+      "name": "build",
+      "reason": "",
+      "status": "ok"
+    },
+    "changes": {
+      "applied": [],
+      "changedFiles": 0,
+      "mode": "current_worktree_copy",
+      "name": "changes",
+      "reason": "",
+      "sourceRoot": "/mnt/data/suite_fix",
+      "status": "ok",
+      "workspace": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-155107Z/repo"
+    },
+    "forbidden": {
+      "findings": [],
+      "name": "forbidden",
+      "passed": true,
+      "reason": "",
+      "status": "ok"
+    },
+    "tests": {
+      "commands": [
+        {
+          "command": [
+            "/opt/pyvenv/bin/python",
+            "-m",
+            "noesis",
+            "suite",
+            "--run",
+            "suite.actions.validate",
+            "--json"
+          ],
+          "cwd": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-155107Z/repo",
+          "durationMs": 7490,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "",
+          "stdoutTail": "{\n  \"schema\": \"northstar.suite.output.v1\",\n  \"suite_version\": \"0.6.4\",\n  \"action_id\": \"suite.actions.validate\",\n  \"run_id\": \"suite.actions.validate-20260616-155115\",\n  \"status\": \"ok\",\n  \"started_at\": \"2026-06-16T15:51:15Z\",\n  \"finished_at\": \"2026-06-16T15:51:19Z\",\n  \"duration_ms\": 3502,\n  \"profile\": {},\n  \"summary\": {\n    \"title\": \"Suite action suite.actions.validate ok\",\n    \"severity\": \"info\",\n    \"human\": \"Validate descriptor Suite actions and write Suite action reports. Result: suite.actions.validate finished with status=ok; exit_code=0.\"\n  },\n  \"result_schema\": \"northstar.suite.process_result.v1\",\n  \"result\": {\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"action\": {\n      \"key\": \"suite.actions.validate\",\n      \"label\": \"Validate SuiteActionRegistry\",\n      \"detail\": \"Validate descriptor Suite actions and write Suite action reports.\",\n      \"primary_tag\": \"DIAG\",\n      \"category\": \"diagnostics\",\n      \"target_domain\": \"diagnostics\",\n      \"risk_level\": \"safe\",\n      \"profile\": \"\",\n      \"chips\": [\n        \"diagnostics\",\n        \"safe\"\n      ],\n      \"progress_total\": 1,\n      \"progress_unit\": \"step\",\n      \"output_schema\": null,\n      \"output_mode\": \"process_exit\"\n    },\n    \"process_contract\": \"exit_code_zero_means_ok\",\n    \"declared_output_schema\": null,\n    \"exception\": null,\n    \"call_note\": {\n      \"schema\": \"northstar.suite.call_note.v1\",\n      \"command_id\": \"suite.actions.validate\",\n      \"label\": \"Validate SuiteActionRegistry\",\n      \"purpose\": \"Validate descriptor Suite actions and write Suite action reports.\",\n      \"risk_level\": \"safe\",\n      \"target_domain\": \"diagnostics\",\n      \"expected_result\": \"exit_code=0 with stdout/stderr captured and diagnostics written\",\n      \"output_mode\": \"process_exit\"\n    },\n    \"call_result\": {\n      \"schema\": \"northstar.suite.call_result.v1\",\n      \"command_id\": \"suite.actions.validate\",\n      \"status\": \"ok\",\n      \"exit_code\": 0,\n      \"duration_ms\": 3502,\n      \"stdout_tail\": \"\",\n      \"stderr_tail\": \"\",\n      \"stdout_bytes\": 0,\n      \"stderr_bytes\": 0,\n      \"summary\": \"suite.actions.validate finished with status=ok; exit_code=0.\"\n    }\n  },\n  \"diagnostics\": [],\n  \"artifacts\": [\n    {\n      \"kind\": \"suite.output.json\",\n      \"path\": \".takesome/suite/runs/suite.actions.validate-20260616-155115/result.json\"\n    },\n    {\n      \"kind\": \"suite.output.markdown\",\n      \"path\": \".takesome/suite/runs/suite.actions.validate-20260616-155115/result.md\"\n    },\n    {\n      \"kind\": \"suite.diagnostics.json\",\n      \"path\": \".takesome/suite/runs/suite.actions.validate-20260616-155115/diagnostics.json\"\n    }\n  ],\n  \"next_actions\": [],\n  \"model_hints\": {\n    \"read_order\": [\n      \"summary\",\n      \"diagnostics\",\n      \"result\",\n      \"artifacts\",\n      \"next_actions\"\n    ],\n    \"truth_source\": \"result.json and structured result fields\",\n    \"stdout_policy\": \"stdout/stderr are diagnostic text; prefer typed result fields and declared artifact schemas for machine reasoning.\",\n    \"status_policy\": \"status=ok means the Suite action returned exit_code 0; failed/error requires reading diagnostics before result.\"\n  }\n}\n"
+        },
+        {
+          "command": [
+            "/opt/pyvenv/bin/python",
+            "-m",
+            "noesis",
+            "suite",
+            "--run",
+            "tools.validate",
+            "--json"
+          ],
+          "cwd": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-155107Z/repo",
+          "durationMs": 7269,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "",
+          "stdoutTail": "{\n  \"schema\": \"northstar.suite.output.v1\",\n  \"suite_version\": \"0.6.4\",\n  \"action_id\": \"tools.validate\",\n  \"run_id\": \"tools.validate-20260616-155123\",\n  \"status\": \"ok\",\n  \"started_at\": \"2026-06-16T15:51:23Z\",\n  \"finished_at\": \"2026-06-16T15:51:26Z\",\n  \"duration_ms\": 3576,\n  \"profile\": {},\n  \"summary\": {\n    \"title\": \"Suite action tools.validate ok\",\n    \"severity\": \"info\",\n    \"human\": \"Validate descriptor-registered tools and write registry reports. Result: tools.validate finished with status=ok; exit_code=0.\"\n  },\n  \"result_schema\": \"northstar.suite.process_result.v1\",\n  \"result\": {\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"action\": {\n      \"key\": \"tools.validate\",\n      \"label\": \"Validate ToolRegistry\",\n      \"detail\": \"Validate descriptor-registered tools and write registry reports.\",\n      \"primary_tag\": \"TOOLS\",\n      \"category\": \"tools\",\n      \"target_domain\": \"tools\",\n      \"risk_level\": \"safe\",\n      \"profile\": \"\",\n      \"chips\": [\n        \"tools\",\n        \"safe\"\n      ],\n      \"progress_total\": 1,\n      \"progress_unit\": \"step\",\n      \"output_schema\": null,\n      \"output_mode\": \"process_exit\"\n    },\n    \"process_contract\": \"exit_code_zero_means_ok\",\n    \"declared_output_schema\": null,\n    \"exception\": null,\n    \"call_note\": {\n      \"schema\": \"northstar.suite.call_note.v1\",\n      \"command_id\": \"tools.validate\",\n      \"label\": \"Validate ToolRegistry\",\n      \"purpose\": \"Validate descriptor-registered tools and write registry reports.\",\n      \"risk_level\": \"safe\",\n      \"target_domain\": \"tools\",\n      \"expected_result\": \"exit_code=0 with stdout/stderr captured and diagnostics written\",\n      \"output_mode\": \"process_exit\"\n    },\n    \"call_result\": {\n      \"schema\": \"northstar.suite.call_result.v1\",\n      \"command_id\": \"tools.validate\",\n      \"status\": \"ok\",\n      \"exit_code\": 0,\n      \"duration_ms\": 3576,\n      \"stdout_tail\": \"\",\n      \"stderr_tail\": \"\",\n      \"stdout_bytes\": 0,\n      \"stderr_bytes\": 0,\n      \"summary\": \"tools.validate finished with status=ok; exit_code=0.\"\n    }\n  },\n  \"diagnostics\": [],\n  \"artifacts\": [\n    {\n      \"kind\": \"suite.output.json\",\n      \"path\": \".takesome/suite/runs/tools.validate-20260616-155123/result.json\"\n    },\n    {\n      \"kind\": \"suite.output.markdown\",\n      \"path\": \".takesome/suite/runs/tools.validate-20260616-155123/result.md\"\n    },\n    {\n      \"kind\": \"suite.diagnostics.json\",\n      \"path\": \".takesome/suite/runs/tools.validate-20260616-155123/diagnostics.json\"\n    }\n  ],\n  \"next_actions\": [],\n  \"model_hints\": {\n    \"read_order\": [\n      \"summary\",\n      \"diagnostics\",\n      \"result\",\n      \"artifacts\",\n      \"next_actions\"\n    ],\n    \"truth_source\": \"result.json and structured result fields\",\n    \"stdout_policy\": \"stdout/stderr are diagnostic text; prefer typed result fields and declared artifact schemas for machine reasoning.\",\n    \"status_policy\": \"status=ok means the Suite action returned exit_code 0; failed/error requires reading diagnostics before result.\"\n  }\n}\n"
+        }
+      ],
+      "failed": 0,
+      "name": "tests",
+      "passed": 2,
+      "reason": "",
+      "status": "ok"
+    },
+    "verify": {
+      "checksums": {
+        "runs/noesis-20260616-155107Z/audit-report.json": "4cb94a4120475985223016da56d4c641fcbdcbbf70e18a356e0dd5b4191d4e59",
+        "runs/noesis-20260616-155107Z/build-report.json": "c0d92068de2f38b0790de3ffd0f4dc3c7ff903efdfd3dde0581f9bba9245c6a2",
+        "runs/noesis-20260616-155107Z/changed-files.json": "83995fdab07aba081e39bc0b59dd5f387790b31e0292bbfc4e66acf7660ac1f5",
+        "runs/noesis-20260616-155107Z/manifest.json": "16ff8fcbb3c59ee9c1c4852033e91cd24e9d3c110422b8daafbbe7e98d1f2994",
+        "runs/noesis-20260616-155107Z/proof-of-work.log": "a6c8cf8c3309be4e749c27740323eca60f46bc2776495b90a6ac799bdad9c501",
+        "runs/noesis-20260616-155107Z/test-report.json": "cccfaa5d35af94aee348284cd88087ce86691e5f8835e1f2d09bd4236e2c59ab"
+      },
+      "missing": [],
+      "name": "verify",
+      "reason": "",
+      "status": "ok"
+    },
+    "workspace": {
+      "command": {
+        "command": [
+          "snapshot-copy",
+          "/mnt/data/suite_fix",
+          "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-155107Z/repo"
+        ],
+        "cwd": "/mnt/data/suite_fix",
+        "durationMs": 0,
+        "exitCode": 0,
+        "ok": true,
+        "stderrTail": "",
+        "stdoutTail": "source has no .git; offline snapshot mode"
+      },
+      "name": "workspace",
+      "reason": "",
+      "status": "ok"
+    }
+  },
+  "readiness": {
+    "checks": {
+      "artifactsVerified": true,
+      "auditPassed": true,
+      "buildPassed": true,
+      "changesApplied": true,
+      "testsPassed": true,
+      "verified": true,
+      "workspaceCreated": true
+    },
+    "previousRejections": [
+      {
+        "fixed": true,
+        "line": null,
+        "path": "",
+        "phase": "workspace",
+        "reason": "git worktree add failed",
+        "runId": "noesis-20260616-154517Z"
+      },
+      {
+        "fixed": true,
+        "line": null,
+        "path": "",
+        "phase": "workspace",
+        "reason": "git worktree add failed",
+        "runId": "noesis-20260616-154524Z"
+      },
+      {
+        "fixed": true,
+        "line": null,
+        "path": "",
+        "phase": "workspace",
+        "reason": "git worktree add failed",
+        "runId": "noesis-20260616-154539Z"
+      },
+      {
+        "fixed": true,
+        "line": null,
+        "path": "",
+        "phase": "build",
+        "reason": "git rev-parse --is-inside-work-tree",
+        "runId": "noesis-20260616-154837Z"
+      }
+    ],
+    "readinessKind": "focused_merge_ready",
+    "reason": "",
+    "runId": "noesis-20260616-155107Z",
+    "schema": "noesis.merge_readiness.v2",
+    "scope": "noesis-core",
+    "scopeDescription": "Focused NOESIS/Suite/action-layer changes only.",
+    "scopeWarning": "Focused NOESIS-core gate; not whole repository readiness.",
+    "status": "merge_ready",
+    "summary": {
+      "auditIssues": 0,
+      "changedFiles": 0,
+      "previousRejections": 4,
+      "readinessKind": "focused_merge_ready",
+      "scope": "noesis-core",
+      "testsFailed": 0,
+      "testsPassed": 2,
+      "wholeRepositoryReady": false
+    },
+    "utc": "2026-06-16T15:51:30Z",
+    "wholeRepositoryReady": false,
+    "workspace": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-155107Z/repo"
+  },
+  "runId": "noesis-20260616-155107Z",
+  "status": "merge_ready"
+}

@@ -1,0 +1,58 @@
+{
+  "checks": {
+    "artifactsVerified": true,
+    "auditPassed": true,
+    "buildPassed": true,
+    "changesApplied": true,
+    "testsPassed": true,
+    "verified": true,
+    "workspaceCreated": true
+  },
+  "previousRejections": [
+    {
+      "fixed": true,
+      "line": 174,
+      "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+      "phase": "audit",
+      "reason": "git diff --check failed; conflict markers found",
+      "runId": "noesis-20260616-083414Z"
+    },
+    {
+      "fixed": true,
+      "line": 1,
+      "path": "tools/toolbelt/first_party/northstar/nemat_packer/test/test.bat",
+      "phase": "audit",
+      "reason": "git diff --check failed",
+      "runId": "noesis-20260616-083537Z"
+    },
+    {
+      "fixed": true,
+      "line": 180,
+      "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+      "phase": "build",
+      "reason": "SyntaxError: 'return' outside function",
+      "runId": "noesis-20260616-083645Z"
+    }
+  ],
+  "readinessKind": "global_merge_ready",
+  "reason": "",
+  "runId": "noesis-20260616-093501Z",
+  "schema": "noesis.merge_readiness.v2",
+  "scope": "full-repo",
+  "scopeDescription": "Whole repository validation passed.",
+  "scopeWarning": "Whole repository gate.",
+  "status": "merge_ready",
+  "summary": {
+    "auditIssues": 0,
+    "changedFiles": 20,
+    "previousRejections": 3,
+    "readinessKind": "global_merge_ready",
+    "scope": "full-repo",
+    "testsFailed": 0,
+    "testsPassed": 2,
+    "wholeRepositoryReady": true
+  },
+  "utc": "2026-06-16T09:35:14Z",
+  "wholeRepositoryReady": true,
+  "workspace": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-093501Z\\repo"
+}

@@ -1,0 +1,20 @@
+{
+  "action_id": "tools.operator.memory",
+  "group": "Tools",
+  "title": "Maintain operator memory",
+  "description": "Prune stale generated task, knowledge, note and cache data; refresh current engine state.",
+  "command": "tools",
+  "args": [
+    "operator-memory"
+  ],
+  "requires_tools": [],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [
+    ".takesome/ai-bridge/state/operator.json",
+    ".takesome/ai-bridge/knowledge/current-engine-state.json"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}

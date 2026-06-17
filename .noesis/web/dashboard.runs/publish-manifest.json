@@ -1,0 +1,17 @@
+{
+  "artifacts": [
+    {
+      "bytes": 335235,
+      "kind": "runs-index-json",
+      "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\index\\runs.json"
+    },
+    {
+      "bytes": 296290,
+      "kind": "dashboard-html",
+      "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\dashboard\\index.html"
+    }
+  ],
+  "generatedUtc": "2026-06-17T12:09:06Z",
+  "schema": "noesis.web.publish_manifest.v1",
+  "surface": "dashboard.runs"
+}

@@ -1,0 +1,386 @@
+{
+  "phases": {
+    "audit": {
+      "blockingIssues": [],
+      "commands": [
+        {
+          "command": [
+            "git",
+            "status",
+            "--short"
+          ],
+          "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090058Z\\repo",
+          "durationMs": 279,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "",
+          "stdoutTail": " M tools/scripts/northstar_bridge/bridge_restart.py\n M tools/scripts/northstar_bridge/memory_diagnostics.py\n M tools/scripts/northstar_bridge/memory_schema.py\n M tools/scripts/takesome/assistant_presence.py\n M tools/scripts/takesome/commands/core_cli.py\n M tools/scripts/takesome/noesis_task_artifact_writer.py\n M tools/scripts/takesome/suite_intelligence_loop.py\n M tools/scripts/takesome/workloop_trace.py\n M tools/toolbelt/first_party/northstar/hasher/test/test.bat\n M tools/toolbelt/first_party/northstar/neftd_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/nemat_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/nepak_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/neui_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/ytd_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/ytyp_packer/test/test.bat\n?? tools/scripts/takesome/noesis_audit_log.py\n?? tools/scripts/takesome/noesis_task_completion.py\n?? tools/scripts/takesome/noesis_test_dev_repo.py\n?? tools/scripts/takesome/rules/noesis-task-completion.md\n?? tools/suite/actions/diagnostics/\n?? tools/suite/actions/tools/tools.operator.memory.json\n"
+        },
+        {
+          "command": [
+            "git",
+            "diff",
+            "--check",
+            "--",
+            "tools/scripts/northstar_bridge/bridge_restart.py",
+            "tools/scripts/northstar_bridge/memory_diagnostics.py",
+            "tools/scripts/northstar_bridge/memory_schema.py",
+            "tools/scripts/takesome/assistant_presence.py",
+            "tools/scripts/takesome/commands/core_cli.py",
+            "tools/scripts/takesome/noesis_task_artifact_writer.py",
+            "tools/scripts/takesome/suite_intelligence_loop.py",
+            "tools/scripts/takesome/workloop_trace.py",
+            "tools/scripts/takesome/noesis_audit_log.py",
+            "tools/scripts/takesome/noesis_task_completion.py",
+            "tools/scripts/takesome/noesis_test_dev_repo.py",
+            "tools/scripts/takesome/rules/noesis-task-completion.md",
+            "tools/suite/actions/diagnostics/diag.operator.memory.json",
+            "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+            "tools/suite/actions/tools/tools.operator.memory.json"
+          ],
+          "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090058Z\\repo",
+          "durationMs": 89,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "warning: in the working copy of 'tools/scripts/northstar_bridge/bridge_restart.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/northstar_bridge/memory_diagnostics.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/northstar_bridge/memory_schema.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/commands/core_cli.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/noesis_task_artifact_writer.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/suite_intelligence_loop.py', CRLF will be replaced by LF the next time Git touches it\n",
+          "stdoutTail": ""
+        }
+      ],
+      "conflicts": [],
+      "name": "audit",
+      "reason": "",
+      "status": "ok"
+    },
+    "build": {
+      "commands": [
+        {
+          "command": [
+            "C:\\Users\\HUAWEI\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-m",
+            "py_compile",
+            "tools/scripts/northstar_bridge/bridge_restart.py",
+            "tools/scripts/northstar_bridge/memory_diagnostics.py",
+            "tools/scripts/northstar_bridge/memory_schema.py",
+            "tools/scripts/takesome/assistant_presence.py",
+            "tools/scripts/takesome/commands/core_cli.py",
+            "tools/scripts/takesome/noesis_task_artifact_writer.py",
+            "tools/scripts/takesome/suite_intelligence_loop.py",
+            "tools/scripts/takesome/workloop_trace.py",
+            "tools/scripts/takesome/noesis_audit_log.py",
+            "tools/scripts/takesome/noesis_task_completion.py",
+            "tools/scripts/takesome/noesis_test_dev_repo.py"
+          ],
+          "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090058Z\\repo",
+          "durationMs": 209,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "",
+          "stdoutTail": ""
+        }
+      ],
+      "compiledPythonFiles": [
+        "tools/scripts/northstar_bridge/bridge_restart.py",
+        "tools/scripts/northstar_bridge/memory_diagnostics.py",
+        "tools/scripts/northstar_bridge/memory_schema.py",
+        "tools/scripts/takesome/assistant_presence.py",
+        "tools/scripts/takesome/commands/core_cli.py",
+        "tools/scripts/takesome/noesis_task_artifact_writer.py",
+        "tools/scripts/takesome/suite_intelligence_loop.py",
+        "tools/scripts/takesome/workloop_trace.py",
+        "tools/scripts/takesome/noesis_audit_log.py",
+        "tools/scripts/takesome/noesis_task_completion.py",
+        "tools/scripts/takesome/noesis_test_dev_repo.py"
+      ],
+      "name": "build",
+      "reason": "",
+      "status": "ok"
+    },
+    "changes": {
+      "applied": [
+        {
+          "operation": "copy",
+          "path": "tools/scripts/northstar_bridge/bridge_restart.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/northstar_bridge/memory_diagnostics.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/northstar_bridge/memory_schema.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/assistant_presence.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/commands/core_cli.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/suite_intelligence_loop.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/workloop_trace.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/noesis_audit_log.py",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/noesis_task_completion.py",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/noesis_test_dev_repo.py",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/rules/noesis-task-completion.md",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/suite/actions/diagnostics/diag.operator.memory.json",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/suite/actions/tools/tools.operator.memory.json",
+          "status": "??"
+        }
+      ],
+      "changedFiles": 15,
+      "entries": [
+        {
+          "oldPath": "",
+          "path": "tools/scripts/northstar_bridge/bridge_restart.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/northstar_bridge/memory_diagnostics.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/northstar_bridge/memory_schema.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/assistant_presence.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/commands/core_cli.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/suite_intelligence_loop.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/workloop_trace.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/noesis_audit_log.py",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/noesis_task_completion.py",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/noesis_test_dev_repo.py",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/rules/noesis-task-completion.md",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/suite/actions/diagnostics/diag.operator.memory.json",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/suite/actions/tools/tools.operator.memory.json",
+          "status": "??"
+        }
+      ],
+      "mode": "current_worktree_copy",
+      "name": "changes",
+      "reason": "",
+      "status": "ok"
+    },
+    "tests": {
+      "commands": [
+        {
+          "command": [
+            "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090058Z\\repo\\suite.bat",
+            "-sudo",
+            "--run",
+            "suite.actions.validate",
+            "--json"
+          ],
+          "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090058Z\\repo",
+          "durationMs": 1992,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "",
+          "stdoutTail": "{\n  \"schema\": \"northstar.suite.output.v1\",\n  \"suite_version\": \"0.6.4\",\n  \"action_id\": \"suite.actions.validate\",\n  \"run_id\": \"suite.actions.validate-20260616-090109\",\n  \"status\": \"ok\",\n  \"started_at\": \"2026-06-16T09:01:09Z\",\n  \"finished_at\": \"2026-06-16T09:01:09Z\",\n  \"duration_ms\": 560,\n  \"profile\": {},\n  \"summary\": {\n    \"title\": \"Suite action suite.actions.validate ok\",\n    \"severity\": \"info\",\n    \"human\": \"Validate descriptor Suite actions and write Suite action reports. Result: suite.actions.validate finished with status=ok; exit_code=0.\"\n  },\n  \"result_schema\": \"northstar.suite.process_result.v1\",\n  \"result\": {\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"action\": {\n      \"key\": \"suite.actions.validate\",\n      \"label\": \"Validate SuiteActionRegistry\",\n      \"detail\": \"Validate descriptor Suite actions and write Suite action reports.\",\n      \"primary_tag\": \"DIAG\",\n      \"category\": \"diagnostics\",\n      \"target_domain\": \"diagnostics\",\n      \"risk_level\": \"safe\",\n      \"profile\": \"\",\n      \"chips\": [\n        \"diagnostics\",\n        \"safe\"\n      ],\n      \"progress_total\": 1,\n      \"progress_unit\": \"step\",\n      \"output_schema\": null,\n      \"output_mode\": \"process_exit\"\n    },\n    \"process_contract\": \"exit_code_zero_means_ok\",\n    \"declared_output_schema\": null,\n    \"exception\": null,\n    \"call_note\": {\n      \"schema\": \"northstar.suite.call_note.v1\",\n      \"command_id\": \"suite.actions.validate\",\n      \"label\": \"Validate SuiteActionRegistry\",\n      \"purpose\": \"Validate descriptor Suite actions and write Suite action reports.\",\n      \"risk_level\": \"safe\",\n      \"target_domain\": \"diagnostics\",\n      \"expected_result\": \"exit_code=0 with stdout/stderr captured and diagnostics written\",\n      \"output_mode\": \"process_exit\"\n    },\n    \"call_result\": {\n      \"schema\": \"northstar.suite.call_result.v1\",\n      \"command_id\": \"suite.actions.validate\",\n      \"status\": \"ok\",\n      \"exit_code\": 0,\n      \"duration_ms\": 560,\n      \"stdout_tail\": \"\",\n      \"stderr_tail\": \"\",\n      \"stdout_bytes\": 0,\n      \"stderr_bytes\": 0,\n      \"summary\": \"suite.actions.validate finished with status=ok; exit_code=0.\"\n    }\n  },\n  \"diagnostics\": [],\n  \"artifacts\": [\n    {\n      \"kind\": \"suite.output.json\",\n      \"path\": \".takesome/suite/runs/suite.actions.validate-20260616-090109/result.json\"\n    },\n    {\n      \"kind\": \"suite.output.markdown\",\n      \"path\": \".takesome/suite/runs/suite.actions.validate-20260616-090109/result.md\"\n    },\n    {\n      \"kind\": \"suite.diagnostics.json\",\n      \"path\": \".takesome/suite/runs/suite.actions.validate-20260616-090109/diagnostics.json\"\n    }\n  ],\n  \"next_actions\": [],\n  \"model_hints\": {\n    \"read_order\": [\n      \"summary\",\n      \"diagnostics\",\n      \"result\",\n      \"artifacts\",\n      \"next_actions\"\n    ],\n    \"truth_source\": \"result.json and structured result fields\",\n    \"stdout_policy\": \"stdout/stderr are diagnostic text; prefer typed result fields and declared artifact schemas for machine reasoning.\",\n    \"status_policy\": \"status=ok means the Suite action returned exit_code 0; failed/error requires reading diagnostics before result.\"\n  }\n}\n"
+        },
+        {
+          "command": [
+            "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090058Z\\repo\\suite.bat",
+            "-sudo",
+            "--run",
+            "tools.validate",
+            "--json"
+          ],
+          "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090058Z\\repo",
+          "durationMs": 1080,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "",
+          "stdoutTail": "{\n  \"schema\": \"northstar.suite.output.v1\",\n  \"suite_version\": \"0.6.4\",\n  \"action_id\": \"tools.validate\",\n  \"run_id\": \"tools.validate-20260616-090110\",\n  \"status\": \"ok\",\n  \"started_at\": \"2026-06-16T09:01:10Z\",\n  \"finished_at\": \"2026-06-16T09:01:11Z\",\n  \"duration_ms\": 448,\n  \"profile\": {},\n  \"summary\": {\n    \"title\": \"Suite action tools.validate ok\",\n    \"severity\": \"info\",\n    \"human\": \"Validate descriptor-registered tools and write registry reports. Result: tools.validate finished with status=ok; exit_code=0.\"\n  },\n  \"result_schema\": \"northstar.suite.process_result.v1\",\n  \"result\": {\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"action\": {\n      \"key\": \"tools.validate\",\n      \"label\": \"Validate ToolRegistry\",\n      \"detail\": \"Validate descriptor-registered tools and write registry reports.\",\n      \"primary_tag\": \"TOOLS\",\n      \"category\": \"tools\",\n      \"target_domain\": \"tools\",\n      \"risk_level\": \"safe\",\n      \"profile\": \"\",\n      \"chips\": [\n        \"tools\",\n        \"safe\"\n      ],\n      \"progress_total\": 1,\n      \"progress_unit\": \"step\",\n      \"output_schema\": null,\n      \"output_mode\": \"process_exit\"\n    },\n    \"process_contract\": \"exit_code_zero_means_ok\",\n    \"declared_output_schema\": null,\n    \"exception\": null,\n    \"call_note\": {\n      \"schema\": \"northstar.suite.call_note.v1\",\n      \"command_id\": \"tools.validate\",\n      \"label\": \"Validate ToolRegistry\",\n      \"purpose\": \"Validate descriptor-registered tools and write registry reports.\",\n      \"risk_level\": \"safe\",\n      \"target_domain\": \"tools\",\n      \"expected_result\": \"exit_code=0 with stdout/stderr captured and diagnostics written\",\n      \"output_mode\": \"process_exit\"\n    },\n    \"call_result\": {\n      \"schema\": \"northstar.suite.call_result.v1\",\n      \"command_id\": \"tools.validate\",\n      \"status\": \"ok\",\n      \"exit_code\": 0,\n      \"duration_ms\": 448,\n      \"stdout_tail\": \"\",\n      \"stderr_tail\": \"\",\n      \"stdout_bytes\": 0,\n      \"stderr_bytes\": 0,\n      \"summary\": \"tools.validate finished with status=ok; exit_code=0.\"\n    }\n  },\n  \"diagnostics\": [],\n  \"artifacts\": [\n    {\n      \"kind\": \"suite.output.json\",\n      \"path\": \".takesome/suite/runs/tools.validate-20260616-090110/result.json\"\n    },\n    {\n      \"kind\": \"suite.output.markdown\",\n      \"path\": \".takesome/suite/runs/tools.validate-20260616-090110/result.md\"\n    },\n    {\n      \"kind\": \"suite.diagnostics.json\",\n      \"path\": \".takesome/suite/runs/tools.validate-20260616-090110/diagnostics.json\"\n    }\n  ],\n  \"next_actions\": [],\n  \"model_hints\": {\n    \"read_order\": [\n      \"summary\",\n      \"diagnostics\",\n      \"result\",\n      \"artifacts\",\n      \"next_actions\"\n    ],\n    \"truth_source\": \"result.json and structured result fields\",\n    \"stdout_policy\": \"stdout/stderr are diagnostic text; prefer typed result fields and declared artifact schemas for machine reasoning.\",\n    \"status_policy\": \"status=ok means the Suite action returned exit_code 0; failed/error requires reading diagnostics before result.\"\n  }\n}\n"
+        }
+      ],
+      "failed": 0,
+      "name": "tests",
+      "passed": 2,
+      "reason": "",
+      "status": "ok"
+    },
+    "verify": {
+      "checksums": {
+        "runs/noesis-20260616-090058Z/audit-report.json": "6594ad394efd0e66ba1c893f9db8203ab7e26cd79edf7a8f3ad3db6b4655fcbf",
+        "runs/noesis-20260616-090058Z/build-report.json": "a1c6b54e59dfeb92fc18fde63835d37e9766f98c03cec4f6de993cecb2d17275",
+        "runs/noesis-20260616-090058Z/changed-files.json": "23207e509f0f3e890514e9d652e76d54196000828407c4a19e467717c0649d16",
+        "runs/noesis-20260616-090058Z/manifest.json": "9aa5c001665d2433ce0a23037b15a5b83ebfc9aeaa3a45037da15fa3d74ea61b",
+        "runs/noesis-20260616-090058Z/proof-of-work.log": "07c7aa8e6be7257920e8c7d53dd670960315d8f21b49b3e5514dfb99e156b3ee",
+        "runs/noesis-20260616-090058Z/test-report.json": "ea4cbfe4133b5505387ca21beb931339f82b2229bfcd3bde7244986a829785f8"
+      },
+      "missing": [],
+      "name": "verify",
+      "reason": "",
+      "status": "ok"
+    },
+    "workspace": {
+      "command": {
+        "command": [
+          "git",
+          "worktree",
+          "add",
+          "--detach",
+          "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090058Z\\repo",
+          "HEAD"
+        ],
+        "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
+        "durationMs": 620,
+        "exitCode": 0,
+        "ok": true,
+        "stderrTail": "Preparing worktree (detached HEAD 796f10b)\n",
+        "stdoutTail": "HEAD is now at 796f10b fix(noesis): guard resident loop with main owner lock\n"
+      },
+      "name": "workspace",
+      "reason": "",
+      "status": "ok"
+    }
+  },
+  "readiness": {
+    "checks": {
+      "artifactsVerified": true,
+      "auditPassed": true,
+      "buildPassed": true,
+      "changesApplied": true,
+      "testsPassed": true,
+      "verified": true,
+      "workspaceCreated": true
+    },
+    "previousRejections": [
+      {
+        "fixed": true,
+        "line": 174,
+        "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+        "phase": "audit",
+        "reason": "git diff --check failed; conflict markers found",
+        "runId": "noesis-20260616-083414Z"
+      },
+      {
+        "fixed": true,
+        "line": 1,
+        "path": "tools/toolbelt/first_party/northstar/nemat_packer/test/test.bat",
+        "phase": "audit",
+        "reason": "git diff --check failed",
+        "runId": "noesis-20260616-083537Z"
+      },
+      {
+        "fixed": true,
+        "line": 180,
+        "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+        "phase": "build",
+        "reason": "SyntaxError: 'return' outside function",
+        "runId": "noesis-20260616-083645Z"
+      }
+    ],
+    "reason": "",
+    "runId": "noesis-20260616-090058Z",
+    "schema": "noesis.merge_readiness.v1",
+    "status": "merge_ready",
+    "summary": {
+      "auditIssues": 0,
+      "changedFiles": 15,
+      "previousRejections": 3,
+      "testsFailed": 0,
+      "testsPassed": 2
+    },
+    "utc": "2026-06-16T09:01:11Z",
+    "workspace": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090058Z\\repo"
+  },
+  "runId": "noesis-20260616-090058Z",
+  "status": "merge_ready"
+}

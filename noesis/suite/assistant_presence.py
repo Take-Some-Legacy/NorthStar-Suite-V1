@@ -1,0 +1,199 @@
+from __future__ import annotations
+
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from .operator_response import classify_operator_response, default_assignment_candidate
+from .noesis_audit_log import atomic_write_json, append_jsonl, atomic_write_text
+
+PRESENCE_SCHEMA = "noesis.suite.assistant_presence.v1"
+ASSIGNMENT_SCHEMA = "noesis.suite.assigned_task.v1"
+EVENT_SCHEMA = "noesis.suite.assistant_presence_event.v1"
+VALID_STATES = {"thinking", "working", "waiting", "idle", "assigned", "blocked", "error"}
+CONTROL_DIR = ".takesome"
+
+
+def utc_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def presence_dir(root: Path) -> Path:
+    return root / CONTROL_DIR / "intelligence"
+
+
+def presence_json_path(root: Path) -> Path:
+    return presence_dir(root) / "assistant-presence.json"
+
+
+def assigned_task_path(root: Path) -> Path:
+    return presence_dir(root) / "assigned-task.json"
+
+
+def _rel(root: Path, path: Path) -> str:
+    try:
+        return path.relative_to(root).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    task = ""
+    if isinstance(payload.get("task"), dict):
+        task = str(payload.get("task", {}).get("id") or "")
+    atomic_write_json(path, payload, kind="assistant-presence", cycle=payload.get("cycle"), task=task, action="write-presence-json")
+
+
+def _append_jsonl(path: Path, payload: dict[str, Any]) -> None:
+    append_jsonl(path, payload, kind="assistant-presence-event", cycle=payload.get("cycle"), task=str(payload.get("task_id") or ""), action="append-presence-event")
+
+
+def _text(value: Any) -> str:
+    return str(value or "").strip()
+
+
+def _recommendations(cycle: dict[str, Any]) -> list[dict[str, Any]]:
+    value = cycle.get("recommendations")
+    return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
+
+
+def should_assign_task(cycle: dict[str, Any], operator_response: dict[str, Any] | None) -> tuple[bool, str]:
+    response = classify_operator_response(operator_response)
+    policy_candidate = response.get("candidate")
+    if isinstance(policy_candidate, dict):
+        return True, "operator response rules produced an assignment candidate"
+    if not response.get("available"):
+        return True, "no operator task is available; assigning the next safe recommendation"
+    if response.get("ready_to_assign") and _recommendations(cycle):
+        return True, "operator response rules allow assignment from recommendations"
+    if not _recommendations(cycle):
+        return True, "no recommendation exists; assigning default read-only maintenance"
+    return False, "operator response rules did not request a new assignment"
+
+
+def candidate_task_id(candidate: dict[str, Any]) -> str:
+    return _text(
+        candidate.get("action_id")
+        or candidate.get("key")
+        or candidate.get("id")
+        or candidate.get("action")
+        or candidate.get("command")
+        or candidate.get("label")
+    )
+
+
+def candidate_label(candidate: dict[str, Any], task_id: str) -> str:
+    return _text(candidate.get("label") or candidate.get("title") or candidate.get("summary") or task_id)
+
+
+def build_assigned_task(
+    root: Path,
+    cycle: dict[str, Any],
+    *,
+    reason: str,
+    operator_response: dict[str, Any] | None = None,
+    selected_candidate: dict[str, Any] | None = None,
+    execution_policy: str = "assignment_only_no_auto_execute",
+    status: str = "assigned",
+    stage: dict[str, Any] | None = None,
+    decision: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    top = selected_candidate if isinstance(selected_candidate, dict) else ((_recommendations(cycle) or [{}])[0])
+    task_id = candidate_task_id(top)
+    label = candidate_label(top, task_id)
+    if not task_id:
+        top = default_assignment_candidate(root=root)
+        task_id = candidate_task_id(top)
+        label = candidate_label(top, task_id)
+    return {
+        "schema": ASSIGNMENT_SCHEMA,
+        "generated_utc": utc_iso(),
+        "cycle": cycle.get("cycle"),
+        "status": status,
+        "execution_policy": execution_policy,
+        "reason": reason,
+        "operator_response": classify_operator_response(operator_response, root=root),
+        "stage": stage or {},
+        "decision": decision or {},
+        "task": {"id": task_id, "label": label, "candidate": top},
+        "paths": {"json": _rel(root, assigned_task_path(root)), "markdown": _rel(root, presence_dir(root) / "assigned-task.md")},
+    }
+
+
+def write_assigned_task(root: Path, assignment: dict[str, Any]) -> None:
+    json_path = assigned_task_path(root)
+    md_path = presence_dir(root) / "assigned-task.md"
+    _write_json(json_path, assignment)
+    task = assignment.get("task", {}) if isinstance(assignment.get("task"), dict) else {}
+    stage = assignment.get("stage", {}) if isinstance(assignment.get("stage"), dict) else {}
+    md_path.write_text(
+        "\n".join([
+            "# Noesis Suite — Assigned Task",
+            "",
+            f"generated_utc: {assignment.get('generated_utc')}",
+            f"cycle: {assignment.get('cycle')}",
+            f"status: {assignment.get('status')}",
+            f"execution_policy: {assignment.get('execution_policy')}",
+            f"stage: {stage.get('stage', '')}",
+            "",
+            f"- id: `{task.get('id', '')}`",
+            f"- label: {task.get('label', '')}",
+            f"- reason: {assignment.get('reason', '')}",
+            "",
+            "This is assignment only. The loop must not execute write/destructive work without explicit approval.",
+            "",
+        ]),
+        encoding="utf-8",
+    )
+
+
+def update_assistant_presence(
+    root: Path,
+    *,
+    state: str,
+    phase: str,
+    cycle: dict[str, Any] | None = None,
+    message: str = "",
+    operator_response: dict[str, Any] | None = None,
+    assignment: dict[str, Any] | None = None,
+    extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    cycle = cycle if isinstance(cycle, dict) else {}
+    state = state if state in VALID_STATES else "error"
+    response = classify_operator_response(operator_response, root=root)
+    state_dir = presence_dir(root)
+    payload = {
+        "schema": PRESENCE_SCHEMA,
+        "updated_utc": utc_iso(),
+        "state": state,
+        "phase": phase,
+        "message": message,
+        "cycle": cycle.get("cycle"),
+        "cycle_started_utc": cycle.get("started_utc"),
+        "operator_response": response,
+        "assignment": assignment,
+        "contract": {"check_before_work": True, "idle_policy": "assign_without_auto_execute"},
+        "paths": {"json": _rel(root, presence_json_path(root)), "markdown": _rel(root, state_dir / "assistant-presence.md")},
+        "extra": extra or {},
+    }
+    _write_json(presence_json_path(root), payload)
+    _append_jsonl(state_dir / "assistant-presence-events.jsonl", {"schema": EVENT_SCHEMA, **payload})
+    task = assignment.get("task", {}) if isinstance(assignment, dict) and isinstance(assignment.get("task"), dict) else {}
+    lines = [
+        "# Noesis Suite — Assistant Presence",
+        "",
+        f"updated_utc: {payload['updated_utc']}",
+        f"state: `{state}`",
+        f"phase: `{phase}`",
+        f"cycle: `{payload.get('cycle')}`",
+        "",
+        message or "No message.",
+        "",
+        f"operator_response: `{response.get('kind')}` / `{response.get('intent', '')}` — {response.get('summary')}",
+        f"rules_source: `{response.get('rules_source', '')}`",
+        f"assigned_task: `{task.get('id', '')}` {task.get('label', '')}",
+        "",
+    ]
+    (state_dir / "assistant-presence.md").write_text("\n".join(lines), encoding="utf-8")
+    return payload

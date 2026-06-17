@@ -1,0 +1,62 @@
+{
+  "blockingIssues": [],
+  "commands": [
+    {
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-094623Z\\repo",
+      "durationMs": 181,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": " M tools/toolbelt/first_party/northstar/ytd_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/ytyp_packer/test/test.bat\n?? noesis/\n?? tools/scripts/takesome/intelligence/\n?? tools/scripts/takesome/noesis_audit_log.py\n?? tools/scripts/takesome/noesis_task_completion.py\n?? tools/scripts/takesome/noesis_test_dev_repo.py\n?? tools/scripts/takesome/noesis_test_dev_repo_support/\n?? tools/scripts/takesome/rules/noesis-task-completion.md\n?? tools/suite/actions/diagnostics/\n?? tools/suite/actions/tools/tools.operator.memory.json\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "noesis/__init__.py",
+        "noesis/bridge/__init__.py",
+        "noesis/cli/__init__.py",
+        "noesis/config/__init__.py",
+        "noesis/dataset/__init__.py",
+        "noesis/intelligence/__init__.py",
+        "noesis/intelligence_loop/__init__.py",
+        "noesis/operator/__init__.py",
+        "noesis/registry/__init__.py",
+        "noesis/supervisor/__init__.py",
+        "noesis/verification/__init__.py",
+        "noesis/verification/test_dev_repo/__init__.py",
+        "noesis/verification/test_dev_repo/contract.py",
+        "tools/scripts/takesome/intelligence/__init__.py",
+        "tools/scripts/takesome/intelligence/descriptor_paths.py",
+        "tools/scripts/takesome/noesis_audit_log.py",
+        "tools/scripts/takesome/noesis_task_completion.py",
+        "tools/scripts/takesome/noesis_test_dev_repo.py",
+        "tools/scripts/takesome/noesis_test_dev_repo_support/__init__.py",
+        "tools/scripts/takesome/noesis_test_dev_repo_support/contract.py",
+        "tools/scripts/takesome/rules/noesis-task-completion.md",
+        "tools/suite/actions/diagnostics/diag.operator.memory.json",
+        "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.core.json",
+        "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.full.json",
+        "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+        "tools/suite/actions/tools/tools.operator.memory.json"
+      ],
+      "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-094623Z\\repo",
+      "durationMs": 35,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": ""
+    }
+  ],
+  "conflicts": [],
+  "name": "audit",
+  "reason": "",
+  "status": "ok"
+}

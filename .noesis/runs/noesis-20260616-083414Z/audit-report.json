@@ -1,0 +1,44 @@
+{
+  "blockingIssues": [
+    "git diff --check failed",
+    "conflict markers found"
+  ],
+  "commands": [
+    {
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-083414Z\\repo",
+      "durationMs": 53,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": " M tools/scripts/northstar_bridge/bridge_restart.py\n M tools/scripts/northstar_bridge/memory_diagnostics.py\n M tools/scripts/northstar_bridge/memory_schema.py\n M tools/scripts/takesome/assistant_presence.py\n M tools/scripts/takesome/commands/core_cli.py\n M tools/scripts/takesome/noesis_task_artifact_writer.py\n M tools/scripts/takesome/suite_intelligence_loop.py\n M tools/scripts/takesome/workloop_trace.py\n?? tools/scripts/takesome/noesis_audit_log.py\n?? tools/scripts/takesome/noesis_task_completion.py\n?? tools/scripts/takesome/noesis_test_dev_repo.py\n?? tools/scripts/takesome/rules/noesis-task-completion.md\n?? tools/suite/actions/diagnostics/\n?? tools/suite/actions/tools/tools.operator.memory.json\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-083414Z\\repo",
+      "durationMs": 57,
+      "exitCode": 2,
+      "ok": false,
+      "stderrTail": "warning: in the working copy of 'tools/scripts/northstar_bridge/bridge_restart.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/northstar_bridge/memory_diagnostics.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/northstar_bridge/memory_schema.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/commands/core_cli.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/noesis_task_artifact_writer.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/suite_intelligence_loop.py', CRLF will be replaced by LF the next time Git touches it\n",
+      "stdoutTail": "tools/scripts/takesome/noesis_task_artifact_writer.py:174: trailing whitespace.\n+    \n"
+    }
+  ],
+  "conflicts": [
+    {
+      "line": 2298,
+      "path": "tools/toolbelt/third_party/imagemagick/bin/NOTICE.txt",
+      "text": "============"
+    }
+  ],
+  "name": "audit",
+  "reason": "git diff --check failed; conflict markers found",
+  "status": "failed"
+}

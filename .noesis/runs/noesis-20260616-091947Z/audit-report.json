@@ -1,0 +1,51 @@
+{
+  "blockingIssues": [],
+  "commands": [
+    {
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-091947Z\\repo",
+      "durationMs": 291,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": " M tools/scripts/northstar_bridge/bridge_restart.py\n M tools/scripts/northstar_bridge/memory_diagnostics.py\n M tools/scripts/northstar_bridge/memory_schema.py\n M tools/scripts/takesome/assistant_presence.py\n M tools/scripts/takesome/commands/core_cli.py\n M tools/scripts/takesome/noesis_task_artifact_writer.py\n M tools/scripts/takesome/suite_intelligence_loop.py\n M tools/scripts/takesome/workloop_trace.py\n M tools/toolbelt/first_party/northstar/hasher/test/test.bat\n M tools/toolbelt/first_party/northstar/neftd_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/nemat_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/nepak_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/neui_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/ytd_packer/test/test.bat\n M tools/toolbelt/first_party/northstar/ytyp_packer/test/test.bat\n?? tools/scripts/takesome/noesis_audit_log.py\n?? tools/scripts/takesome/noesis_task_completion.py\n?? tools/scripts/takesome/noesis_test_dev_repo.py\n?? tools/scripts/takesome/rules/noesis-task-completion.md\n?? tools/suite/actions/diagnostics/\n?? tools/suite/actions/tools/tools.operator.memory.json\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "tools/scripts/northstar_bridge/bridge_restart.py",
+        "tools/scripts/northstar_bridge/memory_diagnostics.py",
+        "tools/scripts/northstar_bridge/memory_schema.py",
+        "tools/scripts/takesome/assistant_presence.py",
+        "tools/scripts/takesome/commands/core_cli.py",
+        "tools/scripts/takesome/noesis_task_artifact_writer.py",
+        "tools/scripts/takesome/suite_intelligence_loop.py",
+        "tools/scripts/takesome/workloop_trace.py",
+        "tools/scripts/takesome/noesis_audit_log.py",
+        "tools/scripts/takesome/noesis_task_completion.py",
+        "tools/scripts/takesome/noesis_test_dev_repo.py",
+        "tools/scripts/takesome/rules/noesis-task-completion.md",
+        "tools/suite/actions/diagnostics/diag.operator.memory.json",
+        "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+        "tools/suite/actions/tools/tools.operator.memory.json"
+      ],
+      "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-091947Z\\repo",
+      "durationMs": 47,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "warning: in the working copy of 'tools/scripts/northstar_bridge/bridge_restart.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/northstar_bridge/memory_diagnostics.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/northstar_bridge/memory_schema.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/commands/core_cli.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/noesis_task_artifact_writer.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/suite_intelligence_loop.py', CRLF will be replaced by LF the next time Git touches it\n",
+      "stdoutTail": ""
+    }
+  ],
+  "conflicts": [],
+  "name": "audit",
+  "reason": "",
+  "status": "ok"
+}

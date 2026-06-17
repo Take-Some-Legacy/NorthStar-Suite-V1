@@ -1,0 +1,8 @@
+{
+  "runs/noesis-20260616-093557Z/audit-report.json": "fb8c7d60fbe639068980293b24ff424cf2ce18e992a8363f84ae672d7eb10de9",
+  "runs/noesis-20260616-093557Z/build-report.json": "f68fd1452fe233a4f8d467a3c8007fc072ada55e543d94783dcc090024fe9841",
+  "runs/noesis-20260616-093557Z/changed-files.json": "d5cdbe40283f4a72e78712627d304e16a7194dcab6df953a8618758d423ce3ae",
+  "runs/noesis-20260616-093557Z/manifest.json": "311d2c06f5b3e874872f51ec0af89c2253ca85ee7deff053f6eadab30c44f057",
+  "runs/noesis-20260616-093557Z/proof-of-work.log": "824281a25e790da1d78177d7e386414c7da66e7563c80ae889fc4406ea6152dd",
+  "runs/noesis-20260616-093557Z/test-report.json": "e90068bef3cf01253f2658697b28a84256ef5b9d667fbc8cf044a855e4beef9b"
+}

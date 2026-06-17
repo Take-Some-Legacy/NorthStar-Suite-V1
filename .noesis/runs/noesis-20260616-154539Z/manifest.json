@@ -1,0 +1,26 @@
+{
+  "finalStatePolicy": {
+    "mergeReadyRequiresVerified": true,
+    "patchOnlyReadyForbidden": true,
+    "verifiedRequires": [
+      "audit.ok",
+      "tests.ok",
+      "build.ok",
+      "verify.ok"
+    ]
+  },
+  "options": {
+    "applyCurrentDiff": true,
+    "scope": "noesis-core"
+  },
+  "readinessKind": "focused_merge_ready",
+  "runDirectory": "/mnt/data/suite_fix/.noesis/runs/noesis-20260616-154539Z",
+  "runId": "noesis-20260616-154539Z",
+  "schema": "noesis.test_dev_repo.manifest.v1",
+  "scope": "noesis-core",
+  "sourceRoot": "/mnt/data/suite_fix",
+  "utc": "2026-06-16T15:45:39Z",
+  "wholeRepositoryReadyTarget": false,
+  "workflow": "testDevRepo-oriented",
+  "workspace": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-154539Z/repo"
+}

@@ -1,0 +1,72 @@
+{
+  "blockingChecks": [],
+  "enforcementReady": false,
+  "mode": "skeleton",
+  "phases": {
+    "bridgeHello": {
+      "command": {
+        "command": [
+          "C:\\Users\\HUAWEI\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-m",
+          "noesis",
+          "bridge",
+          "--workspace-config",
+          "C:/Users/HUAWEI/Documents/TakeSomeDevSuite/.noesis/workspaces/testDevRepo-noesis-20260616-190457Z/repo/config/noesis/runtime.v1.json",
+          "--hello"
+        ],
+        "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-190457Z\\repo",
+        "durationMs": 679,
+        "exitCode": 0,
+        "ok": true,
+        "stderrTail": "",
+        "stdoutTail": "[OK] Trusted bridge token found: sha256:cb46b4050e56864f\nNorth Star AI Bridge\n  version       : dev mode\n  layout        : canonical noesis package\n  write_enabled : True\n  root          : C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\n  machine       : suite-node-01\n  cluster       : noesis-cluster\n  endpoint      : https://suite.kaylas-systems.ru/mcp-v2\n  peers         : 0\n  tools         : 139\n\nOperator mode:\n  default       : trusted write, no per-edit prompt\n  safety        : safe roots + no parent traversal + backups\n  read-only     : aiBridge.bat read\n\nUse:\n  aiBridge.bat stdio\n  aiBridge.bat http\n  aiBridge.bat status\n  aiBridge.bat read\n  aiBridge.bat --tool northstar.status\n"
+      },
+      "name": "full.bridge-hello",
+      "reason": "",
+      "status": "ok"
+    },
+    "secretScan": {
+      "findings": [],
+      "name": "full.secret-scan",
+      "reason": "",
+      "scannedFiles": 878,
+      "status": "ok"
+    },
+    "siteChecks": {
+      "checks": [],
+      "name": "full.site-checks",
+      "packageJsonFiles": [],
+      "reason": "no package.json files detected",
+      "status": "ok"
+    },
+    "supervisorSmoke": {
+      "command": {
+        "command": [
+          "C:\\Users\\HUAWEI\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-m",
+          "noesis",
+          "supervisor",
+          "--help"
+        ],
+        "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-190457Z\\repo",
+        "durationMs": 204,
+        "exitCode": 0,
+        "ok": true,
+        "stderrTail": "",
+        "stdoutTail": "usage: python.exe -m noesis [-h] [--root ROOT]\n                            [--workspace-config WORKSPACE_CONFIG] [--write]\n                            [--prefer-named] [--setup-named]\n                            [--quick-protocol {http2,quic,auto}]\n                            [--no-intelligence] [-sudo]\n\nOne-window North Star MCP origin + tunnel supervisor\n\noptions:\n  -h, --help            show this help message and exit\n  --root ROOT\n  --workspace-config WORKSPACE_CONFIG\n  --write\n  --prefer-named\n  --setup-named         Interactively create a Cloudflare named tunnel when\n                        stable config is missing.\n  --quick-protocol {http2,quic,auto}\n  --no-intelligence     Do not start or restart the Suite Intelligence\n                        resident loop.\n  -sudo                 Run operator sudo mode for Suite-owned confirmations\n                        and skip interactive tunnel setup prompts.\n"
+      },
+      "name": "full.supervisor-smoke",
+      "reason": "",
+      "status": "ok"
+    }
+  },
+  "requiredBeforeWholeRepositoryReady": [
+    "secretScan.ok",
+    "bridgeHello.ok",
+    "supervisorSmoke.ok",
+    "siteChecks.enforced",
+    "fullBuild.ok",
+    "fullTest.ok"
+  ],
+  "schema": "noesis.full_repo_gate.v1"
+}

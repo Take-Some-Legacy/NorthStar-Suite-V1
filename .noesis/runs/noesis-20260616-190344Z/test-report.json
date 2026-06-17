@@ -1,0 +1,43 @@
+{
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\HUAWEI\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "noesis",
+        "suite",
+        "--run",
+        "suite.actions.validate",
+        "--json"
+      ],
+      "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-190344Z\\repo",
+      "durationMs": 1148,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": "{\n  \"schema\": \"northstar.suite.output.v1\",\n  \"suite_version\": \"0.6.4\",\n  \"action_id\": \"suite.actions.validate\",\n  \"run_id\": \"suite.actions.validate-20260616-190353\",\n  \"status\": \"ok\",\n  \"started_at\": \"2026-06-16T19:03:53Z\",\n  \"finished_at\": \"2026-06-16T19:03:54Z\",\n  \"duration_ms\": 367,\n  \"profile\": {},\n  \"summary\": {\n    \"title\": \"Suite action suite.actions.validate ok\",\n    \"severity\": \"info\",\n    \"human\": \"Validate descriptor Suite actions and write Suite action reports. Result: suite.actions.validate finished with status=ok; exit_code=0.\"\n  },\n  \"result_schema\": \"northstar.suite.process_result.v1\",\n  \"result\": {\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"action\": {\n      \"key\": \"suite.actions.validate\",\n      \"label\": \"Validate SuiteActionRegistry\",\n      \"detail\": \"Validate descriptor Suite actions and write Suite action reports.\",\n      \"primary_tag\": \"DIAG\",\n      \"category\": \"diagnostics\",\n      \"target_domain\": \"diagnostics\",\n      \"risk_level\": \"safe\",\n      \"profile\": \"\",\n      \"chips\": [\n        \"diagnostics\",\n        \"safe\"\n      ],\n      \"progress_total\": 1,\n      \"progress_unit\": \"step\",\n      \"output_schema\": null,\n      \"output_mode\": \"process_exit\"\n    },\n    \"process_contract\": \"exit_code_zero_means_ok\",\n    \"declared_output_schema\": null,\n    \"exception\": null,\n    \"call_note\": {\n      \"schema\": \"northstar.suite.call_note.v1\",\n      \"command_id\": \"suite.actions.validate\",\n      \"label\": \"Validate SuiteActionRegistry\",\n      \"purpose\": \"Validate descriptor Suite actions and write Suite action reports.\",\n      \"risk_level\": \"safe\",\n      \"target_domain\": \"diagnostics\",\n      \"expected_result\": \"exit_code=0 with stdout/stderr captured and diagnostics written\",\n      \"output_mode\": \"process_exit\"\n    },\n    \"call_result\": {\n      \"schema\": \"northstar.suite.call_result.v1\",\n      \"command_id\": \"suite.actions.validate\",\n      \"status\": \"ok\",\n      \"exit_code\": 0,\n      \"duration_ms\": 367,\n      \"stdout_tail\": \"\",\n      \"stderr_tail\": \"\",\n      \"stdout_bytes\": 0,\n      \"stderr_bytes\": 0,\n      \"summary\": \"suite.actions.validate finished with status=ok; exit_code=0.\"\n    }\n  },\n  \"diagnostics\": [],\n  \"artifacts\": [\n    {\n      \"kind\": \"suite.output.json\",\n      \"path\": \".takesome/suite/runs/suite.actions.validate-20260616-190353/result.json\"\n    },\n    {\n      \"kind\": \"suite.output.markdown\",\n      \"path\": \".takesome/suite/runs/suite.actions.validate-20260616-190353/result.md\"\n    },\n    {\n      \"kind\": \"suite.diagnostics.json\",\n      \"path\": \".takesome/suite/runs/suite.actions.validate-20260616-190353/diagnostics.json\"\n    }\n  ],\n  \"next_actions\": [],\n  \"model_hints\": {\n    \"read_order\": [\n      \"summary\",\n      \"diagnostics\",\n      \"result\",\n      \"artifacts\",\n      \"next_actions\"\n    ],\n    \"truth_source\": \"result.json and structured result fields\",\n    \"stdout_policy\": \"stdout/stderr are diagnostic text; prefer typed result fields and declared artifact schemas for machine reasoning.\",\n    \"status_policy\": \"status=ok means the Suite action returned exit_code 0; failed/error requires reading diagnostics before result.\"\n  }\n}\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\HUAWEI\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "noesis",
+        "suite",
+        "--run",
+        "tools.validate",
+        "--json"
+      ],
+      "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-190344Z\\repo",
+      "durationMs": 683,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": "{\n  \"schema\": \"northstar.suite.output.v1\",\n  \"suite_version\": \"0.6.4\",\n  \"action_id\": \"tools.validate\",\n  \"run_id\": \"tools.validate-20260616-190354\",\n  \"status\": \"ok\",\n  \"started_at\": \"2026-06-16T19:03:54Z\",\n  \"finished_at\": \"2026-06-16T19:03:54Z\",\n  \"duration_ms\": 359,\n  \"profile\": {},\n  \"summary\": {\n    \"title\": \"Suite action tools.validate ok\",\n    \"severity\": \"info\",\n    \"human\": \"Validate descriptor-registered tools and write registry reports. Result: tools.validate finished with status=ok; exit_code=0.\"\n  },\n  \"result_schema\": \"northstar.suite.process_result.v1\",\n  \"result\": {\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"action\": {\n      \"key\": \"tools.validate\",\n      \"label\": \"Validate ToolRegistry\",\n      \"detail\": \"Validate descriptor-registered tools and write registry reports.\",\n      \"primary_tag\": \"TOOLS\",\n      \"category\": \"tools\",\n      \"target_domain\": \"tools\",\n      \"risk_level\": \"safe\",\n      \"profile\": \"\",\n      \"chips\": [\n        \"tools\",\n        \"safe\"\n      ],\n      \"progress_total\": 1,\n      \"progress_unit\": \"step\",\n      \"output_schema\": null,\n      \"output_mode\": \"process_exit\"\n    },\n    \"process_contract\": \"exit_code_zero_means_ok\",\n    \"declared_output_schema\": null,\n    \"exception\": null,\n    \"call_note\": {\n      \"schema\": \"northstar.suite.call_note.v1\",\n      \"command_id\": \"tools.validate\",\n      \"label\": \"Validate ToolRegistry\",\n      \"purpose\": \"Validate descriptor-registered tools and write registry reports.\",\n      \"risk_level\": \"safe\",\n      \"target_domain\": \"tools\",\n      \"expected_result\": \"exit_code=0 with stdout/stderr captured and diagnostics written\",\n      \"output_mode\": \"process_exit\"\n    },\n    \"call_result\": {\n      \"schema\": \"northstar.suite.call_result.v1\",\n      \"command_id\": \"tools.validate\",\n      \"status\": \"ok\",\n      \"exit_code\": 0,\n      \"duration_ms\": 359,\n      \"stdout_tail\": \"\",\n      \"stderr_tail\": \"\",\n      \"stdout_bytes\": 0,\n      \"stderr_bytes\": 0,\n      \"summary\": \"tools.validate finished with status=ok; exit_code=0.\"\n    }\n  },\n  \"diagnostics\": [],\n  \"artifacts\": [\n    {\n      \"kind\": \"suite.output.json\",\n      \"path\": \".takesome/suite/runs/tools.validate-20260616-190354/result.json\"\n    },\n    {\n      \"kind\": \"suite.output.markdown\",\n      \"path\": \".takesome/suite/runs/tools.validate-20260616-190354/result.md\"\n    },\n    {\n      \"kind\": \"suite.diagnostics.json\",\n      \"path\": \".takesome/suite/runs/tools.validate-20260616-190354/diagnostics.json\"\n    }\n  ],\n  \"next_actions\": [],\n  \"model_hints\": {\n    \"read_order\": [\n      \"summary\",\n      \"diagnostics\",\n      \"result\",\n      \"artifacts\",\n      \"next_actions\"\n    ],\n    \"truth_source\": \"result.json and structured result fields\",\n    \"stdout_policy\": \"stdout/stderr are diagnostic text; prefer typed result fields and declared artifact schemas for machine reasoning.\",\n    \"status_policy\": \"status=ok means the Suite action returned exit_code 0; failed/error requires reading diagnostics before result.\"\n  }\n}\n"
+    }
+  ],
+  "failed": 0,
+  "name": "tests",
+  "passed": 2,
+  "reason": "",
+  "status": "ok"
+}

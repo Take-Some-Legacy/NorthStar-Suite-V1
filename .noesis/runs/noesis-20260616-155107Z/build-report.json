@@ -1,0 +1,23 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/opt/pyvenv/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "noesis"
+      ],
+      "cwd": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-155107Z/repo",
+      "durationMs": 3704,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": ""
+    }
+  ],
+  "compiledPythonFiles": [],
+  "name": "build",
+  "reason": "",
+  "status": "ok"
+}

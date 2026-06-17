@@ -1,0 +1,23 @@
+{
+  "checks": {
+    "artifactsVerified": false,
+    "auditPassed": true,
+    "buildPassed": false,
+    "changesApplied": true,
+    "testsPassed": true,
+    "verified": false,
+    "workspaceCreated": true
+  },
+  "reason": "build_failed",
+  "runId": "noesis-20260616-083645Z",
+  "schema": "noesis.merge_readiness.v1",
+  "status": "rejected",
+  "summary": {
+    "auditIssues": 0,
+    "changedFiles": 15,
+    "testsFailed": 0,
+    "testsPassed": 2
+  },
+  "utc": "2026-06-16T08:36:55Z",
+  "workspace": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-083645Z\\repo"
+}

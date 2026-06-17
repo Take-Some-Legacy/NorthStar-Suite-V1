@@ -1,0 +1,15 @@
+from __future__ import annotations
+
+import shutil
+from pathlib import Path
+
+from .common import CommandResult, ProofLog, run_cmd
+
+
+def create_worktree(source_root: Path, workspace_repo: Path, proof: ProofLog) -> CommandResult:
+    if workspace_repo.exists():
+        shutil.rmtree(workspace_repo.parent, ignore_errors=True)
+    workspace_repo.parent.mkdir(parents=True, exist_ok=True)
+    result = run_cmd(["git", "worktree", "add", "--detach", str(workspace_repo), "HEAD"], cwd=source_root, timeout=300)
+    proof.emit("WORKSPACE_CREATE", path=workspace_repo.as_posix(), source="HEAD", status="ok" if result.ok else "failed", duration_ms=result.duration_ms)
+    return result

@@ -1,0 +1,255 @@
+{
+  "phases": {
+    "audit": {
+      "blockingIssues": [
+        "git diff --check failed",
+        "conflict markers found"
+      ],
+      "commands": [
+        {
+          "command": [
+            "git",
+            "status",
+            "--short"
+          ],
+          "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-083414Z\\repo",
+          "durationMs": 53,
+          "exitCode": 0,
+          "ok": true,
+          "stderrTail": "",
+          "stdoutTail": " M tools/scripts/northstar_bridge/bridge_restart.py\n M tools/scripts/northstar_bridge/memory_diagnostics.py\n M tools/scripts/northstar_bridge/memory_schema.py\n M tools/scripts/takesome/assistant_presence.py\n M tools/scripts/takesome/commands/core_cli.py\n M tools/scripts/takesome/noesis_task_artifact_writer.py\n M tools/scripts/takesome/suite_intelligence_loop.py\n M tools/scripts/takesome/workloop_trace.py\n?? tools/scripts/takesome/noesis_audit_log.py\n?? tools/scripts/takesome/noesis_task_completion.py\n?? tools/scripts/takesome/noesis_test_dev_repo.py\n?? tools/scripts/takesome/rules/noesis-task-completion.md\n?? tools/suite/actions/diagnostics/\n?? tools/suite/actions/tools/tools.operator.memory.json\n"
+        },
+        {
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-083414Z\\repo",
+          "durationMs": 57,
+          "exitCode": 2,
+          "ok": false,
+          "stderrTail": "warning: in the working copy of 'tools/scripts/northstar_bridge/bridge_restart.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/northstar_bridge/memory_diagnostics.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/northstar_bridge/memory_schema.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/commands/core_cli.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/noesis_task_artifact_writer.py', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'tools/scripts/takesome/suite_intelligence_loop.py', CRLF will be replaced by LF the next time Git touches it\n",
+          "stdoutTail": "tools/scripts/takesome/noesis_task_artifact_writer.py:174: trailing whitespace.\n+    \n"
+        }
+      ],
+      "conflicts": [
+        {
+          "line": 2298,
+          "path": "tools/toolbelt/third_party/imagemagick/bin/NOTICE.txt",
+          "text": "============"
+        }
+      ],
+      "name": "audit",
+      "reason": "git diff --check failed; conflict markers found",
+      "status": "failed"
+    },
+    "changes": {
+      "applied": [
+        {
+          "operation": "copy",
+          "path": "tools/scripts/northstar_bridge/bridge_restart.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/northstar_bridge/memory_diagnostics.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/northstar_bridge/memory_schema.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/assistant_presence.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/commands/core_cli.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/suite_intelligence_loop.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/workloop_trace.py",
+          "status": " M"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/noesis_audit_log.py",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/noesis_task_completion.py",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/noesis_test_dev_repo.py",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/scripts/takesome/rules/noesis-task-completion.md",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/suite/actions/diagnostics/diag.operator.memory.json",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+          "status": "??"
+        },
+        {
+          "operation": "copy",
+          "path": "tools/suite/actions/tools/tools.operator.memory.json",
+          "status": "??"
+        }
+      ],
+      "changedFiles": 15,
+      "entries": [
+        {
+          "oldPath": "",
+          "path": "tools/scripts/northstar_bridge/bridge_restart.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/northstar_bridge/memory_diagnostics.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/northstar_bridge/memory_schema.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/assistant_presence.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/commands/core_cli.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/suite_intelligence_loop.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/workloop_trace.py",
+          "status": " M"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/noesis_audit_log.py",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/noesis_task_completion.py",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/noesis_test_dev_repo.py",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/scripts/takesome/rules/noesis-task-completion.md",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/suite/actions/diagnostics/diag.operator.memory.json",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+          "status": "??"
+        },
+        {
+          "oldPath": "",
+          "path": "tools/suite/actions/tools/tools.operator.memory.json",
+          "status": "??"
+        }
+      ],
+      "mode": "current_worktree_copy",
+      "name": "changes",
+      "reason": "",
+      "status": "ok"
+    },
+    "workspace": {
+      "command": {
+        "command": [
+          "git",
+          "worktree",
+          "add",
+          "--detach",
+          "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-083414Z\\repo",
+          "HEAD"
+        ],
+        "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
+        "durationMs": 544,
+        "exitCode": 0,
+        "ok": true,
+        "stderrTail": "Preparing worktree (detached HEAD 796f10b)\n",
+        "stdoutTail": "HEAD is now at 796f10b fix(noesis): guard resident loop with main owner lock\n"
+      },
+      "name": "workspace",
+      "reason": "",
+      "status": "ok"
+    }
+  },
+  "readiness": {
+    "checks": {
+      "artifactsVerified": false,
+      "auditPassed": false,
+      "buildPassed": false,
+      "changesApplied": true,
+      "testsPassed": false,
+      "verified": false,
+      "workspaceCreated": true
+    },
+    "reason": "audit_failed",
+    "runId": "noesis-20260616-083414Z",
+    "schema": "noesis.merge_readiness.v1",
+    "status": "rejected",
+    "summary": {
+      "auditIssues": 2,
+      "changedFiles": 15,
+      "testsFailed": 0,
+      "testsPassed": 0
+    },
+    "utc": "2026-06-16T08:34:29Z",
+    "workspace": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-083414Z\\repo"
+  },
+  "runId": "noesis-20260616-083414Z",
+  "status": "rejected"
+}

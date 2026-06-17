@@ -1,0 +1,20 @@
+{
+  "commands": [
+    {
+      "command": [
+        "build",
+        "no-python-files"
+      ],
+      "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260617-080052Z\\repo",
+      "durationMs": 0,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": "no changed python files"
+    }
+  ],
+  "compiledPythonFiles": [],
+  "name": "build",
+  "reason": "",
+  "status": "ok"
+}

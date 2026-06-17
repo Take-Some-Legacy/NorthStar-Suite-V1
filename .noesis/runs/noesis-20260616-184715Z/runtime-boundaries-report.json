@@ -1,0 +1,12 @@
+{
+  "findings": [
+    {
+      "path": "tools/scripts",
+      "reason": "forbidden_runtime_root_present"
+    }
+  ],
+  "name": "runtime-boundaries",
+  "passed": false,
+  "reason": "forbidden_runtime_roots_present",
+  "status": "failed"
+}

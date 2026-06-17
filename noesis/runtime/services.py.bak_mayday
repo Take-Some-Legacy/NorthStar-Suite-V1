@@ -1,0 +1,49 @@
+from __future__ import annotations
+
+from collections.abc import Sequence
+from dataclasses import dataclass
+from importlib import import_module
+from typing import Callable
+
+
+@dataclass(frozen=True)
+class ServiceSpec:
+    name: str
+    module: str
+    function: str = "main"
+    consumes_command_token: bool = True
+
+    def load(self) -> Callable[[list[str]], int]:
+        target = getattr(import_module(self.module), self.function)
+        return target
+
+
+SERVICES: dict[str, ServiceSpec] = {
+    "bridge": ServiceSpec("bridge", "noesis.bridge.cli"),
+    "bridge-endpoint": ServiceSpec("bridge-endpoint", "noesis.bridge.endpoint"),
+    "bridge-restart": ServiceSpec("bridge-restart", "noesis.bridge.restart_cli"),
+    "install-llm-runtime": ServiceSpec("install-llm-runtime", "noesis.config.install_llm_runtime"),
+    "pilot-console": ServiceSpec("pilot-console", "noesis.supervisor.pilot_console"),
+    "script-env": ServiceSpec("script-env", "noesis.config.script_env"),
+    "supervisor": ServiceSpec("supervisor", "noesis.supervisor.main"),
+    # Suite CLI is the default command plane. The token is intentionally
+    # preserved so `python -m noesis suite --run ...` remains a Suite CLI
+    # command, not a separate launcher dialect.
+    "suite": ServiceSpec("suite", "noesis.suite.cli", consumes_command_token=False),
+}
+
+ALIASES: dict[str, str] = {
+    "takesome": "suite",
+}
+
+
+def resolve_service(name: str) -> ServiceSpec | None:
+    key = ALIASES.get(name, name)
+    return SERVICES.get(key)
+
+
+def run_service(name: str, argv: Sequence[str]) -> int:
+    spec = resolve_service(name)
+    if spec is None:
+        raise KeyError(name)
+    return int(spec.load()(list(argv)))

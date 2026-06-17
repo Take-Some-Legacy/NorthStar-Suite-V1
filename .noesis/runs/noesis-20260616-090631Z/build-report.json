@@ -1,0 +1,44 @@
+{
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\HUAWEI\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-m",
+        "py_compile",
+        "tools/scripts/northstar_bridge/bridge_restart.py",
+        "tools/scripts/northstar_bridge/memory_diagnostics.py",
+        "tools/scripts/northstar_bridge/memory_schema.py",
+        "tools/scripts/takesome/assistant_presence.py",
+        "tools/scripts/takesome/commands/core_cli.py",
+        "tools/scripts/takesome/noesis_task_artifact_writer.py",
+        "tools/scripts/takesome/suite_intelligence_loop.py",
+        "tools/scripts/takesome/workloop_trace.py",
+        "tools/scripts/takesome/noesis_audit_log.py",
+        "tools/scripts/takesome/noesis_task_completion.py",
+        "tools/scripts/takesome/noesis_test_dev_repo.py"
+      ],
+      "cwd": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090631Z\\repo",
+      "durationMs": 176,
+      "exitCode": 0,
+      "ok": true,
+      "stderrTail": "",
+      "stdoutTail": ""
+    }
+  ],
+  "compiledPythonFiles": [
+    "tools/scripts/northstar_bridge/bridge_restart.py",
+    "tools/scripts/northstar_bridge/memory_diagnostics.py",
+    "tools/scripts/northstar_bridge/memory_schema.py",
+    "tools/scripts/takesome/assistant_presence.py",
+    "tools/scripts/takesome/commands/core_cli.py",
+    "tools/scripts/takesome/noesis_task_artifact_writer.py",
+    "tools/scripts/takesome/suite_intelligence_loop.py",
+    "tools/scripts/takesome/workloop_trace.py",
+    "tools/scripts/takesome/noesis_audit_log.py",
+    "tools/scripts/takesome/noesis_task_completion.py",
+    "tools/scripts/takesome/noesis_test_dev_repo.py"
+  ],
+  "name": "build",
+  "reason": "",
+  "status": "ok"
+}

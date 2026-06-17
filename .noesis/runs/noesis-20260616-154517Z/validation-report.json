@@ -1,0 +1,61 @@
+{
+  "phases": {
+    "workspace": {
+      "command": {
+        "command": [
+          "git",
+          "clone",
+          "--shared",
+          "--quiet",
+          "--no-tags",
+          "/mnt/data/suite_fix",
+          "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-154517Z/repo"
+        ],
+        "cwd": "/mnt/data/suite_fix",
+        "durationMs": 35,
+        "exitCode": 128,
+        "ok": false,
+        "stderrTail": "fatal: repository '/mnt/data/suite_fix' does not exist\n",
+        "stdoutTail": ""
+      },
+      "name": "workspace",
+      "reason": "git worktree add failed",
+      "status": "failed"
+    }
+  },
+  "readiness": {
+    "checks": {
+      "artifactsVerified": false,
+      "auditPassed": false,
+      "buildPassed": false,
+      "changesApplied": false,
+      "testsPassed": false,
+      "verified": false,
+      "workspaceCreated": false
+    },
+    "previousRejections": [],
+    "readinessKind": "focused_merge_ready",
+    "reason": "workspace_create_failed",
+    "runId": "noesis-20260616-154517Z",
+    "schema": "noesis.merge_readiness.v2",
+    "scope": "noesis-core",
+    "scopeDescription": "Focused NOESIS/Suite/action-layer changes only.",
+    "scopeWarning": "Focused NOESIS-core gate; not whole repository readiness.",
+    "status": "rejected",
+    "summary": {
+      "auditIssues": 0,
+      "changedFiles": 0,
+      "previousRejections": 0,
+      "readinessKind": "focused_merge_ready",
+      "scope": "noesis-core",
+      "testsFailed": 0,
+      "testsPassed": 0,
+      "wholeRepositoryReady": false
+    },
+    "utc": "2026-06-16T15:45:17Z",
+    "wholeRepositoryReady": false,
+    "workspace": "/mnt/data/suite_fix/.noesis/workspaces/testDevRepo-noesis-20260616-154517Z/repo"
+  },
+  "runId": "noesis-20260616-154517Z",
+  "status": "rejected"
+}

@@ -1,0 +1,22 @@
+{
+  "finalStatePolicy": {
+    "mergeReadyRequiresVerified": true,
+    "patchOnlyReadyForbidden": true,
+    "verifiedRequires": [
+      "audit.ok",
+      "tests.ok",
+      "build.ok",
+      "verify.ok"
+    ]
+  },
+  "options": {
+    "applyCurrentDiff": true
+  },
+  "runDirectory": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\runs\\noesis-20260616-090631Z",
+  "runId": "noesis-20260616-090631Z",
+  "schema": "noesis.test_dev_repo.manifest.v1",
+  "sourceRoot": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
+  "utc": "2026-06-16T09:06:31Z",
+  "workflow": "testDevRepo-oriented",
+  "workspace": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-090631Z\\repo"
+}

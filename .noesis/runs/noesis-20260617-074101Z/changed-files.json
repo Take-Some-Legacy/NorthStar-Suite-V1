@@ -1,0 +1,1218 @@
+{
+  "applied": [
+    {
+      "operation": "delete",
+      "path": "sole.py",
+      "status": "co"
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_ai_bridge.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/AUTH_MODEL_NOTE.md",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/access.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/auth.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/bridge_restart.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/cli.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/cluster_doctor.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/cluster_topology.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/config_loader.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/console.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/contracts.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/dataset.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/dataset_archive.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/dataset_browser.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/dataset_core.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/dataset_entry_value.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/dataset_index.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/dataset_maturity.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/host_binding.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/http_mounts.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/mcp_routes.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/memory.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/memory_diagnostics.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/memory_queries.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/memory_schema.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/memory_store.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/net_address.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/oauth.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/oauth_scopes.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/operator_fs.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/operator_tools.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/paths.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/release_info.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/repo.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/rpc.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/rpc_surface.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/server.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/status.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/suite.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/supervisor_footer.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/terminal_style.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/tool_registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/workflow.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge/workspace_config.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_bridge_console.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/northstar_operator_bridge.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patch_llm_pilot_console_launch.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patch_suite_intelligence_defaults.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/config/suite/ai_bridge.v1.json",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/config/suite/output_schemas/operator.current_state.v1.json",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/config/suite/output_schemas/operator.memory_maintenance.v1.json",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/tools/scripts/northstar_bridge/contracts.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/tools/scripts/northstar_bridge/memory.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/tools/scripts/northstar_bridge/registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/tools/scripts/takesome/cli.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/tools/scripts/takesome/suite/output/runner.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/tools/scripts/takesome/suite/registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/tools/scripts/takesome/suite/shell.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/tools/scripts/takesome/tools/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/tools/scripts/takesome/tools/operator_memory.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/patches/operator_memory_hygiene/files/tools/scripts/takesome/tools/run.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/requireScriptEnv.bat",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/runTakeSomeCommand.bat",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/sitecustomize.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/archive.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/assistant_memory.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/assistant_presence.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/build_info.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/cargo/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/cargo/dll_discovery.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/cargo/metadata.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/cargo/process.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/cargo/profiles.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/cargo/stamps.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/clean.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/cli.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/cloud_planner_gate.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/commands/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/commands/build_preflight_registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/commands/cli_hooks.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/commands/core_cli.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/commands/observability.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/commands/registry_report.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/commands/suite_bridge_menu.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/commands/suite_registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/commands/tool_registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console/action_menu.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console/ansi.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console/dual_menu.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console/frame.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console/input.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console/multiselect_menu.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console/rows.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console/tags.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console/theme.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/console_menu.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/constants.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/deepseek_smoke.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/endless/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/endless/checks.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/endless/cli.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/endless/dataset.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/endless/model.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/endless/recipes.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/endless/report.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/endless/runner.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/endless/selector.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/endless/state.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/filesystem.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/first_party_tests.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/game.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/git_batch.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/git_tools.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/import_pipeline.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/importers.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/incidents.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/logs.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/migration.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/noesis_approval_executor.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/noesis_chat.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/noesis_config_overrides.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/noesis_roots.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/noesis_source_apply_gate.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/operator_fs.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/operator_fs_cli.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/operator_response.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/paths.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/platforms.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_build/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_build/args.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_build/install.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_build/interactive.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_build/main.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_build/manifest.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_build/reports.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_build/stamps.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_build/sync.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_cleanup.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugin_status.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/plugins_cleanup_notes.md",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/progress.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/registry/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/registry/registry_report.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/registry/suite_action_descriptor.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/registry/suite_action_registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/registry/suite_bridge_menu.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/registry/tool_descriptor.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/registry/tool_registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/rules/noesis-approval-executor.md",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/rules/noesis-chat-protocol.md",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/rules/noesis-config-overrides.md",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/rules/noesis-source-apply-gate.md",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/rules/noesis-task-artifact-writer.md",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/rules/operator-response-rules.md",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/selection.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/stage_detector.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/status_cache.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/LOCAL_OPERATOR_ACCESS.md",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/OWNER_AUTHORITY.md",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/actions.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/approval.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/build_center/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/build_center/center.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/context.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/env.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/fs_execute.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/fs_plan.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/long_tasks.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/missions.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/operator_toolbelt.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/output/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/output/envelope.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/output/formatting.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/output/markdown_view.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/output/runner.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/output/schemas.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/output/writer.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/patches/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/patches/workflow.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/progress_frame.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/recent.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/settings.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/shell.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/status/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/status/cockpit.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/status/git_health.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/status/incident_health.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/status/plugin_health.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/status/tool_health.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite/tags.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite_intelligence.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite_intelligence_loop.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite_llm_profile.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/suite_shell.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/task_classifier.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/task_scanner.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/third_party_tests.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tool_descriptor_cli.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/__init__.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/build.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/cache.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/collect.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/constants.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/dataset_entry_value.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/dataset_ingest_pipeline.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/dataset_lifecycle.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/dataset_maturity.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/descriptor_hygiene.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/descriptors.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/doctor.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/invariants.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/legacy_scan.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/operator_memory.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/run.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/run_report.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/runtime_env.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/tools/validation.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/ui_cli.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/ui_fonts.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/workloop_policy.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/workloop_trace.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/workspace_health.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/workspace_registry.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/takesome/workspace_status.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/scripts/workspace_cleanup_safe.py",
+      "status": "D "
+    },
+    {
+      "operation": "delete",
+      "path": "tools/suite/THIS_IS_LEGACY_DIR",
+      "status": " D"
+    },
+    {
+      "operation": "copy",
+      "path": "config/",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "noesis/",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "northstar_bridge/",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/diagnostics/",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/tools/tools.operator.memory.json",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/toolsSrc/noesis-command-plane/",
+      "status": "??"
+    },
+    {
+      "operation": "delete-tree",
+      "path": "tools/scripts",
+      "status": "D "
+    }
+  ],
+  "changedFiles": 242,
+  "mode": "current_worktree_copy",
+  "sourceRoot": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
+  "workspace": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260617-074101Z\\repo"
+}

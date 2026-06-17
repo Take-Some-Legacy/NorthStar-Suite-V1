@@ -1,0 +1,67 @@
+{
+  "action_id": "noesis.test_dev_repo.verify.full",
+  "group": "Diagnostics",
+  "title": "Verify full repository testDevRepo workspace",
+  "description": "Create an isolated git worktree testDevRepo, copy current source changes into it, run structure audit, Suite registry/tool tests, build verification and artifact verification before marking merge_ready or rejected.",
+  "command": "noesis-test-dev-repo",
+  "args": [
+    "verify",
+    "--scope",
+    "full-repo",
+    "--apply-current-diff"
+  ],
+  "requires_tools": [
+    "git",
+    "py"
+  ],
+  "requires_workspace": [
+    "script_env",
+    "git"
+  ],
+  "outputs": [
+    ".noesis/runs/<runId>/manifest.json",
+    ".noesis/runs/<runId>/validation-report.json",
+    ".noesis/runs/<runId>/audit-report.json",
+    ".noesis/runs/<runId>/test-report.json",
+    ".noesis/runs/<runId>/build-report.json",
+    ".noesis/runs/<runId>/changed-files.json",
+    ".noesis/runs/<runId>/checksums.json",
+    ".noesis/runs/<runId>/merge-readiness.json",
+    ".noesis/runs/<runId>/proof-of-work.log",
+    ".noesis/workspaces/testDevRepo-<runId>/repo"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal",
+  "category": "diagnostics",
+  "target_domain": "noesis-validation",
+  "risk_level": "writes_workspace",
+  "primary_tag": "NOESIS",
+  "chips": [
+    "noesis",
+    "testDevRepo",
+    "merge-gate",
+    "proof-of-work"
+  ],
+  "progress_total": 8,
+  "progress_unit": "phase",
+  "output_schema": "noesis.merge_readiness.v2",
+  "output_mode": "process_exit",
+  "destructiveHint": false,
+  "readOnlyHint": false,
+  "idempotentHint": false,
+  "contract": {
+    "patchOnlyReadyForbidden": true,
+    "mergeReadyRequires": [
+      "workspace.created",
+      "changes.applied",
+      "audit.ok",
+      "tests.ok",
+      "build.ok",
+      "verify.ok"
+    ],
+    "finalStates": [
+      "merge_ready",
+      "rejected"
+    ]
+  }
+}

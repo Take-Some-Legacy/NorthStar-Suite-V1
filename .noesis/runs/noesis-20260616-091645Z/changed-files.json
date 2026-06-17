@@ -1,0 +1,158 @@
+{
+  "applied": [
+    {
+      "operation": "copy",
+      "path": "tools/scripts/northstar_bridge/bridge_restart.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/northstar_bridge/memory_diagnostics.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/northstar_bridge/memory_schema.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/assistant_presence.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/commands/core_cli.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/suite_intelligence_loop.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/workloop_trace.py",
+      "status": " M"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_audit_log.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_task_completion.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/noesis_test_dev_repo.py",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/scripts/takesome/rules/noesis-task-completion.md",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/diagnostics/diag.operator.memory.json",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+      "status": "??"
+    },
+    {
+      "operation": "copy",
+      "path": "tools/suite/actions/tools/tools.operator.memory.json",
+      "status": "??"
+    }
+  ],
+  "changedFiles": 15,
+  "entries": [
+    {
+      "oldPath": "",
+      "path": "tools/scripts/northstar_bridge/bridge_restart.py",
+      "status": " M"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/northstar_bridge/memory_diagnostics.py",
+      "status": " M"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/northstar_bridge/memory_schema.py",
+      "status": " M"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/assistant_presence.py",
+      "status": " M"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/commands/core_cli.py",
+      "status": " M"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+      "status": " M"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/suite_intelligence_loop.py",
+      "status": " M"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/workloop_trace.py",
+      "status": " M"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/noesis_audit_log.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/noesis_task_completion.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/noesis_test_dev_repo.py",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/scripts/takesome/rules/noesis-task-completion.md",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/suite/actions/diagnostics/diag.operator.memory.json",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/suite/actions/diagnostics/noesis.test_dev_repo.verify.json",
+      "status": "??"
+    },
+    {
+      "oldPath": "",
+      "path": "tools/suite/actions/tools/tools.operator.memory.json",
+      "status": "??"
+    }
+  ],
+  "mode": "current_worktree_copy"
+}

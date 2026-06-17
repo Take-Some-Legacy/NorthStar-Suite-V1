@@ -1,0 +1,1 @@
+"""NOESIS canonical package module."""

@@ -1,0 +1,170 @@
+# NOESIS testDevRepo validation — noesis-20260616-184715Z
+
+Final status: `rejected`
+
+## Contract
+
+NOESIS does not produce patches. NOESIS produces verified workspaces.
+
+```text
+merge_ready = audit.ok && tests.ok && build.ok && verify.ok
+```
+
+## Phases
+
+| Phase | Status | Reason |
+|---|---|---|
+| workspace | ok | - |
+| changes | ok | - |
+| runtime-boundaries | failed | forbidden_runtime_roots_present |
+
+## Merge readiness
+
+```json
+{
+  "checks": {
+    "artifactsVerified": false,
+    "auditPassed": false,
+    "buildPassed": false,
+    "changesApplied": true,
+    "testsPassed": false,
+    "verified": false,
+    "workspaceCreated": true
+  },
+  "previousRejections": [
+    {
+      "fixed": false,
+      "line": 174,
+      "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+      "phase": "audit",
+      "reason": "git diff --check failed; conflict markers found",
+      "runId": "noesis-20260616-083414Z"
+    },
+    {
+      "fixed": false,
+      "line": 1,
+      "path": "tools/toolbelt/first_party/northstar/nemat_packer/test/test.bat",
+      "phase": "audit",
+      "reason": "git diff --check failed",
+      "runId": "noesis-20260616-083537Z"
+    },
+    {
+      "fixed": false,
+      "line": 180,
+      "path": "tools/scripts/takesome/noesis_task_artifact_writer.py",
+      "phase": "build",
+      "reason": "SyntaxError: 'return' outside function",
+      "runId": "noesis-20260616-083645Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "full_repo_gate_not_implemented",
+      "reason": "unknown_failed",
+      "runId": "noesis-20260616-093617Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "full_repo_gate_not_implemented",
+      "reason": "unknown_failed",
+      "runId": "noesis-20260616-093807Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "full_repo_gate_not_implemented",
+      "reason": "unknown_failed",
+      "runId": "noesis-20260616-094623Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "workspace",
+      "reason": "git worktree add failed",
+      "runId": "noesis-20260616-133058Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "build",
+      "reason": "git rev-parse --is-inside-work-tree",
+      "runId": "noesis-20260616-133211Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "full_repo_gate_not_implemented",
+      "reason": "unknown_failed",
+      "runId": "noesis-20260616-133649Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "workspace",
+      "reason": "git worktree add failed",
+      "runId": "noesis-20260616-154517Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "workspace",
+      "reason": "git worktree add failed",
+      "runId": "noesis-20260616-154524Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "workspace",
+      "reason": "git worktree add failed",
+      "runId": "noesis-20260616-154539Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "build",
+      "reason": "git rev-parse --is-inside-work-tree",
+      "runId": "noesis-20260616-154837Z"
+    },
+    {
+      "fixed": false,
+      "line": null,
+      "path": "",
+      "phase": "runtime-boundaries",
+      "reason": "forbidden_runtime_roots_present",
+      "runId": "noesis-20260616-182226Z"
+    }
+  ],
+  "readinessKind": "focused_merge_ready",
+  "reason": "forbidden_runtime_roots_present",
+  "runId": "noesis-20260616-184715Z",
+  "schema": "noesis.merge_readiness.v2",
+  "scope": "noesis-core",
+  "scopeDescription": "Focused NOESIS/Suite/action-layer changes only.",
+  "scopeWarning": "Focused NOESIS-core gate; not whole repository readiness.",
+  "status": "rejected",
+  "summary": {
+    "auditIssues": 0,
+    "changedFiles": 240,
+    "previousRejections": 14,
+    "readinessKind": "focused_merge_ready",
+    "scope": "noesis-core",
+    "testsFailed": 0,
+    "testsPassed": 0,
+    "wholeRepositoryReady": false
+  },
+  "utc": "2026-06-16T18:47:17Z",
+  "wholeRepositoryReady": false,
+  "workspace": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\workspaces\\testDevRepo-noesis-20260616-184715Z\\repo"
+}
+```

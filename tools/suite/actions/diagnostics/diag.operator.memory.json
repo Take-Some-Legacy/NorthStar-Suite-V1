@@ -1,0 +1,20 @@
+{
+  "action_id": "diag.operator.memory",
+  "group": "Diagnostics",
+  "title": "Diagnose and maintain operator memory",
+  "description": "Run operator memory hygiene and current-state refresh through the Suite diagnostics surface.",
+  "command": "tools",
+  "args": [
+    "operator-memory"
+  ],
+  "requires_tools": [],
+  "requires_workspace": [
+    "script_env"
+  ],
+  "outputs": [
+    ".takesome/ai-bridge/state/operator.json",
+    ".takesome/ai-bridge/knowledge/current-engine-state.json"
+  ],
+  "safe_for_menu": true,
+  "danger_level": "normal"
+}
