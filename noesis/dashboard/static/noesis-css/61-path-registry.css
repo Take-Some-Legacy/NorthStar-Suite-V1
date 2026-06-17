@@ -1,0 +1,76 @@
+/* P6.2 Suite Path Rows Registry. */
+.path-registry {
+  display: grid;
+  gap: .8rem;
+}
+.path-registry-toolbar {
+  align-items: center;
+  display: flex;
+  gap: .75rem;
+  justify-content: space-between;
+}
+.path-registry-toolbar h4 {
+  margin: 0;
+}
+.path-registry-grid {
+  display: grid;
+  gap: .9rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+.path-row-card {
+  display: grid;
+  gap: .55rem;
+  min-width: 0;
+}
+.path-row-head {
+  align-items: center;
+  display: grid;
+  gap: .55rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.path-row-name,
+.path-row-value {
+  background: rgba(4, 10, 18, .82);
+  border: 1px solid rgba(136, 184, 255, .2);
+  border-radius: 10px;
+  color: var(--fg);
+  font: inherit;
+  min-width: 0;
+  padding: .55rem .65rem;
+  width: 100%;
+}
+.path-row-name[readonly],
+.path-row-value[readonly] {
+  color: var(--muted);
+}
+.path-row-check {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: .82rem;
+  gap: .45rem;
+}
+.path-row-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.path-row-actions button {
+  min-width: 2.4rem;
+}
+.path-row-card.edit-dirty {
+  border-color: rgba(255, 210, 115, .55);
+  box-shadow: 0 0 0 1px rgba(255, 210, 115, .12) inset;
+}
+.path-row-card.is-deleted {
+  opacity: .55;
+}
+.path-row-card.is-deleted .path-row-value,
+.path-row-card.is-deleted .path-row-name {
+  text-decoration: line-through;
+}
+@media(max-width: 720px) {
+  .path-registry-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

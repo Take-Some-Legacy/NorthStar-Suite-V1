@@ -59,32 +59,13 @@
     });
   }
 
-  function pathBadge(entry) {
-    return '<span class="status ' + (entry.exists ? 'ok' : 'bad') + '">' + (entry.exists ? 'exists' : 'missing') + '</span>';
-  }
-
   function renderPaths() {
-    var paths = State.get().paths || {}, bases = paths.baseRoots || {}, derived = paths.derived || {};
-    function editField(key, entry) {
-      var tag = entry.editable ? 'editable' : 'read-only';
-      return '<article class="edit-field path-row base-path"><header><label>' + esc(key) + '</label>' + pathBadge(entry) + '</header>' +
-        '<input data-path-key="' + esc(key) + '" data-original="' + esc(entry.path || '') + '" value="' + esc(entry.path || '') + '" ' + (entry.editable ? '' : 'readonly') + ' />' +
-        '<div class="edit-meta"><span>' + esc(tag) + '</span><span>baseRoot</span></div></article>';
+    if (global.NoesisDashboardPaths && typeof global.NoesisDashboardPaths.render === 'function') {
+      global.NoesisDashboardPaths.render();
+      return;
     }
-    function computedField(key, entry) {
-      var expr = entry.base ? '${' + entry.base + '}/' + (entry.relative || '') : (entry.path || '');
-      return '<article class="edit-field path-row derived-path"><header><label>' + esc(key) + '</label>' + pathBadge(entry) + '</header>' +
-        '<div class="edit-expression">' + esc(expr) + '</div><div class="edit-meta"><span>computed</span><span>' + esc(entry.relative || '') + '</span></div></article>';
-    }
-    setHtml('paths-card', [
-      '<section class="edit-section"><h4>Base roots</h4><div class="edit-grid">' + Object.keys(bases).map(function (k) { return editField(k, bases[k] || {}); }).join('') + '</div></section>',
-      '<section class="edit-section"><h4>Derived paths</h4><div class="edit-grid">' + Object.keys(derived).map(function (k) { return computedField(k, derived[k] || {}); }).join('') + '</div></section>'
-    ].join(''));
-    document.querySelectorAll('#paths-card [data-path-key]').forEach(function (input) {
-      input.addEventListener('input', function () { input.closest('.edit-field').classList.toggle('edit-dirty', input.value !== input.getAttribute('data-original')); });
-    });
+    setHtml('paths-card', '<div class="muted">Path rows renderer unavailable.</div>');
   }
-
   function taskStatusBadge(value) {
     var v = String(value || 'unknown');
     return '<span class="status ' + State.statusClass(v) + '">' + esc(v) + '</span>';

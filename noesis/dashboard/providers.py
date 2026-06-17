@@ -25,61 +25,11 @@ def worker_payload(root: Path) -> dict[str, Any]:
     }
 
 
-def _path_record(name: str, path: Path, *, kind: str, base: str = "", rel: str = "", editable: bool = False) -> dict[str, Any]:
-    return {"name": name, "path": str(path), "exists": path.exists(), "kind": kind, "base": base, "relative": rel, "editable": editable}
+from .paths_registry import build_paths_payload
 
 
 def paths_payload(root: Path) -> dict[str, Any]:
-    roots = dashboard_roots(root)
-    base_paths = {
-        "suiteRoot": roots.suite_root,
-        "workspaceRoot": roots.workspace_root,
-        "stateRoot": roots.state_root,
-        "datasetRoot": roots.dataset_root,
-        "toolsRoot": roots.tools_root,
-        "configRoot": roots.config_root,
-    }
-    base_roots = {
-        "suiteRoot": _path_record("suiteRoot", roots.suite_root, kind="base", editable=False),
-        "workspaceRoot": _path_record("workspaceRoot", roots.workspace_root, kind="base", editable=True),
-        "stateRoot": _path_record("stateRoot", roots.state_root, kind="base", editable=True),
-        "datasetRoot": _path_record("datasetRoot", roots.dataset_root, kind="base", editable=True),
-        "toolsRoot": _path_record("toolsRoot", roots.tools_root, kind="base", editable=True),
-        "configRoot": _path_record("configRoot", roots.config_root, kind="base", editable=True),
-    }
-    derived_specs = {
-        "toolbeltRoot": ("toolsRoot", "toolbelt"),
-        "suiteActionsRoot": ("toolsRoot", "suite/actions"),
-        "runtimeConfig": ("configRoot", "runtime.v1.json"),
-        "dashboardRoot": ("stateRoot", "dashboard"),
-        "runsRoot": ("stateRoot", "runs"),
-        "indexRoot": ("stateRoot", "index"),
-        "datasetArchivesRoot": ("datasetRoot", "archives"),
-        "datasetExtractedRoot": ("datasetRoot", "extracted"),
-        "datasetIndexRoot": ("datasetRoot", "index"),
-    }
-    derived = {name: _path_record(name, base_paths[base] / Path(rel), kind="derived", base=base, rel=rel) for name, (base, rel) in derived_specs.items()}
-    entries = {**base_roots, **derived}
-    editable_keys = ["workspaceRoot", "stateRoot", "datasetRoot", "toolsRoot", "configRoot"]
-    edit_fields = [
-        {"key": name, "label": name, "value": item["path"], "kind": "path", "editable": item["editable"], "exists": item["exists"], "group": "baseRoots"}
-        for name, item in base_roots.items()
-    ] + [
-        {"key": name, "label": name, "value": item["relative"], "kind": "computedPath", "editable": False, "exists": item["exists"], "group": "derived", "base": item["base"], "expression": "${" + item["base"] + "}/" + item["relative"]}
-        for name, item in derived.items()
-    ]
-    return {
-        "schema": "noesis.dashboard.paths.v2",
-        "configSource": str(roots.runtime_config),
-        "updateEndpoint": "/api/config/paths",
-        "editableKeys": editable_keys,
-        "editModel": {"schema": "noesis.ui.editModel.v1", "target": "suitePaths", "fields": edit_fields},
-        "baseRoots": base_roots,
-        "derived": derived,
-        "entries": entries,
-        "toolDescriptorRoots": [str(roots.tools_root / "toolbelt"), str(roots.tools_root)],
-    }
-
+    return build_paths_payload(root)
 
 def load_suite_actions(root: Path, *, limit: int = 240) -> list[dict[str, Any]]:
     actions_root = dashboard_roots(root).tools_root / "suite" / "actions"
