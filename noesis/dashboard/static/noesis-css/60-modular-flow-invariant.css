@@ -1,0 +1,118 @@
+/* P5.1 Modular shell flow invariant: sections must reserve their own geometry. */
+main {
+  display: flex !important;
+  flex-direction: column !important;
+  align-content: stretch !important;
+  gap: 1rem !important;
+}
+
+main > section,
+main > footer,
+#paths-tasks-row,
+#attention-block,
+#runs-toolbar,
+#runs-block,
+#actions-block,
+#operation-console {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  float: none !important;
+  clear: both !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.hero,
+.card,
+.panel,
+.chart-card {
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.hero {
+  min-height: clamp(12rem, 20vh, 21rem) !important;
+  overflow: hidden !important;
+}
+
+.hero > * {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.hero h2 {
+  margin-block: .5rem .75rem !important;
+  line-height: .95 !important;
+  overflow: visible !important;
+}
+
+#operation-dock.console-dock {
+  flex: 0 0 auto !important;
+}
+
+#operation-console.operation-console {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: .85rem !important;
+  height: auto !important;
+  min-height: 36rem !important;
+  overflow: visible !important;
+  contain: none !important;
+  isolation: isolate !important;
+}
+
+#operation-console > .op-head,
+#operation-console > .console-composer,
+#operation-console > .op-progress,
+#operation-console > .op-meta,
+#operation-console > #op-console-output {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  float: none !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#operation-console > .console-composer {
+  display: grid !important;
+  grid-template-columns: minmax(18rem,.85fr) minmax(24rem,1.35fr) !important;
+  gap: 1rem !important;
+  align-items: end !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+#operation-console > .console-composer .mini-actions {
+  grid-column: 1 / -1 !important;
+}
+
+#operation-console > .op-progress,
+#operation-console > .op-meta,
+#operation-console > #op-console-output {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+#operation-console > #op-console-output {
+  display: block !important;
+  min-height: 12rem !important;
+  height: clamp(12rem, 26vh, 24rem) !important;
+  max-height: 24rem !important;
+  overflow: auto !important;
+  align-self: stretch !important;
+}
+
+@media(max-width:900px){
+  #operation-console > .console-composer {
+    grid-template-columns: 1fr !important;
+  }
+
+  #operation-console.operation-console {
+    min-height: 42rem !important;
+  }
+}

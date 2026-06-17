@@ -1,0 +1,17 @@
+      <section class="card operation-console always-visible" id="operation-console">
+        <div class="op-head">
+          <div>
+            <h3>Operation console</h3>
+            <p class="muted">Compose a task, run it through Suite, then watch loader state, progress and syntax-highlighted stdout/stderr/report output.</p>
+          </div>
+          <div class="op-state"><span id="op-spinner" class="op-spinner" hidden></span><strong id="op-status">idle</strong></div>
+        </div>
+        <div id="task-submit" class="task-submit console-composer" aria-label="Operation command composer">
+          <label class="command-input-wrap">Task action ID<input id="task-action-id" autocomplete="off" placeholder="suite action id, e.g. noesis.dashboard.verify" /><div id="task-action-suggestions" class="command-suggestions" role="listbox" aria-label="Suite command suggestions" hidden></div></label>
+          <label class="code-input-wrap">Task args JSON<textarea id="task-args-json" rows="4" data-code-editor="json" placeholder='{"scope":"noesis-core"}'></textarea></label>
+          <div class="mini-actions"><button class="primary" id="submit-task">Submit task</button><span class="inline-status" id="task-submit-status" data-status="idle">No task submitted.</span></div>
+        </div>
+        <div class="op-progress"><div id="op-progress-bar"></div></div>
+        <div class="op-meta"><span id="op-id">no operation</span><span id="op-title"></span></div>
+        <pre id="op-console-output" class="op-output" data-code-output="json">Ready. Enter a Suite action ID above, choose a recommended task, or save path changes to start an operation.</pre>
+      </section>

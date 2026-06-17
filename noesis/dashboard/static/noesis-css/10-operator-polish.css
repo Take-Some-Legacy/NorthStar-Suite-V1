@@ -1,0 +1,106 @@
+/* P4.2 Operator polish layer */
+:root {
+  scrollbar-color: rgba(242, 210, 122, 0.72) rgba(2, 6, 23, 0.72);
+  scrollbar-width: thin;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(242, 210, 122, 0.62) rgba(2, 6, 23, 0.78);
+}
+*::-webkit-scrollbar {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+*::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, rgba(2,6,23,.84), rgba(15,23,42,.72));
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(242,210,122,.88), rgba(184,137,46,.70));
+  border: 2px solid rgba(2, 6, 23, 0.85);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(255,226,143,.98), rgba(242,210,122,.82));
+}
+.operator-guide {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .85rem;
+  margin: 1rem 0 1.2rem;
+}
+.guide-step {
+  border: 1px solid rgba(159,208,255,.18);
+  border-radius: 1rem;
+  padding: .9rem;
+  background:
+    linear-gradient(145deg, rgba(159,208,255,.065), rgba(242,210,122,.035)),
+    rgba(2,6,23,.42);
+  min-width: 0;
+}
+.guide-step b {
+  display:block;
+  color:#eaf2ff;
+  margin-bottom:.28rem;
+}
+.guide-step span {
+  color:#9fb6dc;
+  font-size:.86rem;
+  line-height:1.35;
+}
+.section-head,
+.card > h3:first-child,
+.operation-console .op-head h3,
+#actions-block > h3:first-child {
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.card,
+.panel,
+.hero,
+.console-dock,
+.operation-console {
+  box-shadow: 0 1rem 3rem rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.035);
+}
+.table-wrap,
+#runs-table,
+#actions-table {
+  border-radius: 1rem;
+}
+table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(10, 15, 28, .96);
+  backdrop-filter: blur(10px);
+}
+tbody tr:hover {
+  background: rgba(159,208,255,.055);
+}
+.op-output,
+#op-console-output,
+pre,
+code {
+  scrollbar-color: rgba(104,240,170,.62) rgba(2,6,23,.82);
+}
+#op-console-output {
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.44), rgba(2,6,23,.62)),
+    repeating-linear-gradient(180deg, rgba(255,255,255,.018) 0 1px, transparent 1px 2.2rem);
+}
+.operation-console .op-head p,
+#task-submit-status,
+#action-run-status,
+#paths-save-status {
+  line-height: 1.35;
+}
+.command, .pill, .tag {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 980px) {
+  .operator-guide { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .operator-guide { grid-template-columns: 1fr; }
+}

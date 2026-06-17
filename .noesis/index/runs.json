@@ -1215,7 +1215,7 @@
       "wholeRepositoryReady": false
     }
   ],
-  "generatedUtc": "2026-06-17T12:09:06Z",
+  "generatedUtc": "2026-06-17T13:33:51Z",
   "insights": {
     "attention": [
       "Full-repo is not globally ready: full_repo_gate_skeleton_not_enforcement_ready"
@@ -3074,7 +3074,7 @@
         "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\index\\runs.json"
       },
       {
-        "bytes": 296290,
+        "bytes": 297570,
         "kind": "dashboard-html",
         "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\dashboard\\index.html"
       }

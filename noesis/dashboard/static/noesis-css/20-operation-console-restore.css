@@ -1,0 +1,130 @@
+/* P4.4 Operation console restore: stable readable output viewport */
+#operation-console.operation-console,
+.operation-console.always-visible {
+  display: grid !important;
+  grid-template-rows: auto auto auto minmax(12rem, 1fr) !important;
+  gap: .75rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 18rem !important;
+  box-sizing: border-box !important;
+  padding: 1rem 1.1rem !important;
+  margin-block: 1rem 1.6rem !important;
+  border-radius: 1.3rem !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, .94), rgba(2, 6, 23, .90)),
+    radial-gradient(circle at 80% 0%, rgba(96, 165, 250, .08), transparent 35%) !important;
+  box-shadow:
+    0 1.2rem 3.2rem rgba(0, 0, 0, .28),
+    inset 0 1px 0 rgba(255, 255, 255, .04) !important;
+}
+#operation-console .op-head,
+.operation-console .op-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding-bottom: .75rem !important;
+  border-bottom: 1px solid rgba(148, 163, 184, .18) !important;
+}
+#operation-console .op-head h3,
+.operation-console .op-head h3 {
+  margin: 0 0 .25rem 0 !important;
+  letter-spacing: .10em !important;
+}
+#operation-console .op-head p,
+.operation-console .op-head p {
+  display: block !important;
+  margin: 0 !important;
+  max-width: 58rem !important;
+  line-height: 1.4 !important;
+  white-space: normal !important;
+}
+#operation-console .op-state,
+.operation-console .op-state {
+  flex: 0 0 auto !important;
+  align-self: flex-start !important;
+  min-width: 5.6rem !important;
+}
+#operation-console .op-progress,
+.operation-console .op-progress {
+  display: block !important;
+  width: 100% !important;
+  min-height: .72rem !important;
+  height: .72rem !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+  background: rgba(2, 6, 23, .72) !important;
+  border: 1px solid rgba(148, 163, 184, .18) !important;
+}
+#operation-console #op-progress-bar,
+.operation-console #op-progress-bar {
+  display: block !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  width: 0%;
+}
+#operation-console .op-meta,
+.operation-console .op-meta {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: .75rem !important;
+  min-height: 1.35rem !important;
+  margin: 0 !important;
+  color: rgba(203, 213, 225, .80) !important;
+}
+#operation-console .op-output,
+#op-console-output {
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 12rem !important;
+  height: clamp(12rem, 24vh, 22rem) !important;
+  max-height: 28rem !important;
+  margin: 0 !important;
+  padding: 1rem !important;
+  overflow: auto !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  border: 1px solid rgba(148, 163, 184, .20) !important;
+  border-radius: 1rem !important;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, .36), rgba(2, 6, 23, .58)),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, .020) 0 1px, transparent 1px 2.25rem) !important;
+  color: #eaf2ff !important;
+  font: 500 .82rem/1.48 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+}
+#operation-console .op-output:empty::before,
+#op-console-output:empty::before {
+  content: 'Ready. Start a task or save paths to see exact operation output here.';
+  color: rgba(203, 213, 225, .70);
+}
+#operation-console.is-active {
+  border-color: rgba(242, 210, 122, .46) !important;
+  box-shadow:
+    0 0 0 1px rgba(242, 210, 122, .14),
+    0 1.2rem 3.6rem rgba(0, 0, 0, .34) !important;
+}
+@media (max-width: 760px) {
+  #operation-console.operation-console,
+  .operation-console.always-visible {
+    grid-template-rows: auto auto auto minmax(10rem, 1fr) !important;
+    min-height: 16rem !important;
+    padding: .85rem !important;
+  }
+  #operation-console .op-head,
+  .operation-console .op-head {
+    flex-direction: column !important;
+  }
+  #operation-console .op-output,
+  #op-console-output {
+    height: 14rem !important;
+  }
+}

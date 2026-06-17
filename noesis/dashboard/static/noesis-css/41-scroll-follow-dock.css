@@ -1,0 +1,123 @@
+/* P4.9 Scroll-follow dock and block geometry regression guard */
+#operation-dock.console-dock,
+.console-dock {
+  position: sticky !important;
+  top: .75rem !important;
+  z-index: 32 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: .75rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  margin: .35rem 0 1rem !important;
+  padding: .78rem .95rem !important;
+  border: 1px solid rgba(159,208,255,.30) !important;
+  border-radius: 1rem !important;
+  background: rgba(5,9,18,.90) !important;
+  backdrop-filter: blur(18px) !important;
+  box-shadow: 0 .7rem 2rem rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.04) !important;
+  overflow: visible !important;
+}
+
+#operation-dock.console-dock button,
+.console-dock button {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+}
+
+#operation-dock #op-dock-title,
+.console-dock #op-dock-title {
+  min-width: 0 !important;
+  max-width: 52vw !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#operation-console.operation-console {
+  display: grid !important;
+  grid-template-rows: auto auto auto auto minmax(12rem, 24rem) !important;
+  align-content: start !important;
+  gap: .85rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 1.25rem 0 2rem !important;
+  padding: 1rem 1.1rem !important;
+  overflow: visible !important;
+  contain: none !important;
+  isolation: isolate !important;
+}
+
+#operation-console > .op-head,
+#operation-console > .console-composer,
+#operation-console > .op-progress,
+#operation-console > .op-meta,
+#operation-console > #op-console-output {
+  display: revert !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  float: none !important;
+  z-index: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#operation-console > .op-head {
+  display: flex !important;
+}
+
+#operation-console > .console-composer {
+  display: grid !important;
+  grid-template-columns: minmax(18rem,.85fr) minmax(24rem,1.35fr) !important;
+  gap: 1rem !important;
+  align-items: end !important;
+  margin: 0 0 .15rem !important;
+  overflow: visible !important;
+}
+
+#operation-console > .op-progress,
+#operation-console > .op-meta {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+#operation-console > #op-console-output {
+  display: block !important;
+  width: 100% !important;
+  height: clamp(12rem, 26vh, 24rem) !important;
+  min-height: 12rem !important;
+  max-height: 24rem !important;
+  margin: 0 !important;
+  overflow: auto !important;
+  align-self: stretch !important;
+}
+
+#operation-console + #actions-block,
+#actions-block {
+  margin-top: 2rem !important;
+  clear: both !important;
+}
+
+@media(max-width:900px){
+  #operation-dock.console-dock,
+  .console-dock {
+    flex-wrap: wrap !important;
+    top: .5rem !important;
+  }
+  #operation-dock.console-dock button,
+  .console-dock button {
+    margin-left: 0 !important;
+  }
+  #operation-console > .console-composer {
+    grid-template-columns: 1fr !important;
+  }
+}

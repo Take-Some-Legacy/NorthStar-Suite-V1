@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from noesis.dashboard.templates import render_template
 
-def render_hero_section() -> str:
-    return '      <section class="hero" id="overview">\n\n        <div class="eyebrow">SuiteLab / NOESIS</div>\n\n        <h2>Operator Dashboard</h2>\n\n        <p>Human-facing control plane for focused readiness, full-repo policy, worker identity, node group status and proof artifacts.</p>\n\n        <div class="meta-line"><span>Generated: <code>__GENERATED__</code></span><span>Root: <code>__ROOT__</code></span><span>API: <code>/dashboard/data.json</code></span></div>\n\n      </section>\n\n      <section class="operator-guide" id="operator-guide">\n        <div class="guide-card"><span class="guide-step">1</span><div><b>Check state</b><p>Use Overview, Worker and Live charts to see if NOESIS-core is green.</p></div></div>\n        <div class="guide-card"><span class="guide-step">2</span><div><b>Pick task</b><p>Select a recommended task or Suite action; the operation console will track it.</p></div></div>\n        <div class="guide-card"><span class="guide-step">3</span><div><b>Watch output</b><p>Long actions show loader, progress, stdout/stderr and exact final report.</p></div></div>\n        <div class="guide-card"><span class="guide-step">4</span><div><b>Inspect proof</b><p>Open a run to inspect reports, artifacts and patch commands.</p></div></div>\n      </section>\n\n      <section class="console-dock" id="operation-dock"><span class="op-spinner" id="op-dock-spinner" hidden></span><strong>Operation:</strong> <span id="op-dock-status">idle</span><span id="op-dock-title"></span><button data-jump="operation-console">Open console</button></section>'
+
+def render_hero_section(*, generated: str = "", root: str = "") -> str:
+    return render_template("sections/hero.html", generated=generated, root=root)

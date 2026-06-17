@@ -1,0 +1,47 @@
+/* P4.8 Console output containment: no overlay outside operation console */
+#operation-console.operation-console {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: .85rem !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  contain: layout paint !important;
+  isolation: isolate !important;
+  padding-bottom: 1rem !important;
+}
+#operation-console .op-head,
+#operation-console .console-composer,
+#operation-console .op-progress,
+#operation-console .op-meta,
+#operation-console #op-console-output {
+  flex: 0 0 auto !important;
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  float: none !important;
+  z-index: auto !important;
+}
+#operation-console .console-composer {
+  display: grid !important;
+  margin: 0 !important;
+}
+#operation-console #op-console-output {
+  display: block !important;
+  height: clamp(12rem, 26vh, 24rem) !important;
+  min-height: 12rem !important;
+  max-height: 24rem !important;
+  overflow: auto !important;
+  margin: 0 !important;
+  align-self: stretch !important;
+}
+#operation-console + #actions-block,
+#operation-console + .card,
+#actions-block {
+  display: block !important;
+  position: relative !important;
+  clear: both !important;
+  margin-top: 2.25rem !important;
+  z-index: 0 !important;
+}

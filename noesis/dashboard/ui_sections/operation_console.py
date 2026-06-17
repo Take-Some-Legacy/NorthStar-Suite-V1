@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from noesis.dashboard.templates import render_template
+
 
 def render_operation_console_section() -> str:
-    return '      <section class="card operation-console always-visible" id="operation-console">\n        <div class="op-head"><div><h3>Operation console</h3><p class="muted">Compose a task, run it through Suite, then watch loader state, progress and exact stdout/stderr/report output.</p></div><div class="op-state"><span id="op-spinner" class="op-spinner" hidden></span><strong id="op-status">idle</strong></div></div>\n        <div id="task-submit" class="task-submit console-composer" aria-label="Operation command composer">\n          <label class="command-input-wrap">Task action ID<input id="task-action-id" autocomplete="off" placeholder="suite action id, e.g. noesis.dashboard.verify" /><div id="task-action-suggestions" class="command-suggestions" role="listbox" aria-label="Suite command suggestions" hidden></div></label>\n          <label>Task args JSON<textarea id="task-args-json" rows="4" placeholder=\'{"scope":"noesis-core"}\'></textarea></label>\n          <div class="mini-actions"><button class="primary" id="submit-task">Submit task</button><span class="inline-status" id="task-submit-status" data-status="idle">No task submitted.</span></div>\n        </div>\n        <div class="op-progress"><div id="op-progress-bar"></div></div>\n        <div class="op-meta"><span id="op-id">no operation</span><span id="op-title"></span></div>\n        <pre id="op-console-output" class="op-output">Ready. Enter a Suite action ID above, choose a recommended task, or save path changes to start an operation.</pre>\n      </section>'
+    return render_template("sections/operation_console.html")

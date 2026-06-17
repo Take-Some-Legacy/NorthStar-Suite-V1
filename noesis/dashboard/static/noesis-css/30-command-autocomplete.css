@@ -1,0 +1,63 @@
+/* P4.7 Command autocomplete palette */
+.command-suggestions {
+  position: absolute;
+  z-index: 40;
+  left: 1rem;
+  right: 1rem;
+  top: calc(100% - 4.25rem);
+  max-height: 22rem;
+  overflow: auto;
+  border: 1px solid rgba(242,210,122,.34);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(9,14,26,.98), rgba(2,6,23,.98));
+  box-shadow: 0 1.2rem 3.2rem rgba(0,0,0,.46), inset 0 1px 0 rgba(255,255,255,.04);
+  padding: .45rem;
+}
+.command-suggestions[hidden] { display: none !important; }
+.command-suggestion {
+  display: grid;
+  gap: .35rem;
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: .82rem;
+  padding: .72rem .82rem;
+  background: transparent;
+  color: #dbeafe;
+  cursor: pointer;
+}
+.command-suggestion:hover,
+.command-suggestion.is-active {
+  border-color: rgba(242,210,122,.34);
+  background: linear-gradient(90deg, rgba(242,210,122,.13), rgba(96,165,250,.07));
+}
+.command-suggestion .cmd-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+.command-suggestion code {
+  color: #eaf2ff;
+  font-weight: 800;
+  font-size: .86rem;
+  overflow-wrap: anywhere;
+}
+.command-suggestion .cmd-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  color: #9fb6dc;
+  font-size: .74rem;
+}
+.command-suggestion .cmd-desc {
+  color: rgba(203,213,225,.76);
+  line-height: 1.35;
+  font-size: .78rem;
+}
+.command-suggestion .danger-high { color: #ff8aa8; }
+.command-suggestion .danger-safe { color: #68f0aa; }
+@media (max-width: 720px) {
+  .command-suggestions { left: .5rem; right: .5rem; top: calc(100% - 3rem); }
+  .command-suggestion .cmd-top { align-items: flex-start; flex-direction: column; }
+}

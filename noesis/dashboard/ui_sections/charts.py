@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from noesis.dashboard.templates import render_template
+
 
 def render_charts_section() -> str:
-    return '      <section class="panel chart-section" id="live-charts">\n        <div class="section-head"><div><h2>Live run statistics</h2><p>Recent proof-runs, rejection reasons and scope distribution.</p></div><span class="tag">live</span></div>\n        <div id="liveStats" class="live-stats"></div>\n        <div class="chart-grid">\n          <div id="chartTimeline" class="chart-card"><canvas aria-label="Run timeline chart"></canvas><div class="chart-placeholder">Loading timeline chart...</div></div>\n          <div id="chartStatus" class="chart-card"><canvas aria-label="Run status chart"></canvas><div class="chart-placeholder">Loading status chart...</div></div>\n          <div id="chartScope" class="chart-card"><canvas aria-label="Run scope chart"></canvas><div class="chart-placeholder">Loading scope chart...</div></div>\n          <div id="chartReasons" class="chart-card"><canvas aria-label="Rejection reason chart"></canvas><div class="chart-placeholder">Loading rejection reasons chart...</div></div>\n        </div>\n      </section>'
+    return render_template("sections/charts.html")

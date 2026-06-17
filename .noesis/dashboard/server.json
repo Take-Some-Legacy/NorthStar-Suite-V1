@@ -2,8 +2,8 @@
   "schema": "noesis.dashboard.server.v1",
   "url": "http://127.0.0.1:8798/",
   "health": "http://127.0.0.1:8798/api/health",
-  "pid": 19808,
-  "started_at": "2026-06-17T12:00:57Z",
+  "pid": 16640,
+  "started_at": "2026-06-17T13:20:11Z",
   "source": "serverBridge",
   "useDashboard": true
 }

@@ -1,0 +1,53 @@
+/* P4.6 Dashboard section flow repair */
+#operation-console,.operation-console{
+  position:relative!important;
+  z-index:2!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-height:24rem!important;
+  margin:1.25rem 0 2rem!important;
+  overflow:hidden!important;
+  clear:both!important;
+}
+#operation-console .console-composer,.operation-console .console-composer{
+  position:relative!important;
+  z-index:3!important;
+  margin:1rem 0 1.35rem!important;
+  display:grid!important;
+  grid-template-columns:minmax(18rem,.85fr) minmax(24rem,1.35fr)!important;
+  gap:1rem!important;
+  align-items:end!important;
+}
+#operation-console .mini-actions,.operation-console .mini-actions{
+  grid-column:1/-1!important;
+  position:relative!important;
+  z-index:4!important;
+}
+#operation-console .op-progress,#operation-console .op-meta,#operation-console .op-output,#op-console-output{
+  position:relative!important;
+  z-index:1!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+#op-console-output,.operation-console pre,.operation-console .op-console-output{
+  min-height:12rem!important;
+  max-height:min(30rem,36vh)!important;
+  overflow:auto!important;
+  box-sizing:border-box!important;
+}
+#actions,.action-catalog,[data-section="actions"]{
+  position:relative!important;
+  z-index:1!important;
+  clear:both!important;
+  margin-top:2rem!important;
+}
+#operation-console+*,.operation-console+*{
+  margin-top:2rem!important;
+  clear:both!important;
+}
+@media(max-width:980px){
+  #operation-console .console-composer,.operation-console .console-composer{grid-template-columns:1fr!important;}
+  #operation-console,.operation-console{min-height:30rem!important;}
+}

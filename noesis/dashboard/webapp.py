@@ -17,10 +17,7 @@ DASHBOARD_ROUTES = (
     "/",
     "/dashboard",
     "/dashboard/data.json",
-    "/dashboard/static/noesis-dashboard.css",
-    "/dashboard/static/charts.js",
-    "/dashboard/static/operations.js",
-    "/dashboard/static/noesis-logo.svg",
+    "/dashboard/static/<asset>",
     "/index.html",
     "/api/health",
     "/api/contract",
@@ -52,34 +49,15 @@ class DashboardRunsAdapter(PathMountedAdapter):
         self.operations = OperationStore(root)
 
     def handle(self, request: WebRequest) -> WebResponse:
-        route = "/" + "dashboard" + "/" + "static" + "/" + "charts" + ".js"
         path = request.path.rstrip("/") or "/"
         if path in {"/", "/dashboard", "/index.html"}:
             payload = publish_dashboard(self.root, index_payload(self.root), html_enabled=True)
             return WebResponse(body=render_html(payload).encode("utf-8"), content_type="text/html; charset=utf-8")
         if path == "/dashboard/data.json":
             return json_response(publish_dashboard(self.root, index_payload(self.root), html_enabled=True))
-        if path == "/dashboard/static/noesis-dashboard.css":
-            css_path = Path(__file__).resolve().parent / "static" / "noesis-dashboard.css"
-            css = css_path.read_bytes() if css_path.is_file() else b"/* NOESIS dashboard stylesheet unavailable. */\n"
-            return bytes_response(css, content_type="text/css; charset=utf-8")
-        if path == route:
-            asset_path = Path(__file__).resolve().parent / "static" / ("charts" + ".js")
-            asset = asset_path.read_bytes() if asset_path.is_file() else b"// NOESIS dashboard charts unavailable.\n"
-            return bytes_response(asset, content_type="application/javascript; charset=utf-8")
         static_prefix = "/dashboard/static/"
         if path.startswith(static_prefix):
-            static_name = path[len(static_prefix):]
-            allowed = {
-                "noesis-dashboard" + ".css": "text/css; charset=utf-8",
-                "charts" + ".js": "application/javascript; charset=utf-8",
-                "operations" + ".js": "application/javascript; charset=utf-8",
-                "noesis-logo" + ".svg": "image/svg+xml; charset=utf-8",
-            }
-            if static_name in allowed:
-                static_path = Path(__file__).resolve().parent / "static" / static_name
-                payload = static_path.read_bytes() if static_path.is_file() else b""
-                return bytes_response(payload, content_type=allowed[static_name])
+            return self._static_asset(path[len(static_prefix):])
         config_route = "/api/" + "config" + "/" + "paths"
         if path == config_route:
             if request.method == "POST":
@@ -139,6 +117,28 @@ class DashboardRunsAdapter(PathMountedAdapter):
         if path == "/api/contract":
             return json_response(self.spec.as_dict(root=self.root))
         return not_found(path)
+
+
+    def _static_asset(self, static_name: str) -> WebResponse:
+        static_root = (Path(__file__).resolve().parent / "static").resolve()
+        requested = Path(unquote(static_name))
+        if requested.is_absolute() or ".." in requested.parts:
+            return not_found(static_name)
+        static_path = (static_root / requested).resolve()
+        try:
+            static_path.relative_to(static_root)
+        except ValueError:
+            return not_found(static_name)
+        if not static_path.is_file():
+            return not_found(static_name)
+        content_types = {
+            ".css": "text/css; charset=utf-8",
+            ".js": "application/javascript; charset=utf-8",
+            ".svg": "image/svg+xml; charset=utf-8",
+            ".json": "application/json; charset=utf-8",
+            ".map": "application/json; charset=utf-8",
+        }
+        return bytes_response(static_path.read_bytes(), content_type=content_types.get(static_path.suffix.lower(), "application/octet-stream"))
 
     def _artifact(self, run_id: str, name: str) -> WebResponse:
         safe_name = Path(name).name
