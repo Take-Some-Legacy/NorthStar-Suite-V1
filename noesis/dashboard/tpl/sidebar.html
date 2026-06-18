@@ -5,7 +5,16 @@
         </div>
         <div><h1>NOESIS</h1><p>Operator Console</p></div>
       </div>
-      <div class="nav">
+      <div class="nav-status" aria-live="polite">
+        <span class="nav-status-kicker">Current section</span>
+        <strong id="nav-current-section">Live</strong>
+        <div class="nav-progress" aria-hidden="true"><span id="nav-scroll-progress"></span></div>
+        <div class="nav-stepper" aria-label="Section navigation">
+          <button type="button" id="nav-prev-section">Prev</button>
+          <button type="button" id="nav-next-section">Next</button>
+        </div>
+      </div>
+      <div class="nav" id="dashboard-nav">
 {{{nav_buttons}}}
       </div>
       <div class="side-note">

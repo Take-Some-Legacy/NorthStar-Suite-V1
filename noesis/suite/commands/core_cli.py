@@ -9,6 +9,7 @@ from ..game import run_game
 from ..git_batch import git_batch_push_command
 from ..importers import build_importers, build_tool
 from ..import_pipeline import import_pipeline_command
+from ..java_workspace import java_command, register_java_parser
 from ..migration import apply_delete_list, apply_patch_files, sync_workspace_state
 from noesis.verification.test_dev_repo.cli import main as noesis_test_dev_repo_main
 from ..plugin_build import build_codecs, build_plugin_entry, build_plugins
@@ -41,6 +42,7 @@ CORE_COMMANDS = {
     "plugin-status",
     "workspace-registry",
     "git-batch-push",
+    "java",
     "tools",
     "suite",
     "endless-stream",
@@ -146,6 +148,7 @@ def register_core_parsers(sub: argparse._SubParsersAction[argparse.ArgumentParse
     p.add_argument("--only", action="append", help="Restrict the batch to a specific repository path. Can be repeated.")
 
     _register_tools_parser(sub)
+    register_java_parser(sub)
     _register_suite_parser(sub)
     _register_endless_parser(sub)
 
@@ -224,6 +227,8 @@ def dispatch_core_command(command: str, root: Path, ns: argparse.Namespace) -> i
 
     if command == "git-batch-push":
         return git_batch_push_command(root, ns)
+    if command == "java":
+        return java_command(root, ns)
     if command == "tools":
         return tools_command(root, ns)
     if command == "suite":

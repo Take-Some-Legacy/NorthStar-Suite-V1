@@ -1,0 +1,17 @@
+{
+  "action_id": "java.doctor",
+  "group": "Java",
+  "title": "Java workspace doctor",
+  "description": "Detect Java workspace type, wrapper availability, selected build tool and runtime versions.",
+  "command": "java",
+  "args": ["doctor"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal",
+  "primary_tag": "JAVA",
+  "category": "lang",
+  "target_domain": "lang/java",
+  "chips": ["lang", "java", "gradle", "maven"]
+}

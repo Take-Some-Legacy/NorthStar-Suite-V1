@@ -1,0 +1,117 @@
+/* P6.3 Dashboard usefulness and scoped CodeMirror activation layer. */
+.dashboard-insights {
+  align-items: stretch;
+}
+
+.dashboard-insights .timeline {
+  gap: .6rem;
+}
+
+.dashboard-insights .timeline-item b .status {
+  margin-right: .35rem;
+}
+
+.code-input-wrap {
+  display: block;
+  min-width: 0;
+}
+
+.CodeMirror {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: .95rem;
+  background: rgba(0, 0, 0, .34);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .84rem;
+  line-height: 1.32;
+  overflow: hidden;
+}
+
+.code-input-wrap > .CodeMirror {
+  margin-top: .35rem;
+  min-height: 2.65rem !important;
+  height: 2.65rem !important;
+  max-height: 2.65rem !important;
+  border-radius: .85rem;
+}
+
+.code-input-wrap > .CodeMirror .CodeMirror-scroll {
+  min-height: 2.65rem !important;
+  height: 2.65rem !important;
+  max-height: 2.65rem !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.code-input-wrap > .CodeMirror .CodeMirror-sizer {
+  min-height: 1.75rem !important;
+}
+
+.code-input-wrap > .CodeMirror .CodeMirror-lines {
+  padding: .12rem 0 !important;
+}
+
+.code-input-wrap > .CodeMirror pre.CodeMirror-line,
+.code-input-wrap > .CodeMirror pre.CodeMirror-line-like {
+  line-height: 1.12 !important;
+  padding: 0 .5rem !important;
+}
+
+.code-input-wrap > .CodeMirror .CodeMirror-gutter-wrapper,
+.code-input-wrap > .CodeMirror .CodeMirror-linenumber {
+  line-height: 1.12 !important;
+}
+
+.code-input-wrap > .CodeMirror .CodeMirror-gutters {
+  min-height: 2.65rem !important;
+}
+
+.op-code-output {
+  min-height: 12rem !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  white-space: pre-wrap;
+}
+
+.op-code-output > .CodeMirror,
+.op-code-output .CodeMirror {
+  height: clamp(12rem, 26vh, 24rem);
+  min-height: 12rem;
+  max-height: 24rem;
+  border: 0;
+  border-radius: var(--radius);
+  font-size: .86rem;
+  line-height: 1.45;
+}
+
+.op-code-output .CodeMirror-scroll {
+  max-height: 24rem;
+}
+
+.cm-s-material-darker.CodeMirror {
+  background: rgba(0, 0, 0, .34);
+  color: var(--text);
+}
+
+.CodeMirror-gutters {
+  background: rgba(0, 0, 0, .20);
+  border-right: 1px solid var(--line);
+}
+
+textarea[data-code-editor="json"][data-noesis-code-mirror="1"] {
+  display: none;
+}
+
+@media(max-width: 720px) {
+  .CodeMirror {
+    font-size: .78rem;
+  }
+
+  .code-input-wrap > .CodeMirror,
+  .code-input-wrap > .CodeMirror .CodeMirror-scroll {
+    height: 2.5rem !important;
+    min-height: 2.5rem !important;
+    max-height: 2.5rem !important;
+  }
+}

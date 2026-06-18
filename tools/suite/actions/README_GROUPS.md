@@ -1,30 +1,42 @@
-# Suite action groups
+# Suite Action Groups
 
-Suite action descriptors are discovered recursively from `tools/suite/actions/**/*.json`.
+Suite action descriptors are grouped by operational domain. Descriptors are discovered recursively; directory names are for storage and navigation, while `action_id` remains the stable API key.
 
-Directory names are storage/navigation groups. They must not change `action_id` values.
+Current top-level domains:
 
-Current groups:
+- `lang/` — language and runtime workspaces.
+  - `lang/java/` — universal Java workspace actions (`java.*`) with Gradle/Maven auto-detection.
+  - `lang/npm/` — npm workspace actions (`npm.*`).
+  - `lang/rust/` — Rust/Cargo/build/editor actions.
+- `NorthStarEngine/` — NorthStar engine asset/tooling actions.
+  - `NorthStarEngine/firstParty/` — first-party tool smoke and DDS inspection actions.
+  - `NorthStarEngine/metadata/` — YTYP metadata actions.
+  - `NorthStarEngine/textures/` — YTD texture actions.
+  - `NorthStarEngine/ui/` — UI dictionary actions.
+- `system/` — system, operator, filesystem and workspace maintenance actions.
+  - `system/diagnostics/` — Suite and NOESIS diagnostics.
+  - `system/env/` — environment, compiler and toolchain discovery actions (`env.*`).
+  - `system/fileSystem/` — read-only operator filesystem inspection actions (`fs.*`).
+  - `system/runtime/` — runtime/game launch actions.
+  - `system/source/` — source packaging actions.
+  - `system/workspace/` — workspace cleanup and maintenance actions.
+- `suite/` — Suite registry, bridge menu and intelligence loop actions.
+- `tools/` — ToolRegistry inspection and validation actions.
+- `vendor/` — vendored third-party command-line tools.
 
-- `build/` — build registry and build-system actions.
-- `fileSystem/` — filesystem inspection actions (`fs.*`).
-- `firstParty/` — first-party tool smoke and DDS inspection actions.
-- `metadata/` — YTYP metadata actions.
-- `npm/` — npm workspace actions (`npm.*`).
-- `rust/` — Rust/Cargo/build/editor actions.
-- `runtime/` — runtime/game launch actions.
-- `source/` — source packaging actions.
-- `suite/` — Suite registry, bridge menu and intelligence actions.
-- `textures/` — YTD texture dictionary actions.
-- `tools/` — ToolRegistry and descriptor hygiene actions.
-- `ui/` — NEUI UI asset actions.
-- `vendor/` — third-party/vendor/toolbelt smoke and GNU/MSYS2 helper actions.
-- `workspace/` — workspace maintenance actions.
+Repository-local operator context is defined by `repoDir/indexFile.v1.json` and defaults to:
 
-Rules:
+```text
+repoDir/
+  indexFile.v1.json
+  dataset/
+  workspace/
+```
 
-1. Keep `action_id` stable.
-2. Prefer one action domain per directory.
-3. Keep `category`, `target_domain` and `chips` as semantic metadata.
-4. Do not put generated run outputs in this tree.
-5. Long-running and destructive actions must be explicit in `risk_level` and hints.
+Navigation contract:
+
+```text
+domain = first directory under tools/suite/actions
+subdomain = second directory when present
+action_id = stable public key; never rewrite it only to match directory names
+```

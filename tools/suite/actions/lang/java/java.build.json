@@ -1,0 +1,17 @@
+{
+  "action_id": "java.build",
+  "group": "Java",
+  "title": "Build Java workspace",
+  "description": "Build the detected Java workspace using Gradle or Maven.",
+  "command": "java",
+  "args": ["build"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": ["build/", "target/"],
+  "safe_for_menu": true,
+  "danger_level": "normal",
+  "primary_tag": "JAVA",
+  "category": "lang",
+  "target_domain": "lang/java",
+  "chips": ["lang", "java", "build"]
+}

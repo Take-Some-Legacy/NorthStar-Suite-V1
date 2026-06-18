@@ -1,0 +1,17 @@
+{
+  "action_id": "java.tasks",
+  "group": "Java",
+  "title": "List Java build tasks",
+  "description": "List available Gradle or Maven tasks/goals for the detected Java workspace.",
+  "command": "java",
+  "args": ["tasks"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal",
+  "primary_tag": "JAVA",
+  "category": "lang",
+  "target_domain": "lang/java",
+  "chips": ["lang", "java", "tasks"]
+}

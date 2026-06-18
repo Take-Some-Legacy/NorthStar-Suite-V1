@@ -17,15 +17,79 @@
     return '<div><span>' + esc(key) + '</span><b>' + esc(value || 'unknown') + '</b></div>';
   }
 
+  function statusBadge(value) {
+    var v = String(value || 'unknown');
+    return '<span class="status ' + State.statusClass(v) + '">' + esc(v) + '</span>';
+  }
+
+  function recentRuns() {
+    var recent = State.get().recent;
+    return Array.isArray(recent) ? recent : [];
+  }
+
+  function pct(part, total) {
+    total = Number(total) || 0;
+    if (!total) return '0%';
+    return Math.round((Number(part) || 0) * 100 / total) + '%';
+  }
+
+  function countWhere(items, fn) {
+    var count = 0;
+    items.forEach(function (item) { if (fn(item)) count += 1; });
+    return count;
+  }
+
+  function sumWhere(items, fn) {
+    var total = 0;
+    items.forEach(function (item) { total += Number(fn(item) || 0); });
+    return total;
+  }
+
+  function lastWhere(items, fn) {
+    for (var i = items.length - 1; i >= 0; i -= 1) if (fn(items[i])) return items[i];
+    return null;
+  }
+
   function renderCards() {
     var data = State.get();
-    var c = data.counts || {}, i = data.insights || {};
+    var c = data.counts || {}, i = data.insights || {}, recent = recentRuns();
+    var readyRecent = countWhere(recent, function (run) { return run.status === 'merge_ready'; });
+    var quality = pct(readyRecent, recent.length || c.runs || 0);
     setHtml('cards', [
       metricCard('Runs', c.runs || 0, 'muted', 'indexed proof runs'),
-      metricCard('Merge ready', c.mergeReady || 0, 'good', 'focused ready'),
+      metricCard('Recent ready', quality, readyRecent ? 'good' : 'warn', 'merge_ready in visible window'),
       metricCard('Rejected', c.rejected || 0, (c.rejected || 0) ? 'bad' : 'muted', 'requires attention'),
+      metricCard('Core / Full', String(c.coreRuns || 0) + ' / ' + String(c.fullRuns || 0), 'muted', 'scope coverage'),
+      metricCard('Changed files', c.latestChangedFiles || 0, (c.latestChangedFiles || 0) ? 'warn' : 'muted', 'latest run delta'),
       metricCard('Whole repo ready', c.wholeRepositoryReady || 0, (c.wholeRepositoryReady || 0) ? 'good' : 'warn', i.headline || 'not global')
     ].join(''));
+  }
+
+  function renderReadiness() {
+    var data = State.get();
+    var c = data.counts || {}, i = data.insights || {}, latest = data.latest || {}, recent = recentRuns();
+    var lastGreen = lastWhere(recent, function (run) { return run.status === 'merge_ready'; });
+    var lastFullReady = lastWhere(recent, function (run) { return !!run.wholeRepositoryReady; });
+    var failedTests = sumWhere(recent, function (run) { return run.testsFailed; });
+    var auditIssues = sumWhere(recent, function (run) { return run.auditIssues; });
+    var changedTotal = sumWhere(recent, function (run) { return run.changedFiles; });
+
+    setHtml('readiness-brief', [
+      ['headline', i.headline || 'unknown'],
+      ['latest', latest.runId ? statusBadge(latest.status) + ' ' + esc(latest.runId) : 'no run yet'],
+      ['latest reason', latest.reason || latest.failedPhase || 'none'],
+      ['last focused ready', lastGreen ? lastGreen.runId : 'not found in visible window'],
+      ['last global ready', lastFullReady ? lastFullReady.runId : 'not found in visible window'],
+      ['scope coverage', String(c.coreRuns || 0) + ' core / ' + String(c.fullRuns || 0) + ' full-repo']
+    ].map(function (row) { return '<div class="timeline-item"><span>' + esc(row[0]) + '</span><b>' + row[1] + '</b></div>'; }).join(''));
+
+    setHtml('run-quality', [
+      ['visible pass rate', pct(countWhere(recent, function (run) { return run.status === 'merge_ready'; }), recent.length)],
+      ['visible failures', countWhere(recent, function (run) { return run.status !== 'merge_ready'; })],
+      ['failed tests', failedTests],
+      ['audit issues', auditIssues],
+      ['changed files total', changedTotal]
+    ].map(function (row) { return '<div class="timeline-item"><span>' + esc(row[0]) + '</span><b>' + esc(row[1]) + '</b></div>'; }).join(''));
   }
 
   function renderWorker() {
@@ -67,8 +131,7 @@
     setHtml('paths-card', '<div class="muted">Path rows renderer unavailable.</div>');
   }
   function taskStatusBadge(value) {
-    var v = String(value || 'unknown');
-    return '<span class="status ' + State.statusClass(v) + '">' + esc(v) + '</span>';
+    return statusBadge(value);
   }
 
   function renderTasks() {
@@ -99,6 +162,7 @@
 
   function render() {
     renderCards();
+    renderReadiness();
     renderWorker();
     renderControls();
     renderPaths();
@@ -106,5 +170,5 @@
     renderLists();
   }
 
-  global.NoesisDashboardOverview = Object.freeze({render: render, renderTasks: renderTasks, renderPaths: renderPaths});
+  global.NoesisDashboardOverview = Object.freeze({render: render, renderTasks: renderTasks, renderPaths: renderPaths, renderReadiness: renderReadiness});
 })(window);

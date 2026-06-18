@@ -28,6 +28,7 @@ def _nav_button(target: str, label: str, index: int, *, active: bool = False) ->
     return render_template(
         "nav_button.html",
         active_class="active" if active else "",
+        aria_current="page" if active else "false",
         target=target,
         label=label,
         index=f"{index:02d}",
@@ -36,7 +37,11 @@ def _nav_button(target: str, label: str, index: int, *, active: bool = False) ->
 
 def _render_sidebar() -> str:
     nav_items = [
+        ("live-charts", "Live"),
         ("overview", "Overview"),
+        ("operator-brief", "Brief"),
+        ("cards", "Metrics"),
+        ("readiness-block", "Readiness"),
         ("worker-block", "Worker"),
         ("cluster-block", "Cluster"),
         ("paths-block", "Paths"),
@@ -45,6 +50,7 @@ def _render_sidebar() -> str:
         ("operation-console", "Console"),
         ("actions-block", "Actions"),
         ("attention-block", "Attention"),
+        ("activity-block", "Activity"),
         ("runs-block", "Runs"),
         ("details-block", "Details"),
         ("patch-block", "Patch"),

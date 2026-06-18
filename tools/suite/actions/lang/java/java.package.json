@@ -1,0 +1,17 @@
+{
+  "action_id": "java.package",
+  "group": "Java",
+  "title": "Package Java workspace",
+  "description": "Create Java distributable artifacts using Gradle or Maven packaging tasks.",
+  "command": "java",
+  "args": ["package"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": ["build/libs/", "target/"],
+  "safe_for_menu": true,
+  "danger_level": "normal",
+  "primary_tag": "JAVA",
+  "category": "lang",
+  "target_domain": "lang/java",
+  "chips": ["lang", "java", "package"]
+}

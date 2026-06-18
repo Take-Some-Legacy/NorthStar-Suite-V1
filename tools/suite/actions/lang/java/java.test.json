@@ -1,0 +1,17 @@
+{
+  "action_id": "java.test",
+  "group": "Java",
+  "title": "Test Java workspace",
+  "description": "Run Java tests using the detected Gradle or Maven workspace.",
+  "command": "java",
+  "args": ["test"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal",
+  "primary_tag": "JAVA",
+  "category": "lang",
+  "target_domain": "lang/java",
+  "chips": ["lang", "java", "test"]
+}

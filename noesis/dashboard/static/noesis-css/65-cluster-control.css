@@ -1,0 +1,195 @@
+/* P6.6 Cluster control plane and configurable federation diagnostics. */
+.cluster-control-plane {
+  display: grid;
+  gap: 1rem;
+}
+
+.worker-control-row {
+  grid-template-columns: minmax(min(100%, 22rem), .8fr) minmax(min(100%, 28rem), 1.2fr);
+}
+
+.cluster-grid {
+  display: grid;
+  grid-template-columns: minmax(min(100%, 22rem), .9fr) minmax(min(100%, 24rem), .9fr) minmax(min(100%, 28rem), 1.15fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.cluster-pane {
+  min-width: 0;
+  border: 1px solid rgba(159,208,255,.16);
+  border-radius: 1rem;
+  padding: .9rem;
+  background: linear-gradient(145deg, rgba(159,208,255,.055), rgba(2,6,23,.34));
+}
+
+.cluster-pane h4 {
+  margin: 0 0 .75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  font-size: .76rem;
+}
+
+.cluster-peer-list {
+  display: grid;
+  gap: .55rem;
+  margin-top: .85rem;
+  max-height: 18rem;
+  overflow: auto;
+  padding-right: .2rem;
+}
+
+.cluster-peer,
+.cluster-empty {
+  border: 1px solid rgba(155,180,220,.14);
+  border-radius: .9rem;
+  padding: .7rem .75rem;
+  background: rgba(2,6,23,.46);
+}
+
+.cluster-peer {
+  display: grid;
+  gap: .25rem;
+}
+
+.cluster-peer strong {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.cluster-peer span {
+  color: var(--muted);
+  font-size: .8rem;
+}
+
+.cluster-peer code {
+  display: block;
+  width: 100%;
+  border-radius: .72rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.cluster-peer.disabled {
+  opacity: .62;
+  border-style: dashed;
+}
+
+.cluster-empty {
+  color: var(--muted);
+  font-size: .86rem;
+}
+
+.cluster-settings {
+  display: grid;
+  gap: .75rem;
+}
+
+.cluster-settings label {
+  display: grid;
+  gap: .38rem;
+  color: var(--dim);
+  font-size: .74rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.cluster-settings input,
+.cluster-settings select {
+  width: 100%;
+  min-width: 0;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 500;
+}
+
+.cluster-settings .cluster-check {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.cluster-settings .cluster-check input {
+  width: auto;
+}
+
+.cluster-command-preview {
+  border: 1px solid rgba(159,208,255,.20);
+  border-radius: 1rem;
+  background: rgba(2,6,23,.62);
+  padding: .8rem;
+  min-height: 4.5rem;
+}
+
+.cluster-command-preview code {
+  display: block;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--accent);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.cluster-command-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+  margin: .75rem 0;
+}
+
+.cluster-command-actions button {
+  padding: .55rem .7rem;
+  border-radius: .75rem;
+}
+
+.cluster-hints {
+  display: grid;
+  gap: .45rem;
+}
+
+.cluster-hints div {
+  display: grid;
+  grid-template-columns: minmax(6rem, 8rem) minmax(0, 1fr);
+  gap: .65rem;
+  border-bottom: 1px solid rgba(155,180,220,.10);
+  padding-bottom: .45rem;
+}
+
+.cluster-hints span {
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .7rem;
+}
+
+.cluster-hints b {
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .78rem;
+  overflow-wrap: anywhere;
+}
+
+@media(max-width: 1180px) {
+  .cluster-grid,
+  .worker-control-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media(max-width: 720px) {
+  .cluster-hints div {
+    grid-template-columns: 1fr;
+  }
+
+  .cluster-command-actions {
+    display: grid;
+  }
+}

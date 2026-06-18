@@ -1,7 +1,54 @@
       <section class="grid" id="cards"></section>
 
-      <section class="triple">
+      <section class="operator-intel" id="operator-brief">
+        <div class="card operator-brief-card">
+          <div class="section-head compact"><div><h3>Operator brief</h3><p>One-screen answer: current state, blocker and safest next move.</p></div><span class="tag" id="operator-brief-severity">unknown</span></div>
+          <div class="brief-stack" id="operator-brief-list"></div>
+        </div>
+        <div class="card">
+          <div class="section-head compact"><div><h3>Next actions</h3><p>Context-aware commands generated from latest run state.</p></div><span class="tag">actionable</span></div>
+          <div class="action-stack" id="next-actions"></div>
+        </div>
+        <div class="card">
+          <div class="section-head compact"><div><h3>Data health</h3><p>Coverage, freshness and completeness of the dashboard input.</p></div><span class="tag" id="data-health-grade">data</span></div>
+          <div class="timeline" id="data-health"></div>
+        </div>
+      </section>
+
+      <section class="split dashboard-insights" id="readiness-block">
+        <div class="card"><h3>Readiness brief</h3><div class="timeline" id="readiness-brief"></div></div>
+        <div class="card"><h3>Run quality</h3><div class="timeline" id="run-quality"></div></div>
+      </section>
+
+      <section class="triple worker-control-row">
         <div class="card" id="worker-block"><h3>Current worker</h3><div class="kv" id="worker-card"></div></div>
-        <div class="card" id="cluster-block"><h3>Node group</h3><div class="kv" id="cluster-card"></div></div>
         <div class="card" id="controls-block"><h3>Suite control</h3><div class="control-grid" id="control-card"></div></div>
+      </section>
+
+      <section class="cluster-control-plane card" id="cluster-block">
+        <div class="section-head compact">
+          <div><h3>Cluster control plane</h3><p>Topology, diagnostic profile and peer probing controls for the Suite federation.</p></div>
+          <span class="tag" id="cluster-mode-tag">cluster</span>
+        </div>
+        <div class="cluster-grid">
+          <div class="cluster-pane">
+            <h4>Topology</h4>
+            <div class="kv" id="cluster-card"></div>
+            <div class="cluster-peer-list" id="cluster-peer-list"></div>
+          </div>
+          <div class="cluster-pane">
+            <h4>Settings</h4>
+            <div class="cluster-settings" id="cluster-settings"></div>
+          </div>
+          <div class="cluster-pane cluster-command-pane">
+            <h4>Doctor command</h4>
+            <div class="cluster-command-preview"><code id="cluster-command-preview">python -m noesis bridge endpoint cluster-doctor --json</code></div>
+            <div class="cluster-command-actions">
+              <button type="button" id="cluster-copy-doctor">Copy doctor</button>
+              <button type="button" id="cluster-copy-binding">Copy binding</button>
+              <button type="button" id="cluster-reset-settings">Reset view</button>
+            </div>
+            <div class="cluster-hints" id="cluster-hints"></div>
+          </div>
+        </div>
       </section>

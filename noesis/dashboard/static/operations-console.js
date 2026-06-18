@@ -49,6 +49,35 @@
     bar.style.width = pct + '%';
   }
 
+  function streamText(value) {
+    if (value == null) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+    return Core.safeStringify(value);
+  }
+
+  function reportText(report) {
+    if (!report) return '';
+    if (typeof report === 'string') return report;
+    if (report.message != null) return streamText(report.message);
+    if (report.summary != null) return streamText(report.summary);
+    return '';
+  }
+
+  function operationOutput(op) {
+    var chunks = [];
+    var gap = String.fromCharCode(10) + String.fromCharCode(10);
+
+    if (op.stdout != null && String(op.stdout).length) chunks.push(streamText(op.stdout));
+    if (op.stderr != null && String(op.stderr).length) chunks.push(streamText(op.stderr));
+
+    var report = reportText(op.report);
+    if (report) chunks.push(report);
+
+    if (chunks.length) return {text: chunks.join(gap), mode: 'text/plain'};
+    return {text: Core.safeStringify(op), mode: 'application/json'};
+  }
+
   function renderOperation(op) {
     ensureConsole();
     op = op || {};
@@ -61,7 +90,8 @@
     var done = Number(op.completedSteps || 0);
     if (total > 0) setProgress((done / total) * 100, false);
     else setProgress(status === 'ok' ? 100 : status === 'failed' ? 100 : 35, status === 'queued' || status === 'running' || status === 'starting');
-    Core.setConsoleOutput(Core.safeStringify(op), 'application/json');
+    var output = operationOutput(op);
+    Core.setConsoleOutput(output.text, output.mode);
     focusConsole();
   }
 

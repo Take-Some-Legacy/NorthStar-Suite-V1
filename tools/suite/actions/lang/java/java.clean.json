@@ -1,0 +1,17 @@
+{
+  "action_id": "java.clean",
+  "group": "Java",
+  "title": "Clean Java workspace",
+  "description": "Run the detected Java build tool clean task for the selected workspace.",
+  "command": "java",
+  "args": ["clean"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": ["build/", "target/"],
+  "safe_for_menu": true,
+  "danger_level": "destructive",
+  "primary_tag": "JAVA",
+  "category": "lang",
+  "target_domain": "lang/java",
+  "chips": ["lang", "java", "clean"]
+}

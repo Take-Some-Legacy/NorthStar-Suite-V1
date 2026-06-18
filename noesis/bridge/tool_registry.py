@@ -352,8 +352,15 @@ def _run_process(ctx: BridgeContext, tool: ProjectTool, command: list[str], tool
     }
 
 
+def _top_level_noesis_args(ctx: BridgeContext) -> list[str]:
+    args = list(ctx.suite_module_args)
+    if args[-1:] == ["suite"]:
+        args = args[:-1]
+    return args
+
+
 def _run_descriptor_tool(ctx: BridgeContext, tool: ProjectTool, args: Dict[str, Any], tool_args: list[str], *, mutating: bool) -> Dict[str, Any]:
-    command = [*ctx.python_cmd, *ctx.suite_module_args, "tools", "run", tool.descriptor_id]
+    command = [*ctx.python_cmd, *_top_level_noesis_args(ctx), "tools", "run", tool.descriptor_id]
     if bool(args.get("release", False)):
         command.append("--release")
     if tool_args:

@@ -5,6 +5,8 @@
   var Dom = global.NoesisDom || {};
   var State = global.NoesisDashboardState;
   var Overview = global.NoesisDashboardOverview;
+  var Cluster = global.NoesisDashboardCluster;
+  var Usefulness = global.NoesisDashboardUsefulness;
   var Actions = global.NoesisDashboardActions;
   var Runs = global.NoesisDashboardRuns;
 
@@ -14,9 +16,14 @@
 
   function renderAll() {
     if (Overview) Overview.render();
+    if (Cluster) Cluster.render();
+    if (Usefulness) Usefulness.render();
     if (Actions) Actions.render();
     if (Runs) Runs.render();
     bindExternalOperations();
+    if (global.NoesisDashboardNavigation && typeof global.NoesisDashboardNavigation.refresh === 'function') {
+      global.NoesisDashboardNavigation.refresh();
+    }
   }
 
   function refresh() {

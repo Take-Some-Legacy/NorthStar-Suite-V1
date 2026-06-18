@@ -1,0 +1,17 @@
+{
+  "action_id": "java.run",
+  "group": "Java",
+  "title": "Run Java workspace",
+  "description": "Run the Java application entrypoint through the detected Gradle or Maven workspace.",
+  "command": "java",
+  "args": ["run"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": false,
+  "danger_level": "normal",
+  "primary_tag": "JAVA",
+  "category": "lang",
+  "target_domain": "lang/java",
+  "chips": ["lang", "java", "run"]
+}

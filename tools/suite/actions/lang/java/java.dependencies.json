@@ -1,0 +1,17 @@
+{
+  "action_id": "java.dependencies",
+  "group": "Java",
+  "title": "Inspect Java dependencies",
+  "description": "Print dependency information for the detected Java workspace using Gradle or Maven.",
+  "command": "java",
+  "args": ["dependency-report"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal",
+  "primary_tag": "JAVA",
+  "category": "lang",
+  "target_domain": "lang/java",
+  "chips": ["lang", "java", "dependencies"]
+}

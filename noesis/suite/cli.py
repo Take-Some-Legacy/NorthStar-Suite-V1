@@ -9,7 +9,23 @@ from .tool_descriptor_cli import dispatch_tool_descriptor_command, discover_suit
 from .ui_cli import dispatch_ui_command, register_ui_parsers
 
 
+def _normalize_suite_argv(argv: list[str]) -> list[str]:
+    args = list(argv)
+
+    if len(args) >= 2 and args[0] == "suite" and args[1] == "suite":
+        return args[1:]
+
+    if len(args) >= 2 and args[0] == "suite":
+        nested_command = args[1]
+        if nested_command and not nested_command.startswith("-"):
+            return args[1:]
+
+    return args
+
+
 def main(argv: list[str]) -> int:
+    argv = _normalize_suite_argv(argv)
+
     root = repo_root()
     descriptor_driven_cli_tools = discover_suite_command_descriptors(root)
 

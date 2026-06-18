@@ -10,6 +10,7 @@ from .runs_model import RunSummary
 _dp = __import__("noesis.dashboard.providers", fromlist=["_"])
 worker_payload = getattr(_dp, "worker_payload")
 paths_payload = getattr(_dp, "paths_payload")
+cluster_payload = getattr(_dp, "cluster_payload")
 operator_tasks_payload = getattr(_dp, "operator_tasks_payload")
 
 
@@ -120,6 +121,7 @@ def index_payload(root: Path) -> dict[str, Any]:
         "root": str(root),
         "webContract": {"schema": "noesis.web.v1", "surface": "dashboard.runs", "mode": "static-and-local-http"},
         "worker": worker_payload(root),
+        "cluster": cluster_payload(root),
         "paths": paths_payload(root),
         "operatorTasks": operator_tasks_payload(root, runs),
         "counts": {

@@ -24,7 +24,7 @@ from .runs_index import (
 from .runs_io import artifact_links, parse_utc, read_json, read_text, utc_now
 from .runs_model import RunSummary
 from .runs_patch import patch_candidates, patch_commands, patch_payload, patch_stats, run_payload
-from .providers import load_suite_actions, operator_tasks_payload, paths_payload, worker_payload
+from .providers import cluster_payload, load_suite_actions, operator_tasks_payload, paths_payload, worker_payload
 
 __all__ = [
     "DASHBOARD_HOST",
@@ -55,6 +55,7 @@ __all__ = [
     "run_payload",
     "summarize_run",
     "utc_now",
+    "cluster_payload",
     "worker_payload",
     "paths_payload",
     "load_suite_actions",

@@ -1,0 +1,17 @@
+{
+  "action_id": "java.check",
+  "group": "Java",
+  "title": "Check Java workspace",
+  "description": "Run Java verification tasks using the detected Gradle or Maven workspace.",
+  "command": "java",
+  "args": ["check"],
+  "requires_tools": [],
+  "requires_workspace": ["script_env"],
+  "outputs": [],
+  "safe_for_menu": true,
+  "danger_level": "normal",
+  "primary_tag": "JAVA",
+  "category": "lang",
+  "target_domain": "lang/java",
+  "chips": ["lang", "java", "check"]
+}

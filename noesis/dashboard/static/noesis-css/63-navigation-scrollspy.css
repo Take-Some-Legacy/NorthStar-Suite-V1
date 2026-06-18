@@ -1,0 +1,133 @@
+/* P6.4 Scroll-aware dashboard navigation and operator context. */
+.nav-status {
+  display: grid;
+  gap: .55rem;
+  margin: .2rem 0 1rem;
+  padding: .85rem;
+  border: 1px solid rgba(159,208,255,.22);
+  border-radius: 1rem;
+  background:
+    linear-gradient(145deg, rgba(159,208,255,.08), rgba(242,210,122,.035)),
+    rgba(2,6,23,.42);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.nav-status-kicker {
+  color: var(--dim);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+#nav-current-section {
+  color: var(--text);
+  font-size: .98rem;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-progress {
+  height: .42rem;
+  overflow: hidden;
+  border: 1px solid rgba(159,208,255,.18);
+  border-radius: 999px;
+  background: rgba(2,6,23,.78);
+}
+
+.nav-progress span {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--good), var(--warn));
+  transition: width .12s ease-out;
+}
+
+.nav-stepper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .45rem;
+}
+
+.nav-stepper button {
+  min-width: 0;
+  padding: .45rem .55rem;
+  border-radius: .72rem;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.nav-stepper button:hover {
+  color: var(--text);
+}
+
+.nav button {
+  position: relative;
+  transition: color .14s ease, border-color .14s ease, background .14s ease, transform .14s ease;
+}
+
+.nav button::before {
+  content: "";
+  position: absolute;
+  left: .35rem;
+  top: 50%;
+  width: .18rem;
+  height: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--accent), var(--good));
+  box-shadow: 0 0 .9rem rgba(159,208,255,.35);
+  transform: translateY(-50%);
+  transition: height .14s ease;
+}
+
+.nav button.active,
+.nav button[aria-current="page"] {
+  color: var(--text);
+  border-color: rgba(159,208,255,.34);
+  background:
+    linear-gradient(90deg, rgba(159,208,255,.12), rgba(104,240,170,.05)),
+    rgba(255,255,255,.035);
+  transform: translateX(.12rem);
+}
+
+.nav button.active::before,
+.nav button[aria-current="page"]::before {
+  height: 58%;
+}
+
+.nav button span {
+  color: var(--dim);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .74rem;
+}
+
+.nav button.active span,
+.nav button[aria-current="page"] span {
+  color: var(--accent);
+}
+
+section[id],
+.card[id],
+.panel[id],
+.drawer[id] {
+  scroll-margin-top: 1rem;
+}
+
+main[data-scroll-spy-ready="1"] section[id],
+main[data-scroll-spy-ready="1"] .card[id],
+main[data-scroll-spy-ready="1"] .panel[id] {
+  scroll-margin-top: 1.25rem;
+}
+
+@media(max-width: 900px) {
+  .nav-status {
+    margin-top: .75rem;
+  }
+
+  .nav-stepper {
+    grid-template-columns: 1fr;
+  }
+}
