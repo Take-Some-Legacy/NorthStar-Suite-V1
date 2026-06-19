@@ -1,9 +1,10 @@
 {
   "schema": "noesis.runtime.v1",
   "workspace": {
-    "root": ".",
-    "kind": "suite",
-    "stateRoot": ".takesome"
+    "root": "C:/Users/HUAWEI/Documents/Repos",
+    "tool_root": "C:/Users/HUAWEI/Documents/TakeSomeDevSuite",
+    "kind": "repositories",
+    "stateRoot": ".noesis"
   },
   "bridge": {
     "host": "127.0.0.1",

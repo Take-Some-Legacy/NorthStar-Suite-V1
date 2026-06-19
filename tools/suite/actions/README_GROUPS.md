@@ -24,11 +24,12 @@ Current top-level domains:
 - `tools/` — ToolRegistry inspection and validation actions.
 - `vendor/` — vendored third-party command-line tools.
 
-Repository-local operator context is defined by `repoDir/indexFile.v1.json` and defaults to:
+Repository-local operator context is defined by `reposRoot/repoDir/indexFile.v1.json` and defaults to:
 
 ```text
-repoDir/
-  indexFile.v1.json
+reposRoot/
+  repoDir/
+    indexFile.v1.json
   dataset/
   workspace/
 ```

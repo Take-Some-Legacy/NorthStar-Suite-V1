@@ -6,6 +6,7 @@
   var State = global.NoesisDashboardState;
   var Overview = global.NoesisDashboardOverview;
   var Cluster = global.NoesisDashboardCluster;
+  var Repositories = global.NoesisDashboardRepositories;
   var Usefulness = global.NoesisDashboardUsefulness;
   var Actions = global.NoesisDashboardActions;
   var Runs = global.NoesisDashboardRuns;
@@ -17,6 +18,7 @@
   function renderAll() {
     if (Overview) Overview.render();
     if (Cluster) Cluster.render();
+    if (Repositories) Repositories.render();
     if (Usefulness) Usefulness.render();
     if (Actions) Actions.render();
     if (Runs) Runs.render();
@@ -46,6 +48,7 @@
     if ($('burger')) $('burger').addEventListener('click', function () { document.body.classList.toggle('nav-open'); });
     document.querySelectorAll('[data-jump]').forEach(function (button) {
       button.addEventListener('click', function () {
+        if (Repositories) Repositories.showPage('dashboard');
         document.querySelectorAll('[data-jump]').forEach(function (item) { item.classList.remove('active'); });
         button.classList.add('active');
         document.body.classList.remove('nav-open');
@@ -58,7 +61,8 @@
   global.NoesisDashboard = Object.freeze({
     refresh: refresh,
     renderAll: renderAll,
-    showRun: function (id) { return Runs && Runs.showRun(id); }
+    showRun: function (id) { return Runs && Runs.showRun(id); },
+    showRepositories: function () { return Repositories && Repositories.showPage('repositories'); }
   });
   bindStaticControls();
   renderAll();

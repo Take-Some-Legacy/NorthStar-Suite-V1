@@ -11,13 +11,7 @@
       "path": "${tool_root}"
     },
     "workspace_root": {
-      "env": [
-        "NOESIS_WORKSPACE_ROOT",
-        "NORTHSTAR_WORKSPACE_ROOT",
-        "TAKESOME_WORKSPACE_ROOT",
-        "NEWENGINE_REPO_ROOT"
-      ],
-      "fallback": "${suite_root}"
+      "path": "C:/Users/HUAWEI/Documents/Repos"
     },
     "runtime_root": {
       "env": [
@@ -57,7 +51,7 @@
       "purpose": "Self-contained toolbelt root"
     },
     "workspace_root": {
-      "purpose": "External project workspace operated by Suite"
+      "purpose": "Canonical repository/artifact root operated by Suite"
     },
     "runtime_root": {
       "purpose": "Machine-local runtime/state root"

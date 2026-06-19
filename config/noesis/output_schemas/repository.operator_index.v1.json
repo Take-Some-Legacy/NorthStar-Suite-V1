@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "takesome.repository_operator_index.v1",
+  "title": "TakeSome Repository Index",
+  "type": "object",
+  "required": [
+    "schema",
+    "repository",
+    "paths",
+    "tools"
+  ],
+  "properties": {
+    "schema": {
+      "const": "takesome.repository_operator_index.v1"
+    },
+    "repository": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "paths": {
+      "type": "object",
+      "required": [
+        "workdir",
+        "dataset_dir"
+      ],
+      "properties": {
+        "repo_dir": {
+          "type": "string",
+          "default": "."
+        },
+        "index_file": {
+          "type": "string",
+          "default": "indexFile.v1.json"
+        },
+        "workdir": {
+          "type": "string",
+          "minLength": 1,
+          "default": "workspace"
+        },
+        "dataset_dir": {
+          "type": "string",
+          "minLength": 1,
+          "default": "dataset"
+        },
+        "artifacts_dir": {
+          "type": "string",
+          "default": "workspace/artifacts"
+        },
+        "logs_dir": {
+          "type": "string",
+          "default": "workspace/logs"
+        },
+        "tmp_dir": {
+          "type": "string",
+          "default": "workspace/tmp"
+        },
+        "repos_root": {
+          "type": "string",
+          "default": "C:/Users/HUAWEI/Documents/Repos"
+        }
+      },
+      "additionalProperties": true
+    },
+    "tools": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tool"
+          }
+        },
+        "optional": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tool"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          {
+            "type": "object",
+            "properties": {
+              "windows": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "posix": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "default": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "cwd": {
+          "type": "string",
+          "default": "workspace"
+        }
+      },
+      "additionalProperties": true
+    },
+    "bootstrap": {
+      "type": "object",
+      "properties": {
+        "preserve": {
+          "type": "boolean",
+          "default": true
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "gradle_versions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "tool": {
+      "type": "object",
+      "required": [
+        "id",
+        "command"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version_arg": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -8,7 +8,7 @@ from .config_loader import CONFIG_ROOT_REL, load_config_json, resolve_user_path
 
 WORKSPACE_CONFIG_NAME = "workspace.v1.json"
 WORKSPACE_CONFIG_REL = CONFIG_ROOT_REL / WORKSPACE_CONFIG_NAME
-WORKSPACE_ROOT_ENVS = ("NORTHSTAR_WORKSPACE_ROOT", "NORTHSTAR_SUITE_WORKSPACE_ROOT", "TAKESOME_WORKSPACE_ROOT")
+WORKSPACE_ROOT_ENVS: tuple[str, ...] = ()  # repositories root is config-owned; no workspace alias chain
 TOOL_ROOT_ENVS = ("NORTHSTAR_TOOL_ROOT", "NORTHSTAR_SUITE_TOOL_ROOT", "TAKESOME_TOOL_ROOT")
 
 
@@ -27,11 +27,6 @@ def resolve_workspace_root(launch_root: Path, cli_root: str | Path | None, confi
     # Explicit CLI root wins. Empty/auto/defer means config owns the workspace.
     if raw_cli and raw_cli.lower() not in {"auto", "config", "configured"}:
         return Path(raw_cli).expanduser().resolve()
-
-    for name in WORKSPACE_ROOT_ENVS:
-        raw = os.environ.get(name, "").strip()
-        if raw:
-            return Path(raw).expanduser().resolve()
 
     workspace = config.get("workspace") if isinstance(config.get("workspace"), dict) else {}
     configured = resolve_user_path(launch_root, workspace.get("root"))

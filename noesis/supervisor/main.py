@@ -733,6 +733,20 @@ def start_process(name: str, cmd: list[str], cwd: Path, env: dict[str, str], q: 
     return proc
 
 
+def ensure_noesis_import_path(env: dict[str, str], tool_root: Path) -> None:
+    """Keep `python -m noesis ...` importable when subprocess cwd is the workspace root."""
+    current = env.get("PYTHONPATH", "").strip()
+    tool_root_text = str(tool_root)
+    parts = [part for part in current.split(os.pathsep) if part] if current else []
+    if tool_root_text not in parts:
+        parts.insert(0, tool_root_text)
+    env["PYTHONPATH"] = os.pathsep.join(parts)
+    env.setdefault("NORTHSTAR_TOOL_ROOT", tool_root_text)
+    env.setdefault("NORTHSTAR_SUITE_TOOL_ROOT", tool_root_text)
+    env.setdefault("TAKESOME_TOOL_ROOT", tool_root_text)
+
+
+
 def preflight_origin(root: Path, tool_root: Path, *, sudo: bool = False) -> None:
     if should_skip_origin_preflight():
         emit(
@@ -750,6 +764,7 @@ def preflight_origin(root: Path, tool_root: Path, *, sudo: bool = False) -> None
         "NORTHSTAR_SUITE_STDIO_ENCODING": "utf-8",
         "NORTHSTAR_SUITE_STDIO_ERRORS": "replace",
     })
+    ensure_noesis_import_path(env, tool_root)
     if sudo:
         env["NORTHSTAR_SUITE_SUDO"] = "1"
         env.setdefault("NORTHSTAR_SUITE_SUDO_REASON", "serverBridge-preflight")
@@ -757,7 +772,7 @@ def preflight_origin(root: Path, tool_root: Path, *, sudo: bool = False) -> None
     emit("CHECK", "validating virtual MCP origin before start", command="python -m noesis bridge --hello")
     proc = subprocess.run(
         cmd,
-        cwd=str(root),
+        cwd=str(tool_root),
         env=env,
         text=True,
         encoding="utf-8",
@@ -790,6 +805,7 @@ def spawn_origin(root: Path, tool_root: Path, write: bool, q: "queue.Queue[tuple
         "NORTHSTAR_SUITE_STDIO_ENCODING": "utf-8",
         "NORTHSTAR_SUITE_STDIO_ERRORS": "replace",
     })
+    ensure_noesis_import_path(env, tool_root)
     if sudo:
         env["NORTHSTAR_SUITE_SUDO"] = "1"
         env.setdefault("NORTHSTAR_SUITE_SUDO_REASON", "serverBridge")
@@ -950,6 +966,7 @@ def spawn_suite_intelligence(root: Path, tool_root: Path, q: "queue.Queue[tuple[
         "NEWENGINE_PROJECT_ROOT": str(root),
         "NEWENGINE_REPO_ROOT": str(tool_root),
     })
+    ensure_noesis_import_path(env, tool_root)
     env_file = suite_env_file(root)
     env["NEWENGINE_SCRIPT_ENV_FILE"] = str(env_file)
     # Direct command intentionally bypasses `python -m noesis suite --run`, because the

@@ -44,6 +44,7 @@ def _render_sidebar() -> str:
         ("readiness-block", "Readiness"),
         ("worker-block", "Worker"),
         ("cluster-block", "Cluster"),
+        ("repositories-page", "Repositories"),
         ("paths-block", "Paths"),
         ("tasks-block", "Tasks"),
         ("controls-block", "Suite Control"),
@@ -82,6 +83,10 @@ def _render_runs_toolbar() -> str:
     return render_template("sections/runs_toolbar.html")
 
 
+def _render_repositories_page() -> str:
+    return render_template("sections/repositories_page.html")
+
+
 def _render_main(generated: str, root: str) -> str:
     sections = [
         render_charts_section(),
@@ -93,6 +98,7 @@ def _render_main(generated: str, root: str) -> str:
         _render_attention_sections(),
         _render_runs_toolbar(),
         render_runs_table_section(),
+        _render_repositories_page(),
         render_template("sections/footer.html"),
     ]
     return render_template("main.html", sections="\n\n".join(sections))

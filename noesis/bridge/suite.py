@@ -114,6 +114,14 @@ def _normalize_suite_args(ctx: BridgeContext, args: List[str]) -> List[str]:
     return resolved
 
 
+def _process_stream_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return str(value)
+
+
 def run_takesome(ctx: BridgeContext, args: List[str], timeout_sec: int = 120, env_overrides: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     resolved_args = _normalize_suite_args(ctx, _with_sudo(ctx, args))
     env = _automation_env(ctx, env_overrides)
@@ -131,14 +139,39 @@ def run_takesome(ctx: BridgeContext, args: List[str], timeout_sec: int = 120, en
             errors="replace",
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=None,
+            timeout=timeout_sec if timeout_sec > 0 else None,
             shell=False,
             env=env,
         )
     except subprocess.TimeoutExpired as exc:
-        out, ot, out_bytes = truncate_tail(exc.stdout if isinstance(exc.stdout, str) else "", MAX_EXEC_STDOUT_BYTES)
-        err, et, err_bytes = truncate_tail(exc.stderr if isinstance(exc.stderr, str) else "", MAX_EXEC_STDERR_BYTES)
-        raise BridgeError("Suite command wait was interrupted", "command_wait_interrupted", {"args": resolved_args, "requested_timeout_sec": timeout_sec, "stdout": out, "stdout_tail": out, "stdout_bytes": out_bytes, "stderr": err, "stderr_tail": err, "stderr_bytes": err_bytes, "truncated": ot or et, "wait_policy": "wait_until_completion"})
+        out, ot, out_bytes = truncate_tail(_process_stream_text(exc.stdout), MAX_EXEC_STDOUT_BYTES)
+        err, et, err_bytes = truncate_tail(_process_stream_text(exc.stderr), MAX_EXEC_STDERR_BYTES)
+        return {
+            "ok": False,
+            "exit_code": 124,
+            "elapsed_ms": int((time.time() - started) * 1000),
+            "args": resolved_args,
+            "stdout": out,
+            "stdout_tail": out,
+            "stdout_bytes": out_bytes,
+            "stdout_truncated": ot,
+            "stderr": err,
+            "stderr_tail": err,
+            "stderr_bytes": err_bytes,
+            "stderr_truncated": et,
+            "truncated": True,
+            "timed_out": True,
+            "error": "command_timeout",
+            "message": f"Suite command timed out after {timeout_sec} seconds",
+            "wait_policy": "timeout",
+            "requested_timeout_sec": timeout_sec,
+            "output_policy": {
+                "stdout": "tail",
+                "stderr": "tail",
+                "max_stdout_bytes": MAX_EXEC_STDOUT_BYTES,
+                "max_stderr_bytes": MAX_EXEC_STDERR_BYTES,
+            },
+        }
 
     out, ot, out_bytes = truncate_tail(proc.stdout, MAX_EXEC_STDOUT_BYTES)
     err, et, err_bytes = truncate_tail(proc.stderr, MAX_EXEC_STDERR_BYTES)
@@ -150,9 +183,11 @@ def run_takesome(ctx: BridgeContext, args: List[str], timeout_sec: int = 120, en
         "stdout": out,
         "stdout_tail": out,
         "stdout_bytes": out_bytes,
+        "stdout_truncated": ot,
         "stderr": err,
         "stderr_tail": err,
         "stderr_bytes": err_bytes,
+        "stderr_truncated": et,
         "truncated": ot or et,
         "wait_policy": "wait_until_completion",
         "requested_timeout_sec": timeout_sec,

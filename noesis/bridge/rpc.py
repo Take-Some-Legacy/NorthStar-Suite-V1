@@ -12,6 +12,11 @@ from .rpc_surface import (
     public_tool_descriptors,
     tool_descriptor,
 )
+
+DEFAULT_PUBLIC_SUITE_TIMEOUT_SEC = 120
+MAX_PUBLIC_SUITE_TIMEOUT_SEC = 600
+PUBLIC_CONTENT_STREAM_PREVIEW_BYTES = 4 * 1024
+
 def rpc_result(request_id: Any, result: Any) -> Dict[str, Any]:
     return {"jsonrpc": "2.0", "id": request_id, "result": result}
 def rpc_error(request_id: Any, code: int, message: str, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -140,6 +145,15 @@ def _content_summary(payload: Any) -> Any:
     if isinstance(payload, list):
         return {"list_count": len(payload), "first": payload[:3]}
     return payload
+def _compact_stream_preview(text: str, *, max_bytes: int = PUBLIC_CONTENT_STREAM_PREVIEW_BYTES) -> str:
+    raw = text.encode("utf-8", errors="replace")
+    if len(raw) <= max_bytes:
+        return text
+    marker = f"...[northstar-public-content-preview-truncated-tail bytes={len(raw)}]\n"
+    keep = max(1, max_bytes - len(marker.encode("utf-8", errors="replace")))
+    return marker + raw[-keep:].decode("utf-8", errors="replace")
+
+
 def _stream_summary(payload: dict[str, Any], name: str) -> dict[str, Any]:
     text = str(payload.get(name, "") or "")
     byte_count = int(payload.get(f"{name}_bytes", len(text.encode("utf-8", errors="replace"))) or 0)
@@ -151,7 +165,7 @@ def _stream_summary(payload: dict[str, Any], name: str) -> dict[str, Any]:
         "truncated": truncated,
         "mode": mode,
         "line_count": len(text.splitlines()),
-        "preview": _format_console_text(text),
+        "preview": _format_console_text(_compact_stream_preview(text)),
     }
 def _render_public_text(payload: Any, *, is_error: bool = False) -> str:
     title = "North Star Bridge Error" if is_error else "North Star Bridge Result"
@@ -228,13 +242,15 @@ def _tool_result_payload(payload: Any) -> Dict[str, Any]:
     return result
 def _tool_error_payload(error: Any) -> Dict[str, Any]:
     error = _bounded_payload(error)
-    result: Dict[str, Any] = {
+    # MCP clients may validate structuredContent against the declared
+    # outputSchema even for tool-execution errors. BridgeError payloads are
+    # generic error envelopes, not success envelopes, so keep them in content
+    # only and avoid breaking the message stream with schema-incompatible
+    # structuredContent.
+    return {
         "content": [{"type": "text", "text": _render_public_text(error, is_error=True)}],
         "isError": True,
     }
-    if isinstance(error, dict):
-        result["structuredContent"] = error
-    return result
 def _sanitize_public_arguments(public_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
     if public_name == "execute_suite_command":
         # Public execution is deliberately narrower than the internal
@@ -242,15 +258,14 @@ def _sanitize_public_arguments(public_name: str, arguments: Dict[str, Any]) -> D
         # bounded timeout, and only the declared allow-list inside suite.py may run.
         command_id = str(arguments.get("command_id", "")).strip()
         sanitized: Dict[str, Any] = {"command_id": command_id, "allow_unlisted": False}
-        if "timeout_sec" in arguments:
-            try:
-                sanitized["timeout_sec"] = max(0, int(arguments.get("timeout_sec", 0)))
-            except Exception:
-                sanitized["timeout_sec"] = 0
+        try:
+            raw_timeout = arguments.get("timeout_sec", DEFAULT_PUBLIC_SUITE_TIMEOUT_SEC)
+            timeout_sec = int(raw_timeout or DEFAULT_PUBLIC_SUITE_TIMEOUT_SEC)
+        except Exception:
+            timeout_sec = DEFAULT_PUBLIC_SUITE_TIMEOUT_SEC
+        sanitized["timeout_sec"] = max(1, min(timeout_sec, MAX_PUBLIC_SUITE_TIMEOUT_SEC))
         if "requires_openai_key" in arguments:
             sanitized["requires_openai_key"] = bool(arguments.get("requires_openai_key"))
-        if "allow_unlisted" in arguments:
-            sanitized["allow_unlisted"] = bool(arguments.get("allow_unlisted"))
         return sanitized
     if public_name == "list_suite_actions":
         sanitized = {}

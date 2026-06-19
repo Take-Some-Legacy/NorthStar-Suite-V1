@@ -108,9 +108,8 @@ PUBLIC_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
                 "description": "Allow-listed Suite command id, for example diag.operator.memory or tools.operator.memory.",
                 "pattern": "^[A-Za-z0-9_.:-]+$"
             },
-            "timeout_sec": {"type": "integer", "minimum": 0, "description": "0 or omitted means no Suite-side timeout for long operations."},
-            "requires_openai_key": {"type": "boolean"},
-            "allow_unlisted": {"type": "boolean", "description": "When write mode is enabled, run any SuiteRegistry action id through suite --run. This is still not arbitrary shell."}
+            "timeout_sec": {"type": "integer", "minimum": 0, "maximum": 600, "description": "0 or omitted uses the bridge default timeout of 120 seconds; positive values are capped at 600 seconds."},
+            "requires_openai_key": {"type": "boolean"}
         },
         "required": ["command_id"],
         "additionalProperties": False,
@@ -237,7 +236,7 @@ def _public_description(public_name: str, internal: ToolSpec) -> str:
         "get_dataset_status": "Return dataSetDirectory status and newest archives/directories.",
         "search_dataset": "Search materialized dataset directories first.",
         "list_suite_actions": "List SuiteRegistry actions available through the bridge. Use this before execute_suite_command when unsure which command id is allowed.",
-        "execute_suite_command": "Execute one Suite command through a bounded, schema-described bridge result. Allow-listed commands always work; with write mode, allow_unlisted=true may run any SuiteRegistry action id. This is still not arbitrary shell.",
+        "execute_suite_command": "Execute one allow-listed Suite command through a bounded, schema-described bridge result. Public execution never runs unlisted SuiteRegistry actions and is capped by a bridge timeout.",
         "write_text_file": "Write a repository-relative project text file with backup. Always listed; execution requires write mode.",
         "delete_path": "Delete a repository-relative project file or directory. Always listed; execution requires write mode; directories require recursive=true.",
         "bridge_origin_status": "Check the local North Star AI bridge HTTP origin without mutating it. Uses the safe restart helper status command.",

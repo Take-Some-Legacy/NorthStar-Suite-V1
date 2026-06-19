@@ -36,4 +36,4 @@ Rules:
 - Nested directory is the action subdomain: for example `system/fileSystem` or `NorthStarEngine/textures`.
 - Descriptor `group` can remain semantic/legacy metadata; UI should prefer descriptor path taxonomy for domain navigation.
 - The loader must continue using recursive descriptor discovery.
-- Repository-local execution context should be taken from repoDir/indexFile.v1.json when present.
+- Repository-local execution context should be taken from reposRoot/repoDir/indexFile.v1.json when present.

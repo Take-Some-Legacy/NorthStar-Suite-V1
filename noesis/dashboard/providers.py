@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from noesis.bridge.host_binding import DEFAULT_BRIDGE_PORT, DEFAULT_ENDPOINT_PATH, DEFAULT_HEALTH_PATH, resolve_host_binding
+from noesis.suite.repository_index import REPOSITORY_INDEX_FILENAME, default_repos_root, load_repository_index, validate_repository_index
 
 from .paths_registry import build_paths_payload
 from .resolvers import dashboard_roots, load_runtime_config, read_json
@@ -179,6 +180,149 @@ def cluster_payload(root: Path) -> dict[str, Any]:
             "binding": "python -m noesis bridge endpoint binding --json",
             "endpoint": "python -m noesis bridge endpoint endpoint --json",
             "initHost": f"python -m noesis bridge endpoint init-host --machine-id {local['machineId']} --cluster-id {local['clusterId']} --public-origin <public-origin> --json",
+        },
+    }
+
+
+def _repository_tags(value: object) -> list[str]:
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    if isinstance(value, str):
+        return [item.strip() for item in value.split(",") if item.strip()]
+    return []
+
+
+def _repository_row(index: Any, validation: dict[str, Any], *, current: bool = False) -> dict[str, Any]:
+    payload = _dict(getattr(index, "payload", {}))
+    repo = _dict(payload.get("repository"))
+    tools = _dict(payload.get("tools"))
+    commands = _dict(payload.get("commands"))
+    required = _list(tools.get("required"))
+    optional = _list(tools.get("optional"))
+    repo_dir = getattr(index, "repo_dir")
+    index_file = getattr(index, "index_file")
+    name = _text(repo.get("name"), Path(repo_dir).name)
+    return {
+        "id": _text(repo.get("id"), name),
+        "name": name,
+        "kind": _text(repo.get("kind"), "repository"),
+        "description": _text(repo.get("description")),
+        "tags": _repository_tags(repo.get("tags")),
+        "repoDir": str(repo_dir),
+        "indexFile": str(index_file),
+        "reposRoot": str(getattr(index, "repos_root")),
+        "workdir": str(getattr(index, "workdir")),
+        "datasetDir": str(getattr(index, "dataset_dir")),
+        "artifactsDir": str(getattr(index, "artifacts_dir")),
+        "logsDir": str(getattr(index, "logs_dir")),
+        "tmpDir": str(getattr(index, "tmp_dir")),
+        "executionCwd": str(getattr(index, "execution_cwd")),
+        "status": "ok" if validation.get("ok") else "needs-attention",
+        "ok": bool(validation.get("ok")),
+        "current": bool(current),
+        "schemaOk": payload.get("schema") == "takesome.repository_operator_index.v1",
+        "diagnostics": _list(validation.get("diagnostics")),
+        "requiredTools": len(required),
+        "optionalTools": len(optional),
+        "commandCount": len(commands),
+        "commands": sorted(str(key) for key in commands.keys()),
+        "openCommand": f"cd {repo_dir}",
+        "doctorCommand": f"python -m noesis env status --repo-dir {repo_dir} --json",
+    }
+
+
+def _discover_repository_rows(root: Path) -> tuple[list[dict[str, Any]], dict[str, Any], list[str]]:
+    diagnostics: list[str] = []
+    rows: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    current_index, current_diags = load_repository_index(root)
+    diagnostics.extend(current_diags)
+    current_validation = validate_repository_index(current_index, list(current_diags))
+    source = {
+        "currentRoot": str(root),
+        "indexFilename": REPOSITORY_INDEX_FILENAME,
+        "reposRoot": str(current_index.repos_root if current_index else default_repos_root()),
+        "env": "TAKESOME_REPOS_ROOT",
+        "mode": "static-dashboard-draft-editor",
+    }
+
+    def add(index: Any | None, diags: list[str], *, current: bool = False) -> None:
+        if index is None:
+            return
+        key = str(index.index_file).lower()
+        if key in seen:
+            return
+        seen.add(key)
+        rows.append(_repository_row(index, validate_repository_index(index, list(diags)), current=current))
+
+    add(current_index, current_diags, current=True)
+    repos_root = current_index.repos_root if current_index else default_repos_root()
+    if repos_root.exists() and repos_root.is_dir():
+        try:
+            candidates = sorted(path for path in repos_root.iterdir() if path.is_dir())
+        except Exception as exc:
+            candidates = []
+            diagnostics.append(f"cannot list reposRoot {repos_root}: {exc}")
+        for candidate in candidates:
+            index_file = candidate / REPOSITORY_INDEX_FILENAME
+            if not index_file.exists():
+                continue
+            index, diags = load_repository_index(candidate)
+            diagnostics.extend(diags)
+            add(index, diags, current=current_index is not None and index is not None and index.index_file == current_index.index_file)
+    else:
+        diagnostics.append(f"reposRoot is not accessible: {repos_root}")
+
+    rows.sort(key=lambda item: (0 if item.get("current") else 1, item.get("name", "").lower(), item.get("repoDir", "").lower()))
+    return rows, source, diagnostics
+
+
+def repositories_payload(root: Path) -> dict[str, Any]:
+    rows, source, diagnostics = _discover_repository_rows(root)
+    ok_count = len([row for row in rows if row.get("ok")])
+    current = next((row for row in rows if row.get("current")), None)
+    return {
+        "schema": "noesis.dashboard.repositories.v1",
+        "source": source,
+        "counts": {
+            "repositories": len(rows),
+            "ok": ok_count,
+            "needsAttention": len(rows) - ok_count,
+            "draftChanges": 0,
+        },
+        "current": current,
+        "rows": rows,
+        "diagnostics": diagnostics,
+        "draft": {
+            "storageKey": "noesis.dashboard.repositories.draft.v1",
+            "writable": False,
+            "mode": "browser-local-draft",
+            "note": "Add, edit and delete are staged locally in the dashboard until an explicit repository index write action is enabled.",
+        },
+        "commands": {
+            "refresh": "python -m noesis runs index",
+            "status": "python -m noesis env status --repo-dir <repo-dir> --json",
+            "doctor": "python -m noesis env doctor --repo-dir <repo-dir> --json",
+        },
+        "template": {
+            "schema": "takesome.repository_operator_index.v1",
+            "repository": {
+                "name": "new-repository",
+                "kind": "library",
+                "description": "Repository managed by SuiteLab.",
+                "tags": [],
+            },
+            "paths": {
+                "workdir": "workspace",
+                "dataset_dir": "dataset",
+                "artifacts_dir": "workspace/artifacts",
+                "logs_dir": "workspace/logs",
+                "tmp_dir": "workspace/tmp",
+            },
+            "tools": {"required": [], "optional": [{"id": "git", "command": "git", "version_arg": "--version"}]},
+            "commands": {},
+            "operator": {"read_roots": [".", "dataset", "workspace"], "write_roots": ["workspace", "dataset"]},
         },
     }
 

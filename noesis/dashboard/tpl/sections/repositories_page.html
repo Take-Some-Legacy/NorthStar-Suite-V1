@@ -1,0 +1,97 @@
+      <section class="repositories-page dashboard-page is-hidden" id="repositories-page" data-page="repositories" aria-label="Repository space">
+        <div class="section-title">
+          <div>
+            <div class="eyebrow">Repository Space</div>
+            <h2>Repositories</h2>
+            <p class="muted">Manage repository operator indexes, inspect paths, and stage add/edit/delete changes before applying them.</p>
+          </div>
+          <div class="mini-actions">
+            <button type="button" id="repo-add">Add repository</button>
+            <button type="button" id="repo-export-draft">Copy draft JSON</button>
+            <button type="button" id="repo-clear-draft">Clear draft</button>
+          </div>
+        </div>
+
+        <div class="repo-summary-grid">
+          <article class="metric-card">
+            <span>Repositories</span>
+            <strong id="repo-count">0</strong>
+            <p class="muted">discovered index files</p>
+          </article>
+          <article class="metric-card">
+            <span>Healthy</span>
+            <strong id="repo-ok-count">0</strong>
+            <p class="muted">indexes without validation errors</p>
+          </article>
+          <article class="metric-card">
+            <span>Draft changes</span>
+            <strong id="repo-draft-count">0</strong>
+            <p class="muted">local edits staged in this browser</p>
+          </article>
+          <article class="metric-card">
+            <span>Repos root</span>
+            <code id="repo-root-label">—</code>
+            <p class="muted">source directory</p>
+          </article>
+        </div>
+
+        <div class="repo-toolbar">
+          <input id="repo-search" type="search" placeholder="Search repositories, paths, tags…" autocomplete="off">
+          <select id="repo-status-filter" aria-label="Repository status filter">
+            <option value="all">All statuses</option>
+            <option value="ok">OK</option>
+            <option value="needs-attention">Needs attention</option>
+            <option value="draft">Draft changes</option>
+          </select>
+          <select id="repo-kind-filter" aria-label="Repository kind filter">
+            <option value="all">All kinds</option>
+          </select>
+        </div>
+
+        <div class="repo-layout">
+          <article class="repo-table-card">
+            <div class="table-wrap">
+              <table class="repo-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Kind</th>
+                    <th>Status</th>
+                    <th>Path</th>
+                    <th>Tools</th>
+                    <th>Commands</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="repo-table-body"></tbody>
+              </table>
+            </div>
+            <p class="muted" id="repo-empty-state">No repositories matched the current filters.</p>
+          </article>
+
+          <aside class="repo-editor-card" id="repo-editor-card">
+            <div class="section-title compact">
+              <div>
+                <div class="eyebrow">Editor</div>
+                <h3 id="repo-editor-title">Select repository</h3>
+              </div>
+              <span class="status-pill" id="repo-editor-mode">idle</span>
+            </div>
+
+            <label>Name <input id="repo-field-name" type="text" autocomplete="off"></label>
+            <label>Kind <input id="repo-field-kind" type="text" autocomplete="off"></label>
+            <label>Repository directory <input id="repo-field-dir" type="text" autocomplete="off"></label>
+            <label>Description <textarea id="repo-field-description" rows="3"></textarea></label>
+            <label>Tags <input id="repo-field-tags" type="text" placeholder="java, game, engine"></label>
+
+            <div class="repo-editor-actions">
+              <button type="button" id="repo-save-draft">Save draft</button>
+              <button type="button" id="repo-delete-draft">Delete</button>
+              <button type="button" id="repo-copy-index">Copy index JSON</button>
+              <button type="button" id="repo-copy-command">Copy status command</button>
+            </div>
+
+            <div class="repo-diagnostics" id="repo-diagnostics"></div>
+          </aside>
+        </div>
+      </section>

@@ -8,6 +8,7 @@ ENGINE_REPO_ENV = "NORTHSTAR_ENGINE_REPO"
 LEGACY_REPO_ENV = "NEWENGINE_REPO_ROOT"
 SUITE_ROOT_ENVS = ("NORTHSTAR_SUITE_ROOT", "NEWENGINE_SUITE_ROOT", "TAKESOME_SUITE_ROOT")
 DEFAULT_EXTERNAL_SUITE_ROOTS = (Path(r"D:\\TakeSomeData"),)
+DEFAULT_REPOS_ROOT = Path(r"C:\\Users\\HUAWEI\\Documents\\Repos")
 
 
 def _valid_external_suite_root(path: Path) -> bool:
@@ -106,6 +107,11 @@ def suite_root(project_root: Path) -> Path:
 
 def suite_path(project_root: Path, *parts: str) -> Path:
     return suite_root(project_root).joinpath(*parts)
+
+
+def repos_root() -> Path:
+    """Canonical root for repository artifacts and working repos."""
+    return DEFAULT_REPOS_ROOT.resolve()
 
 
 def now_stamp() -> str:

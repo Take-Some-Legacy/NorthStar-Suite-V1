@@ -1,4 +1,80 @@
 {
+  "cluster": {
+    "commands": {
+      "binding": "python -m noesis bridge endpoint binding --json",
+      "doctor": "python -m noesis bridge endpoint cluster-doctor --timeout 1.5 --json",
+      "endpoint": "python -m noesis bridge endpoint endpoint --json",
+      "initHost": "python -m noesis bridge endpoint init-host --machine-id suite-node-01 --cluster-id noesis-cluster --public-origin <public-origin> --json"
+    },
+    "config": {
+      "diagnostics": {
+        "includeDisabled": false,
+        "includeStatus": true,
+        "timeoutSec": 1.5
+      },
+      "runtimeConfig": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\config\\noesis\\runtime.v1.json",
+      "source": "config/noesis/runtime.v1.json",
+      "ui": {
+        "peerFilter": "",
+        "showDisabled": false,
+        "viewMode": "topology"
+      }
+    },
+    "diagnostics": [],
+    "enabled": true,
+    "local": {
+      "advertisedOrigin": "https://suite.kaylas-systems.ru",
+      "bindHost": "127.0.0.1",
+      "bindPort": 8797,
+      "clusterId": "noesis-cluster",
+      "deploymentProfile": "single-machine",
+      "endpointPath": "/mcp-v2",
+      "endpointUrl": "https://suite.kaylas-systems.ru/mcp-v2",
+      "healthPath": "/health",
+      "healthUrl": "https://suite.kaylas-systems.ru/health",
+      "machineId": "suite-node-01",
+      "networkMode": "single-host-first",
+      "publicOrigin": "https://suite.kaylas-systems.ru",
+      "role": "operator"
+    },
+    "peers": [],
+    "profile": "single-host-first",
+    "profiles": [
+      {
+        "id": "single-host-first",
+        "intent": "Prefer one local origin, but keep cluster metadata visible and ready.",
+        "recommendedFor": "local operator workstation",
+        "title": "Single host first"
+      },
+      {
+        "id": "federated-machines",
+        "intent": "Treat peers as first-class Suite machines and validate health/status endpoints.",
+        "recommendedFor": "multi-machine NOESIS/Suite federation",
+        "title": "Federated machines"
+      },
+      {
+        "id": "tunnel-public",
+        "intent": "Expect public/tunnel origins and prefer advertised endpoint checks.",
+        "recommendedFor": "Cloudflare/domain exposed bridge",
+        "title": "Tunnel public"
+      },
+      {
+        "id": "strict-doctor",
+        "intent": "Include status validation, disabled peers and mismatch diagnostics.",
+        "recommendedFor": "pre-release or infrastructure incident review",
+        "title": "Strict doctor"
+      }
+    ],
+    "schema": "noesis.dashboard.cluster.v1",
+    "topology": {
+      "clusterId": "noesis-cluster",
+      "enabledPeerCount": 0,
+      "machineCount": 1,
+      "mode": "single-machine",
+      "networkMode": "single-host-first",
+      "peerCount": 0
+    }
+  },
   "counts": {
     "coreRuns": 41,
     "failedOrOther": 0,
@@ -1215,7 +1291,7 @@
       "wholeRepositoryReady": false
     }
   ],
-  "generatedUtc": "2026-06-17T13:33:51Z",
+  "generatedUtc": "2026-06-18T14:40:53Z",
   "insights": {
     "attention": [
       "Full-repo is not globally ready: full_repo_gate_skeleton_not_enforcement_ready"
@@ -1528,223 +1604,129 @@
       },
       {
         "args": [
-          "operator-memory"
+          "build"
         ],
-        "command": "tools",
+        "command": "java",
         "dangerLevel": "normal",
-        "description": "Run operator memory hygiene and current-state refresh through the Suite diagnostics surface.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\diagnostics\\diag.operator.memory.json",
-        "group": "Diagnostics",
-        "id": "diag.operator.memory",
+        "description": "Build the detected Java workspace using Gradle or Maven.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\java\\java.build.json",
+        "group": "Java",
+        "id": "java.build",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run diag.operator.memory --json",
-        "title": "Diagnose and maintain operator memory"
+        "suiteCommand": "python -m noesis suite --run java.build --json",
+        "title": "Build Java workspace"
       },
       {
         "args": [
-          "--json"
+          "check"
         ],
-        "command": "dashboard-verify",
+        "command": "java",
         "dangerLevel": "normal",
-        "description": "Verify dashboard index, HTML UI, static styling and worker-aware operator payload.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\diagnostics\\noesis.dashboard.verify.json",
-        "group": "Diagnostics",
-        "id": "noesis.dashboard.verify",
+        "description": "Run Java verification tasks using the detected Gradle or Maven workspace.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\java\\java.check.json",
+        "group": "Java",
+        "id": "java.check",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run noesis.dashboard.verify --json",
-        "title": "Verify NOESIS dashboard publication"
+        "suiteCommand": "python -m noesis suite --run java.check --json",
+        "title": "Check Java workspace"
       },
       {
         "args": [
-          "verify",
-          "--scope",
-          "noesis-core",
-          "--apply-current-diff"
+          "clean"
         ],
-        "command": "noesis-test-dev-repo",
-        "dangerLevel": "normal",
-        "description": "Create an isolated git worktree testDevRepo, copy current source changes into it, run structure audit, Suite registry/tool tests, build verification and artifact verification before marking merge_ready or rejected.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\diagnostics\\noesis.test_dev_repo.verify.core.json",
-        "group": "Diagnostics",
-        "id": "noesis.test_dev_repo.verify.core",
+        "command": "java",
+        "dangerLevel": "destructive",
+        "description": "Run the detected Java build tool clean task for the selected workspace.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\java\\java.clean.json",
+        "group": "Java",
+        "id": "java.clean",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run noesis.test_dev_repo.verify.core --json",
-        "title": "Verify NOESIS-core testDevRepo workspace"
+        "suiteCommand": "python -m noesis suite --run java.clean --json",
+        "title": "Clean Java workspace"
       },
       {
         "args": [
-          "verify",
-          "--scope",
-          "full-repo",
-          "--apply-current-diff"
+          "dependency-report"
         ],
-        "command": "noesis-test-dev-repo",
+        "command": "java",
         "dangerLevel": "normal",
-        "description": "Create an isolated git worktree testDevRepo, copy current source changes into it, run structure audit, Suite registry/tool tests, build verification and artifact verification before marking merge_ready or rejected.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\diagnostics\\noesis.test_dev_repo.verify.full.json",
-        "group": "Diagnostics",
-        "id": "noesis.test_dev_repo.verify.full",
+        "description": "Print dependency information for the detected Java workspace using Gradle or Maven.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\java\\java.dependencies.json",
+        "group": "Java",
+        "id": "java.dependencies",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run noesis.test_dev_repo.verify.full --json",
-        "title": "Verify full repository testDevRepo workspace"
+        "suiteCommand": "python -m noesis suite --run java.dependencies --json",
+        "title": "Inspect Java dependencies"
       },
       {
         "args": [
-          "verify",
-          "--scope",
-          "noesis-core",
-          "--apply-current-diff"
+          "doctor"
         ],
-        "command": "noesis-test-dev-repo",
+        "command": "java",
         "dangerLevel": "normal",
-        "description": "Create an isolated git worktree testDevRepo, copy current source changes into it, run structure audit, Suite registry/tool tests, build verification and artifact verification before marking merge_ready or rejected.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\diagnostics\\noesis.test_dev_repo.verify.json",
-        "group": "Diagnostics",
-        "id": "noesis.test_dev_repo.verify",
+        "description": "Detect Java workspace type, wrapper availability, selected build tool and runtime versions.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\java\\java.doctor.json",
+        "group": "Java",
+        "id": "java.doctor",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run noesis.test_dev_repo.verify --json",
-        "title": "Verify NOESIS testDevRepo workspace"
-      },
-      {
-        "args": [],
-        "command": "ns-count-lines",
-        "dangerLevel": "normal",
-        "description": "Run ns-count-lines through the read-only operator filesystem layer.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\fileSystem\\fs.count_lines.json",
-        "group": "Operator FS",
-        "id": "fs.count_lines",
-        "safeForMenu": false,
-        "suiteCommand": "python -m noesis suite --run fs.count_lines --json",
-        "title": "Count lines"
-      },
-      {
-        "args": [],
-        "command": "ns-list-dir",
-        "dangerLevel": "normal",
-        "description": "Run ns-list-dir through the read-only operator filesystem layer.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\fileSystem\\fs.list_dir.json",
-        "group": "Operator FS",
-        "id": "fs.list_dir",
-        "safeForMenu": false,
-        "suiteCommand": "python -m noesis suite --run fs.list_dir --json",
-        "title": "List directory"
-      },
-      {
-        "args": [],
-        "command": "ns-read-file",
-        "dangerLevel": "normal",
-        "description": "Run ns-read-file through the read-only operator filesystem layer.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\fileSystem\\fs.read_file.json",
-        "group": "Operator FS",
-        "id": "fs.read_file",
-        "safeForMenu": false,
-        "suiteCommand": "python -m noesis suite --run fs.read_file --json",
-        "title": "Read file"
-      },
-      {
-        "args": [],
-        "command": "ns-search-text",
-        "dangerLevel": "normal",
-        "description": "Run ns-search-text through the read-only operator filesystem layer.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\fileSystem\\fs.search_text.json",
-        "group": "Operator FS",
-        "id": "fs.search_text",
-        "safeForMenu": false,
-        "suiteCommand": "python -m noesis suite --run fs.search_text --json",
-        "title": "Search text"
-      },
-      {
-        "args": [],
-        "command": "ns-file-stat",
-        "dangerLevel": "normal",
-        "description": "Run ns-file-stat through the read-only operator filesystem layer.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\fileSystem\\fs.stat.json",
-        "group": "Operator FS",
-        "id": "fs.stat",
-        "safeForMenu": false,
-        "suiteCommand": "python -m noesis suite --run fs.stat --json",
-        "title": "Stat files"
-      },
-      {
-        "args": [],
-        "command": "ns-tree",
-        "dangerLevel": "normal",
-        "description": "Run ns-tree through the read-only operator filesystem layer.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\fileSystem\\fs.tree.json",
-        "group": "Operator FS",
-        "id": "fs.tree",
-        "safeForMenu": false,
-        "suiteCommand": "python -m noesis suite --run fs.tree --json",
-        "title": "List tree"
+        "suiteCommand": "python -m noesis suite --run java.doctor --json",
+        "title": "Java workspace doctor"
       },
       {
         "args": [
-          "run",
-          "northstar.ddsinfo",
-          "--",
-          "--library",
-          "$repo_root/tools/toolbelt/libraries/northstar.ddsinfo.dll",
-          "--dimensions",
-          "--compression",
-          "$repo_root/tools/toolbelt/first_party/northstar/ddsinfo/testData/test.dds"
+          "package"
         ],
-        "command": "tools",
+        "command": "java",
         "dangerLevel": "normal",
-        "description": "Run first-party North Star ddsinfo through ToolRegistry against the bundled smoke DDS fixture.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\firstParty\\first_party.ddsinfo.inspect.json",
-        "group": "Textures",
-        "id": "first_party.ddsinfo.inspect",
+        "description": "Create Java distributable artifacts using Gradle or Maven packaging tasks.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\java\\java.package.json",
+        "group": "Java",
+        "id": "java.package",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run first_party.ddsinfo.inspect --json",
-        "title": "Inspect DDS metadata"
+        "suiteCommand": "python -m noesis suite --run java.package --json",
+        "title": "Package Java workspace"
       },
       {
-        "args": [],
-        "command": "first-party-test-all",
+        "args": [
+          "run"
+        ],
+        "command": "java",
         "dangerLevel": "normal",
-        "description": "Recursively discover and run all tools/toolbelt/first_party/<tool>/test/test.bat smoke tests through the first-party aggregate runner.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\firstParty\\first_party.testAll.json",
-        "group": "Tools",
-        "id": "first_party.testAll",
-        "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run first_party.testAll --json",
-        "title": "Run first-party smoke tests"
+        "description": "Run the Java application entrypoint through the detected Gradle or Maven workspace.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\java\\java.run.json",
+        "group": "Java",
+        "id": "java.run",
+        "safeForMenu": false,
+        "suiteCommand": "python -m noesis suite --run java.run --json",
+        "title": "Run Java workspace"
       },
       {
-        "args": [],
-        "command": "build-ytyp",
+        "args": [
+          "tasks"
+        ],
+        "command": "java",
         "dangerLevel": "normal",
-        "description": "Compile XML-first .ytyp.xml metadata sources into NEF8 .ytyp runtime assets.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\metadata\\ytyp.build.json",
-        "group": "Metadata",
-        "id": "ytyp.build",
+        "description": "List available Gradle or Maven tasks/goals for the detected Java workspace.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\java\\java.tasks.json",
+        "group": "Java",
+        "id": "java.tasks",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run ytyp.build --json",
-        "title": "Build YTYP metadata"
+        "suiteCommand": "python -m noesis suite --run java.tasks --json",
+        "title": "List Java build tasks"
       },
       {
-        "args": [],
-        "command": "inspect-ytyp",
+        "args": [
+          "test"
+        ],
+        "command": "java",
         "dangerLevel": "normal",
-        "description": "Inspect a NEF8 .ytyp generic XML metadata dictionary and print readable JSON.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\metadata\\ytyp.inspect.json",
-        "group": "Metadata",
-        "id": "ytyp.inspect",
+        "description": "Run Java tests using the detected Gradle or Maven workspace.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\java\\java.test.json",
+        "group": "Java",
+        "id": "java.test",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run ytyp.inspect --json",
-        "title": "Inspect YTYP metadata"
-      },
-      {
-        "args": [],
-        "command": "validate-ytyp",
-        "dangerLevel": "normal",
-        "description": "Validate .ytyp.xml source and NEF8 .ytyp runtime generic metadata assets.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\metadata\\ytyp.validate.json",
-        "group": "Metadata",
-        "id": "ytyp.validate",
-        "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run ytyp.validate --json",
-        "title": "Validate YTYP metadata"
+        "suiteCommand": "python -m noesis suite --run java.test --json",
+        "title": "Test Java workspace"
       },
       {
         "args": [
@@ -1756,7 +1738,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.audit.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.audit.json",
         "group": "npm",
         "id": "npm.audit",
         "safeForMenu": true,
@@ -1774,7 +1756,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.build.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.build.json",
         "group": "npm",
         "id": "npm.build",
         "safeForMenu": true,
@@ -1791,7 +1773,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.ci.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.ci.json",
         "group": "npm",
         "id": "npm.ci",
         "safeForMenu": true,
@@ -1810,7 +1792,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.dev.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.dev.json",
         "group": "npm",
         "id": "npm.dev",
         "safeForMenu": false,
@@ -1827,7 +1809,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.install.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.install.json",
         "group": "npm",
         "id": "npm.install",
         "safeForMenu": true,
@@ -1846,7 +1828,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.lint.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.lint.json",
         "group": "npm",
         "id": "npm.lint",
         "safeForMenu": true,
@@ -1863,7 +1845,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.list_scripts.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.list_scripts.json",
         "group": "npm",
         "id": "npm.list_scripts",
         "safeForMenu": true,
@@ -1880,7 +1862,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.outdated.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.outdated.json",
         "group": "npm",
         "id": "npm.outdated",
         "safeForMenu": true,
@@ -1899,7 +1881,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.preview.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.preview.json",
         "group": "npm",
         "id": "npm.preview",
         "safeForMenu": false,
@@ -1918,7 +1900,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.test.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.test.json",
         "group": "npm",
         "id": "npm.test",
         "safeForMenu": true,
@@ -1937,7 +1919,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.typecheck.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.typecheck.json",
         "group": "npm",
         "id": "npm.typecheck",
         "safeForMenu": true,
@@ -1954,26 +1936,12 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\npm\\npm.version.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\npm\\npm.version.json",
         "group": "npm",
         "id": "npm.version",
         "safeForMenu": true,
         "suiteCommand": "python -m noesis suite --run npm.version --json",
         "title": "npm.version"
-      },
-      {
-        "args": [
-          "dev"
-        ],
-        "command": "run-game",
-        "dangerLevel": "normal",
-        "description": "Synchronize dev plugins and run the game-ready-fps runtime demo.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\runtime\\run.game.dev.json",
-        "group": "Run",
-        "id": "runtime.run.game.dev",
-        "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run runtime.run.game.dev --json",
-        "title": "Run game/runtime demo / dev"
       },
       {
         "args": [
@@ -1983,7 +1951,7 @@
         "command": "build-plugins",
         "dangerLevel": "normal",
         "description": "Force rebuild and install all runtime plugin providers in dev profile.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\rust\\build.plugins.force.dev.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\rust\\build.plugins.force.dev.json",
         "group": "Build",
         "id": "plugins.build.force.dev",
         "safeForMenu": true,
@@ -1998,7 +1966,7 @@
         "command": "build-tool",
         "dangerLevel": "normal",
         "description": "Build the standalone NorthStar GUI Editor host shell in dev profile.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\rust\\gui.editor.build.dev.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\rust\\gui.editor.build.dev.json",
         "group": "Editor",
         "id": "gui.editor.build.dev",
         "safeForMenu": true,
@@ -2014,7 +1982,7 @@
         "command": "build-tool",
         "dangerLevel": "normal",
         "description": "Build the standalone NorthStar GUI Editor host shell in release profile.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\rust\\gui.editor.build.release.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\rust\\gui.editor.build.release.json",
         "group": "Editor",
         "id": "gui.editor.build.release",
         "safeForMenu": true,
@@ -2033,7 +2001,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "Run runtime discovery diagnostics for the standalone NorthStar GUI Editor host shell.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\rust\\gui.editor.doctor.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\rust\\gui.editor.doctor.json",
         "group": "Editor",
         "id": "gui.editor.doctor",
         "safeForMenu": true,
@@ -2054,7 +2022,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "Open a known texture dictionary asset through the NorthStar GUI Editor provider/type routing pipeline.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\rust\\gui.editor.open.texture_dictionary.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\rust\\gui.editor.open.texture_dictionary.json",
         "group": "Editor",
         "id": "gui.editor.open.texture_dictionary",
         "safeForMenu": true,
@@ -2073,7 +2041,7 @@
         "command": "tools",
         "dangerLevel": "normal",
         "description": "Run the NorthStar GUI Editor type registry listing through descriptor-driven tool execution.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\rust\\gui.editor.types.list.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\rust\\gui.editor.types.list.json",
         "group": "Editor",
         "id": "gui.editor.types.list",
         "safeForMenu": true,
@@ -2087,7 +2055,7 @@
         "command": "build-importers",
         "dangerLevel": "normal",
         "description": "Build importer toolchain in dev profile.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\rust\\importers.build.dev.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\rust\\importers.build.dev.json",
         "group": "Importers",
         "id": "importers.build.dev",
         "safeForMenu": true,
@@ -2101,7 +2069,7 @@
         "command": "build-importers",
         "dangerLevel": "normal",
         "description": "Build importer toolchain in release profile.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\rust\\importers.build.release.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\rust\\importers.build.release.json",
         "group": "Importers",
         "id": "importers.build.release",
         "safeForMenu": true,
@@ -2115,7 +2083,7 @@
         "command": "build-plugins",
         "dangerLevel": "normal",
         "description": "Build and install all runtime plugin providers in dev profile.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\rust\\plugins.build.dev.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\rust\\plugins.build.dev.json",
         "group": "Build",
         "id": "plugins.build.dev",
         "safeForMenu": true,
@@ -2129,7 +2097,7 @@
         "command": "build-plugins",
         "dangerLevel": "normal",
         "description": "Build and install all runtime plugin providers in release profile.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\rust\\plugins.build.release.json",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\lang\\rust\\plugins.build.release.json",
         "group": "Build",
         "id": "plugins.build.release",
         "safeForMenu": true,
@@ -2137,16 +2105,157 @@
         "title": "Build runtime plugins / release"
       },
       {
-        "args": [],
-        "command": "pack-source",
+        "args": [
+          "run",
+          "northstar.ddsinfo",
+          "--",
+          "--library",
+          "$repo_root/tools/toolbelt/libraries/northstar.ddsinfo.dll",
+          "--dimensions",
+          "--compression",
+          "$repo_root/tools/toolbelt/first_party/northstar/ddsinfo/testData/test.dds"
+        ],
+        "command": "tools",
         "dangerLevel": "normal",
-        "description": "Create a clean source archive using the canonical source packaging policy.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\source\\source.pack.json",
-        "group": "Source",
-        "id": "source.pack",
+        "description": "Run first-party North Star ddsinfo through ToolRegistry against the bundled smoke DDS fixture.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\firstParty\\first_party.ddsinfo.inspect.json",
+        "group": "Textures",
+        "id": "first_party.ddsinfo.inspect",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run source.pack --json",
-        "title": "Pack source snapshot"
+        "suiteCommand": "python -m noesis suite --run first_party.ddsinfo.inspect --json",
+        "title": "Inspect DDS metadata"
+      },
+      {
+        "args": [],
+        "command": "first-party-test-all",
+        "dangerLevel": "normal",
+        "description": "Recursively discover and run all tools/toolbelt/first_party/<tool>/test/test.bat smoke tests through the first-party aggregate runner.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\firstParty\\first_party.testAll.json",
+        "group": "Tools",
+        "id": "first_party.testAll",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run first_party.testAll --json",
+        "title": "Run first-party smoke tests"
+      },
+      {
+        "args": [],
+        "command": "build-ytyp",
+        "dangerLevel": "normal",
+        "description": "Compile XML-first .ytyp.xml metadata sources into NEF8 .ytyp runtime assets.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\metadata\\ytyp.build.json",
+        "group": "Metadata",
+        "id": "ytyp.build",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run ytyp.build --json",
+        "title": "Build YTYP metadata"
+      },
+      {
+        "args": [],
+        "command": "inspect-ytyp",
+        "dangerLevel": "normal",
+        "description": "Inspect a NEF8 .ytyp generic XML metadata dictionary and print readable JSON.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\metadata\\ytyp.inspect.json",
+        "group": "Metadata",
+        "id": "ytyp.inspect",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run ytyp.inspect --json",
+        "title": "Inspect YTYP metadata"
+      },
+      {
+        "args": [],
+        "command": "validate-ytyp",
+        "dangerLevel": "normal",
+        "description": "Validate .ytyp.xml source and NEF8 .ytyp runtime generic metadata assets.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\metadata\\ytyp.validate.json",
+        "group": "Metadata",
+        "id": "ytyp.validate",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run ytyp.validate --json",
+        "title": "Validate YTYP metadata"
+      },
+      {
+        "args": [],
+        "command": "build-ytd",
+        "dangerLevel": "normal",
+        "description": "Build XML-free NEF8 .ytd texture dictionaries from source image files.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\textures\\ytd.build.json",
+        "group": "Textures",
+        "id": "ytd.build",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run ytd.build --json",
+        "title": "Build YTD texture dictionary"
+      },
+      {
+        "args": [],
+        "command": "extract-ytd",
+        "dangerLevel": "normal",
+        "description": "Extract .ytd texture entries to DDS files for inspection/debugging.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\textures\\ytd.extract.json",
+        "group": "Textures",
+        "id": "ytd.extract",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run ytd.extract --json",
+        "title": "Extract YTD texture dictionary"
+      },
+      {
+        "args": [],
+        "command": "inspect-ytd",
+        "dangerLevel": "normal",
+        "description": "Inspect a NEF8 .ytd / NETD texture dictionary and print readable JSON.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\textures\\ytd.inspect.json",
+        "group": "Textures",
+        "id": "ytd.inspect",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run ytd.inspect --json",
+        "title": "Inspect YTD texture dictionary"
+      },
+      {
+        "args": [],
+        "command": "validate-ytd",
+        "dangerLevel": "normal",
+        "description": "Validate NEF8 header, NETD payload, texture directory, mip chains and payload sizes.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\textures\\ytd.validate.json",
+        "group": "Textures",
+        "id": "ytd.validate",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run ytd.validate --json",
+        "title": "Validate YTD texture dictionary"
+      },
+      {
+        "args": [],
+        "command": "build-ui",
+        "dangerLevel": "normal",
+        "description": "Compile XML-first .neui.xml sources into NEF8 .neui runtime assets.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\ui\\ui.build.json",
+        "group": "UI",
+        "id": "ui.build",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run ui.build --json",
+        "title": "Build UI NEUI assets"
+      },
+      {
+        "args": [],
+        "command": "inspect-ui",
+        "dangerLevel": "normal",
+        "description": "Inspect first discovered .neui asset and print readable NEF8/XMLcentral diagnostics.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\ui\\ui.inspect.json",
+        "group": "UI",
+        "id": "ui.inspect",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run ui.inspect --json",
+        "title": "Inspect UI NEUI asset"
+      },
+      {
+        "args": [],
+        "command": "validate-ui",
+        "dangerLevel": "normal",
+        "description": "Validate .neui.xml authoring files and runtime .neui NEF8 assets.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\NorthStarEngine\\ui\\ui.validate.json",
+        "group": "UI",
+        "id": "ui.validate",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run ui.validate --json",
+        "title": "Validate UI NEUI assets"
       },
       {
         "args": [],
@@ -2245,52 +2354,241 @@
         "title": "Run Suite Intelligence resident loop"
       },
       {
-        "args": [],
-        "command": "build-ytd",
+        "args": [
+          "operator-memory"
+        ],
+        "command": "tools",
         "dangerLevel": "normal",
-        "description": "Build XML-free NEF8 .ytd texture dictionaries from source image files.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\textures\\ytd.build.json",
-        "group": "Textures",
-        "id": "ytd.build",
+        "description": "Run operator memory hygiene and current-state refresh through the Suite diagnostics surface.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\diagnostics\\diag.operator.memory.json",
+        "group": "Diagnostics",
+        "id": "diag.operator.memory",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run ytd.build --json",
-        "title": "Build YTD texture dictionary"
+        "suiteCommand": "python -m noesis suite --run diag.operator.memory --json",
+        "title": "Diagnose and maintain operator memory"
+      },
+      {
+        "args": [
+          "--json"
+        ],
+        "command": "dashboard-verify",
+        "dangerLevel": "normal",
+        "description": "Verify dashboard index, HTML UI, static styling and worker-aware operator payload.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\diagnostics\\noesis.dashboard.verify.json",
+        "group": "Diagnostics",
+        "id": "noesis.dashboard.verify",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run noesis.dashboard.verify --json",
+        "title": "Verify NOESIS dashboard publication"
+      },
+      {
+        "args": [
+          "verify",
+          "--scope",
+          "noesis-core",
+          "--apply-current-diff"
+        ],
+        "command": "noesis-test-dev-repo",
+        "dangerLevel": "normal",
+        "description": "Create an isolated git worktree testDevRepo, copy current source changes into it, run structure audit, Suite registry/tool tests, build verification and artifact verification before marking merge_ready or rejected.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\diagnostics\\noesis.test_dev_repo.verify.core.json",
+        "group": "Diagnostics",
+        "id": "noesis.test_dev_repo.verify.core",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run noesis.test_dev_repo.verify.core --json",
+        "title": "Verify NOESIS-core testDevRepo workspace"
+      },
+      {
+        "args": [
+          "verify",
+          "--scope",
+          "full-repo",
+          "--apply-current-diff"
+        ],
+        "command": "noesis-test-dev-repo",
+        "dangerLevel": "normal",
+        "description": "Create an isolated git worktree testDevRepo, copy current source changes into it, run structure audit, Suite registry/tool tests, build verification and artifact verification before marking merge_ready or rejected.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\diagnostics\\noesis.test_dev_repo.verify.full.json",
+        "group": "Diagnostics",
+        "id": "noesis.test_dev_repo.verify.full",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run noesis.test_dev_repo.verify.full --json",
+        "title": "Verify full repository testDevRepo workspace"
+      },
+      {
+        "args": [
+          "verify",
+          "--scope",
+          "noesis-core",
+          "--apply-current-diff"
+        ],
+        "command": "noesis-test-dev-repo",
+        "dangerLevel": "normal",
+        "description": "Create an isolated git worktree testDevRepo, copy current source changes into it, run structure audit, Suite registry/tool tests, build verification and artifact verification before marking merge_ready or rejected.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\diagnostics\\noesis.test_dev_repo.verify.json",
+        "group": "Diagnostics",
+        "id": "noesis.test_dev_repo.verify",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run noesis.test_dev_repo.verify --json",
+        "title": "Verify NOESIS testDevRepo workspace"
       },
       {
         "args": [],
-        "command": "extract-ytd",
+        "command": "env-doctor",
         "dangerLevel": "normal",
-        "description": "Extract .ytd texture entries to DDS files for inspection/debugging.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\textures\\ytd.extract.json",
-        "group": "Textures",
-        "id": "ytd.extract",
+        "description": "Inspect available runtimes, compilers, package managers and important operator paths.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\env\\env.doctor.json",
+        "group": "Environment",
+        "id": "env.doctor",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run ytd.extract --json",
-        "title": "Extract YTD texture dictionary"
+        "suiteCommand": "python -m noesis suite --run env.doctor --json",
+        "title": "Environment doctor"
       },
       {
         "args": [],
-        "command": "inspect-ytd",
+        "command": "env-status",
         "dangerLevel": "normal",
-        "description": "Inspect a NEF8 .ytd / NETD texture dictionary and print readable JSON.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\textures\\ytd.inspect.json",
-        "group": "Textures",
-        "id": "ytd.inspect",
+        "description": "Write a compact machine-readable status report for the current environment.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\env\\env.status.json",
+        "group": "Environment",
+        "id": "env.status",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run ytd.inspect --json",
-        "title": "Inspect YTD texture dictionary"
+        "suiteCommand": "python -m noesis suite --run env.status --json",
+        "title": "Environment status"
       },
       {
         "args": [],
-        "command": "validate-ytd",
+        "command": "env-toolchains",
         "dangerLevel": "normal",
-        "description": "Validate NEF8 header, NETD payload, texture directory, mip chains and payload sizes.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\textures\\ytd.validate.json",
-        "group": "Textures",
-        "id": "ytd.validate",
+        "description": "List build toolchain availability for Java, Rust, Node and native projects.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\env\\env.toolchains.json",
+        "group": "Environment",
+        "id": "env.toolchains",
         "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run ytd.validate --json",
-        "title": "Validate YTD texture dictionary"
+        "suiteCommand": "python -m noesis suite --run env.toolchains --json",
+        "title": "Toolchain list"
+      },
+      {
+        "args": [],
+        "command": "env-tools",
+        "dangerLevel": "normal",
+        "description": "List important command-line tools and whether they are visible to Suite.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\env\\env.tools.json",
+        "group": "Environment",
+        "id": "env.tools",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run env.tools --json",
+        "title": "List environment tools"
+      },
+      {
+        "args": [],
+        "command": "ns-count-lines",
+        "dangerLevel": "normal",
+        "description": "Run ns-count-lines through the read-only operator filesystem layer.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\fileSystem\\fs.count_lines.json",
+        "group": "Operator FS",
+        "id": "fs.count_lines",
+        "safeForMenu": false,
+        "suiteCommand": "python -m noesis suite --run fs.count_lines --json",
+        "title": "Count lines"
+      },
+      {
+        "args": [],
+        "command": "ns-list-dir",
+        "dangerLevel": "normal",
+        "description": "Run ns-list-dir through the read-only operator filesystem layer.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\fileSystem\\fs.list_dir.json",
+        "group": "Operator FS",
+        "id": "fs.list_dir",
+        "safeForMenu": false,
+        "suiteCommand": "python -m noesis suite --run fs.list_dir --json",
+        "title": "List directory"
+      },
+      {
+        "args": [],
+        "command": "ns-read-file",
+        "dangerLevel": "normal",
+        "description": "Run ns-read-file through the read-only operator filesystem layer.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\fileSystem\\fs.read_file.json",
+        "group": "Operator FS",
+        "id": "fs.read_file",
+        "safeForMenu": false,
+        "suiteCommand": "python -m noesis suite --run fs.read_file --json",
+        "title": "Read file"
+      },
+      {
+        "args": [],
+        "command": "ns-search-text",
+        "dangerLevel": "normal",
+        "description": "Run ns-search-text through the read-only operator filesystem layer.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\fileSystem\\fs.search_text.json",
+        "group": "Operator FS",
+        "id": "fs.search_text",
+        "safeForMenu": false,
+        "suiteCommand": "python -m noesis suite --run fs.search_text --json",
+        "title": "Search text"
+      },
+      {
+        "args": [],
+        "command": "ns-file-stat",
+        "dangerLevel": "normal",
+        "description": "Run ns-file-stat through the read-only operator filesystem layer.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\fileSystem\\fs.stat.json",
+        "group": "Operator FS",
+        "id": "fs.stat",
+        "safeForMenu": false,
+        "suiteCommand": "python -m noesis suite --run fs.stat --json",
+        "title": "Stat files"
+      },
+      {
+        "args": [],
+        "command": "ns-tree",
+        "dangerLevel": "normal",
+        "description": "Run ns-tree through the read-only operator filesystem layer.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\fileSystem\\fs.tree.json",
+        "group": "Operator FS",
+        "id": "fs.tree",
+        "safeForMenu": false,
+        "suiteCommand": "python -m noesis suite --run fs.tree --json",
+        "title": "List tree"
+      },
+      {
+        "args": [
+          "dev"
+        ],
+        "command": "run-game",
+        "dangerLevel": "normal",
+        "description": "Synchronize dev plugins and run the game-ready-fps runtime demo.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\runtime\\run.game.dev.json",
+        "group": "Run",
+        "id": "runtime.run.game.dev",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run runtime.run.game.dev --json",
+        "title": "Run game/runtime demo / dev"
+      },
+      {
+        "args": [],
+        "command": "pack-source",
+        "dangerLevel": "normal",
+        "description": "Create a clean source archive using the canonical source packaging policy.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\source\\source.pack.json",
+        "group": "Source",
+        "id": "source.pack",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run source.pack --json",
+        "title": "Pack source snapshot"
+      },
+      {
+        "args": [],
+        "command": "clean-workspace",
+        "dangerLevel": "destructive",
+        "description": "Run the canonical workspace cleanup through the Python script plane.",
+        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\system\\workspace\\workspace.clean.full.json",
+        "group": "Workspace",
+        "id": "workspace.clean.full",
+        "safeForMenu": true,
+        "suiteCommand": "python -m noesis suite --run workspace.clean.full --json",
+        "title": "Clean workspace"
       },
       {
         "args": [
@@ -2355,42 +2653,6 @@
         "safeForMenu": true,
         "suiteCommand": "python -m noesis suite --run tools.validate --json",
         "title": "Validate ToolRegistry"
-      },
-      {
-        "args": [],
-        "command": "build-ui",
-        "dangerLevel": "normal",
-        "description": "Compile XML-first .neui.xml sources into NEF8 .neui runtime assets.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\ui\\ui.build.json",
-        "group": "UI",
-        "id": "ui.build",
-        "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run ui.build --json",
-        "title": "Build UI NEUI assets"
-      },
-      {
-        "args": [],
-        "command": "inspect-ui",
-        "dangerLevel": "normal",
-        "description": "Inspect first discovered .neui asset and print readable NEF8/XMLcentral diagnostics.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\ui\\ui.inspect.json",
-        "group": "UI",
-        "id": "ui.inspect",
-        "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run ui.inspect --json",
-        "title": "Inspect UI NEUI asset"
-      },
-      {
-        "args": [],
-        "command": "validate-ui",
-        "dangerLevel": "normal",
-        "description": "Validate .neui.xml authoring files and runtime .neui NEF8 assets.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\ui\\ui.validate.json",
-        "group": "UI",
-        "id": "ui.validate",
-        "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run ui.validate --json",
-        "title": "Validate UI NEUI assets"
       },
       {
         "args": [],
@@ -2535,18 +2797,6 @@
         "safeForMenu": false,
         "suiteCommand": "python -m noesis suite --run vendor.touch.file --json",
         "title": "Touch file"
-      },
-      {
-        "args": [],
-        "command": "clean-workspace",
-        "dangerLevel": "destructive",
-        "description": "Run the canonical workspace cleanup through the Python script plane.",
-        "descriptor": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\suite\\actions\\workspace\\workspace.clean.full.json",
-        "group": "Workspace",
-        "id": "workspace.clean.full",
-        "safeForMenu": true,
-        "suiteCommand": "python -m noesis suite --run workspace.clean.full --json",
-        "title": "Clean workspace"
       }
     ],
     "recommended": [
@@ -2555,6 +2805,18 @@
         "kind": "dashboard",
         "status": "ready",
         "title": "Refresh dashboard index"
+      },
+      {
+        "command": "python -m noesis bridge endpoint cluster-doctor --timeout 1.5 --json",
+        "kind": "cluster",
+        "status": "ready",
+        "title": "Run cluster doctor"
+      },
+      {
+        "command": "python -m noesis bridge endpoint binding --json",
+        "kind": "cluster",
+        "status": "ready",
+        "title": "Inspect cluster binding"
       },
       {
         "actionId": "noesis.dashboard.verify",
@@ -2593,12 +2855,14 @@
     },
     "summary": {
       "activeObserved": 2,
-      "availableActions": 75,
+      "availableActions": 88,
       "groups": {
         "Build": 3,
         "Diagnostics": 10,
         "Editor": 5,
+        "Environment": 4,
         "Importers": 2,
+        "Java": 9,
         "Metadata": 3,
         "Operator FS": 6,
         "Run": 1,
@@ -2611,38 +2875,41 @@
         "Workspace": 1,
         "npm": 12
       },
-      "recommended": 5,
+      "recommended": 7,
       "submissionMode": "suite-cli"
     }
   },
   "paths": {
     "baseRoots": {
       "configRoot": {
-        "base": "",
+        "base": "suiteRoot",
         "editable": true,
         "exists": true,
         "kind": "base",
         "name": "configRoot",
         "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\config\\noesis",
-        "relative": ""
+        "relative": "config/noesis",
+        "rowId": "configRoot"
       },
       "datasetRoot": {
         "base": "",
         "editable": true,
-        "exists": false,
+        "exists": true,
         "kind": "base",
         "name": "datasetRoot",
         "path": "C:\\Users\\HUAWEI\\AppData\\Local\\NoesisSuite\\dataSet",
-        "relative": ""
+        "relative": "",
+        "rowId": "datasetRoot"
       },
       "stateRoot": {
-        "base": "",
+        "base": "suiteRoot",
         "editable": true,
         "exists": true,
         "kind": "base",
         "name": "stateRoot",
-        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.takesome",
-        "relative": ""
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis",
+        "relative": ".noesis",
+        "rowId": "stateRoot"
       },
       "suiteRoot": {
         "base": "",
@@ -2651,16 +2918,18 @@
         "kind": "base",
         "name": "suiteRoot",
         "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
-        "relative": ""
+        "relative": "",
+        "rowId": "suiteRoot"
       },
       "toolsRoot": {
-        "base": "",
+        "base": "suiteRoot",
         "editable": true,
         "exists": true,
         "kind": "base",
         "name": "toolsRoot",
         "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools",
-        "relative": ""
+        "relative": "tools",
+        "rowId": "toolsRoot"
       },
       "workspaceRoot": {
         "base": "",
@@ -2668,24 +2937,23 @@
         "exists": true,
         "kind": "base",
         "name": "workspaceRoot",
-        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
-        "relative": ""
+        "path": "C:\\Users\\HUAWEI\\Documents\\Repos",
+        "relative": "",
+        "rowId": "workspaceRoot"
       }
     },
     "configSource": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\config\\noesis\\runtime.v1.json",
     "derived": {
       "dashboardRoot": {
         "base": "stateRoot",
-        "editable": false,
-        "exists": false,
+        "exists": true,
         "kind": "derived",
         "name": "dashboardRoot",
-        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.takesome\\dashboard",
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\dashboard",
         "relative": "dashboard"
       },
       "datasetArchivesRoot": {
         "base": "datasetRoot",
-        "editable": false,
         "exists": false,
         "kind": "derived",
         "name": "datasetArchivesRoot",
@@ -2694,7 +2962,6 @@
       },
       "datasetExtractedRoot": {
         "base": "datasetRoot",
-        "editable": false,
         "exists": false,
         "kind": "derived",
         "name": "datasetExtractedRoot",
@@ -2703,7 +2970,6 @@
       },
       "datasetIndexRoot": {
         "base": "datasetRoot",
-        "editable": false,
         "exists": false,
         "kind": "derived",
         "name": "datasetIndexRoot",
@@ -2712,25 +2978,22 @@
       },
       "indexRoot": {
         "base": "stateRoot",
-        "editable": false,
-        "exists": false,
+        "exists": true,
         "kind": "derived",
         "name": "indexRoot",
-        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.takesome\\index",
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\index",
         "relative": "index"
       },
       "runsRoot": {
         "base": "stateRoot",
-        "editable": false,
-        "exists": false,
+        "exists": true,
         "kind": "derived",
         "name": "runsRoot",
-        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.takesome\\runs",
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\runs",
         "relative": "runs"
       },
       "runtimeConfig": {
         "base": "configRoot",
-        "editable": false,
         "exists": true,
         "kind": "derived",
         "name": "runtimeConfig",
@@ -2739,7 +3002,6 @@
       },
       "suiteActionsRoot": {
         "base": "toolsRoot",
-        "editable": false,
         "exists": true,
         "kind": "derived",
         "name": "suiteActionsRoot",
@@ -2748,7 +3010,6 @@
       },
       "toolbeltRoot": {
         "base": "toolsRoot",
-        "editable": false,
         "exists": true,
         "kind": "derived",
         "name": "toolbeltRoot",
@@ -2759,157 +3020,64 @@
     "editModel": {
       "fields": [
         {
+          "base": "",
           "editable": false,
           "exists": true,
-          "group": "baseRoots",
+          "group": "pathRows",
           "key": "suiteRoot",
-          "kind": "path",
+          "kind": "pathRow",
           "label": "suiteRoot",
           "value": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite"
         },
         {
+          "base": "",
           "editable": true,
           "exists": true,
-          "group": "baseRoots",
+          "group": "pathRows",
           "key": "workspaceRoot",
-          "kind": "path",
+          "kind": "pathRow",
           "label": "workspaceRoot",
-          "value": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite"
+          "value": "C:\\Users\\HUAWEI\\Documents\\Repos"
         },
         {
+          "base": "suiteRoot",
           "editable": true,
           "exists": true,
-          "group": "baseRoots",
+          "group": "pathRows",
           "key": "stateRoot",
-          "kind": "path",
+          "kind": "pathRow",
           "label": "stateRoot",
-          "value": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.takesome"
+          "value": ".noesis"
         },
         {
+          "base": "",
           "editable": true,
-          "exists": false,
-          "group": "baseRoots",
+          "exists": true,
+          "group": "pathRows",
           "key": "datasetRoot",
-          "kind": "path",
+          "kind": "pathRow",
           "label": "datasetRoot",
           "value": "C:\\Users\\HUAWEI\\AppData\\Local\\NoesisSuite\\dataSet"
         },
         {
+          "base": "suiteRoot",
           "editable": true,
           "exists": true,
-          "group": "baseRoots",
+          "group": "pathRows",
           "key": "toolsRoot",
-          "kind": "path",
+          "kind": "pathRow",
           "label": "toolsRoot",
-          "value": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools"
+          "value": "tools"
         },
         {
+          "base": "suiteRoot",
           "editable": true,
           "exists": true,
-          "group": "baseRoots",
+          "group": "pathRows",
           "key": "configRoot",
-          "kind": "path",
+          "kind": "pathRow",
           "label": "configRoot",
-          "value": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\config\\noesis"
-        },
-        {
-          "base": "toolsRoot",
-          "editable": false,
-          "exists": true,
-          "expression": "${toolsRoot}/toolbelt",
-          "group": "derived",
-          "key": "toolbeltRoot",
-          "kind": "computedPath",
-          "label": "toolbeltRoot",
-          "value": "toolbelt"
-        },
-        {
-          "base": "toolsRoot",
-          "editable": false,
-          "exists": true,
-          "expression": "${toolsRoot}/suite/actions",
-          "group": "derived",
-          "key": "suiteActionsRoot",
-          "kind": "computedPath",
-          "label": "suiteActionsRoot",
-          "value": "suite/actions"
-        },
-        {
-          "base": "configRoot",
-          "editable": false,
-          "exists": true,
-          "expression": "${configRoot}/runtime.v1.json",
-          "group": "derived",
-          "key": "runtimeConfig",
-          "kind": "computedPath",
-          "label": "runtimeConfig",
-          "value": "runtime.v1.json"
-        },
-        {
-          "base": "stateRoot",
-          "editable": false,
-          "exists": false,
-          "expression": "${stateRoot}/dashboard",
-          "group": "derived",
-          "key": "dashboardRoot",
-          "kind": "computedPath",
-          "label": "dashboardRoot",
-          "value": "dashboard"
-        },
-        {
-          "base": "stateRoot",
-          "editable": false,
-          "exists": false,
-          "expression": "${stateRoot}/runs",
-          "group": "derived",
-          "key": "runsRoot",
-          "kind": "computedPath",
-          "label": "runsRoot",
-          "value": "runs"
-        },
-        {
-          "base": "stateRoot",
-          "editable": false,
-          "exists": false,
-          "expression": "${stateRoot}/index",
-          "group": "derived",
-          "key": "indexRoot",
-          "kind": "computedPath",
-          "label": "indexRoot",
-          "value": "index"
-        },
-        {
-          "base": "datasetRoot",
-          "editable": false,
-          "exists": false,
-          "expression": "${datasetRoot}/archives",
-          "group": "derived",
-          "key": "datasetArchivesRoot",
-          "kind": "computedPath",
-          "label": "datasetArchivesRoot",
-          "value": "archives"
-        },
-        {
-          "base": "datasetRoot",
-          "editable": false,
-          "exists": false,
-          "expression": "${datasetRoot}/extracted",
-          "group": "derived",
-          "key": "datasetExtractedRoot",
-          "kind": "computedPath",
-          "label": "datasetExtractedRoot",
-          "value": "extracted"
-        },
-        {
-          "base": "datasetRoot",
-          "editable": false,
-          "exists": false,
-          "expression": "${datasetRoot}/index",
-          "group": "derived",
-          "key": "datasetIndexRoot",
-          "kind": "computedPath",
-          "label": "datasetIndexRoot",
-          "value": "index"
+          "value": "config/noesis"
         }
       ],
       "schema": "noesis.ui.editModel.v1",
@@ -2924,26 +3092,25 @@
     ],
     "entries": {
       "configRoot": {
-        "base": "",
+        "base": "suiteRoot",
         "editable": true,
         "exists": true,
         "kind": "base",
         "name": "configRoot",
         "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\config\\noesis",
-        "relative": ""
+        "relative": "config/noesis",
+        "rowId": "configRoot"
       },
       "dashboardRoot": {
         "base": "stateRoot",
-        "editable": false,
-        "exists": false,
+        "exists": true,
         "kind": "derived",
         "name": "dashboardRoot",
-        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.takesome\\dashboard",
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\dashboard",
         "relative": "dashboard"
       },
       "datasetArchivesRoot": {
         "base": "datasetRoot",
-        "editable": false,
         "exists": false,
         "kind": "derived",
         "name": "datasetArchivesRoot",
@@ -2952,7 +3119,6 @@
       },
       "datasetExtractedRoot": {
         "base": "datasetRoot",
-        "editable": false,
         "exists": false,
         "kind": "derived",
         "name": "datasetExtractedRoot",
@@ -2961,7 +3127,6 @@
       },
       "datasetIndexRoot": {
         "base": "datasetRoot",
-        "editable": false,
         "exists": false,
         "kind": "derived",
         "name": "datasetIndexRoot",
@@ -2971,33 +3136,31 @@
       "datasetRoot": {
         "base": "",
         "editable": true,
-        "exists": false,
+        "exists": true,
         "kind": "base",
         "name": "datasetRoot",
         "path": "C:\\Users\\HUAWEI\\AppData\\Local\\NoesisSuite\\dataSet",
-        "relative": ""
+        "relative": "",
+        "rowId": "datasetRoot"
       },
       "indexRoot": {
         "base": "stateRoot",
-        "editable": false,
-        "exists": false,
+        "exists": true,
         "kind": "derived",
         "name": "indexRoot",
-        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.takesome\\index",
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\index",
         "relative": "index"
       },
       "runsRoot": {
         "base": "stateRoot",
-        "editable": false,
-        "exists": false,
+        "exists": true,
         "kind": "derived",
         "name": "runsRoot",
-        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.takesome\\runs",
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\runs",
         "relative": "runs"
       },
       "runtimeConfig": {
         "base": "configRoot",
-        "editable": false,
         "exists": true,
         "kind": "derived",
         "name": "runtimeConfig",
@@ -3005,17 +3168,17 @@
         "relative": "runtime.v1.json"
       },
       "stateRoot": {
-        "base": "",
+        "base": "suiteRoot",
         "editable": true,
         "exists": true,
         "kind": "base",
         "name": "stateRoot",
-        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.takesome",
-        "relative": ""
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis",
+        "relative": ".noesis",
+        "rowId": "stateRoot"
       },
       "suiteActionsRoot": {
         "base": "toolsRoot",
-        "editable": false,
         "exists": true,
         "kind": "derived",
         "name": "suiteActionsRoot",
@@ -3029,11 +3192,11 @@
         "kind": "base",
         "name": "suiteRoot",
         "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
-        "relative": ""
+        "relative": "",
+        "rowId": "suiteRoot"
       },
       "toolbeltRoot": {
         "base": "toolsRoot",
-        "editable": false,
         "exists": true,
         "kind": "derived",
         "name": "toolbeltRoot",
@@ -3041,13 +3204,14 @@
         "relative": "toolbelt"
       },
       "toolsRoot": {
-        "base": "",
+        "base": "suiteRoot",
         "editable": true,
         "exists": true,
         "kind": "base",
         "name": "toolsRoot",
         "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools",
-        "relative": ""
+        "relative": "tools",
+        "rowId": "toolsRoot"
       },
       "workspaceRoot": {
         "base": "",
@@ -3055,11 +3219,251 @@
         "exists": true,
         "kind": "base",
         "name": "workspaceRoot",
-        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
-        "relative": ""
+        "path": "C:\\Users\\HUAWEI\\Documents\\Repos",
+        "relative": "",
+        "rowId": "workspaceRoot"
       }
     },
-    "schema": "noesis.dashboard.paths.v2",
+    "rowRegistry": {
+      "canAdd": true,
+      "rows": [
+        {
+          "base": "",
+          "basedOnSuiteRoot": false,
+          "builtIn": true,
+          "configTarget": "",
+          "editable": false,
+          "exists": true,
+          "id": "suiteRoot",
+          "key": "suiteRoot",
+          "kind": "base",
+          "label": "suiteRoot",
+          "locked": true,
+          "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
+          "relative": "",
+          "removable": false,
+          "renameable": false,
+          "source": "core",
+          "value": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite"
+        },
+        {
+          "base": "",
+          "basedOnSuiteRoot": false,
+          "builtIn": true,
+          "configTarget": "workspace.root",
+          "editable": true,
+          "exists": true,
+          "id": "workspaceRoot",
+          "key": "workspaceRoot",
+          "kind": "base",
+          "label": "workspaceRoot",
+          "locked": false,
+          "path": "C:\\Users\\HUAWEI\\Documents\\Repos",
+          "relative": "",
+          "removable": true,
+          "renameable": true,
+          "source": "core",
+          "value": "C:\\Users\\HUAWEI\\Documents\\Repos"
+        },
+        {
+          "base": "suiteRoot",
+          "basedOnSuiteRoot": true,
+          "builtIn": true,
+          "configTarget": "workspace.stateRoot",
+          "editable": true,
+          "exists": true,
+          "id": "stateRoot",
+          "key": "stateRoot",
+          "kind": "base",
+          "label": "stateRoot",
+          "locked": false,
+          "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis",
+          "relative": ".noesis",
+          "removable": true,
+          "renameable": true,
+          "source": "core",
+          "value": ".noesis"
+        },
+        {
+          "base": "",
+          "basedOnSuiteRoot": false,
+          "builtIn": true,
+          "configTarget": "dataset.root",
+          "editable": true,
+          "exists": true,
+          "id": "datasetRoot",
+          "key": "datasetRoot",
+          "kind": "base",
+          "label": "datasetRoot",
+          "locked": false,
+          "path": "C:\\Users\\HUAWEI\\AppData\\Local\\NoesisSuite\\dataSet",
+          "relative": "",
+          "removable": true,
+          "renameable": true,
+          "source": "core",
+          "value": "C:\\Users\\HUAWEI\\AppData\\Local\\NoesisSuite\\dataSet"
+        },
+        {
+          "base": "suiteRoot",
+          "basedOnSuiteRoot": true,
+          "builtIn": true,
+          "configTarget": "tools.root",
+          "editable": true,
+          "exists": true,
+          "id": "toolsRoot",
+          "key": "toolsRoot",
+          "kind": "base",
+          "label": "toolsRoot",
+          "locked": false,
+          "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools",
+          "relative": "tools",
+          "removable": true,
+          "renameable": true,
+          "source": "core",
+          "value": "tools"
+        },
+        {
+          "base": "suiteRoot",
+          "basedOnSuiteRoot": true,
+          "builtIn": true,
+          "configTarget": "paths.configRoot",
+          "editable": true,
+          "exists": true,
+          "id": "configRoot",
+          "key": "configRoot",
+          "kind": "base",
+          "label": "configRoot",
+          "locked": false,
+          "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\config\\noesis",
+          "relative": "config/noesis",
+          "removable": true,
+          "renameable": true,
+          "source": "core",
+          "value": "config/noesis"
+        }
+      ],
+      "schema": "noesis.dashboard.pathRows.v1",
+      "suiteRootLocked": true
+    },
+    "rows": [
+      {
+        "base": "",
+        "basedOnSuiteRoot": false,
+        "builtIn": true,
+        "configTarget": "",
+        "editable": false,
+        "exists": true,
+        "id": "suiteRoot",
+        "key": "suiteRoot",
+        "kind": "base",
+        "label": "suiteRoot",
+        "locked": true,
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
+        "relative": "",
+        "removable": false,
+        "renameable": false,
+        "source": "core",
+        "value": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite"
+      },
+      {
+        "base": "",
+        "basedOnSuiteRoot": false,
+        "builtIn": true,
+        "configTarget": "workspace.root",
+        "editable": true,
+        "exists": true,
+        "id": "workspaceRoot",
+        "key": "workspaceRoot",
+        "kind": "base",
+        "label": "workspaceRoot",
+        "locked": false,
+        "path": "C:\\Users\\HUAWEI\\Documents\\Repos",
+        "relative": "",
+        "removable": true,
+        "renameable": true,
+        "source": "core",
+        "value": "C:\\Users\\HUAWEI\\Documents\\Repos"
+      },
+      {
+        "base": "suiteRoot",
+        "basedOnSuiteRoot": true,
+        "builtIn": true,
+        "configTarget": "workspace.stateRoot",
+        "editable": true,
+        "exists": true,
+        "id": "stateRoot",
+        "key": "stateRoot",
+        "kind": "base",
+        "label": "stateRoot",
+        "locked": false,
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis",
+        "relative": ".noesis",
+        "removable": true,
+        "renameable": true,
+        "source": "core",
+        "value": ".noesis"
+      },
+      {
+        "base": "",
+        "basedOnSuiteRoot": false,
+        "builtIn": true,
+        "configTarget": "dataset.root",
+        "editable": true,
+        "exists": true,
+        "id": "datasetRoot",
+        "key": "datasetRoot",
+        "kind": "base",
+        "label": "datasetRoot",
+        "locked": false,
+        "path": "C:\\Users\\HUAWEI\\AppData\\Local\\NoesisSuite\\dataSet",
+        "relative": "",
+        "removable": true,
+        "renameable": true,
+        "source": "core",
+        "value": "C:\\Users\\HUAWEI\\AppData\\Local\\NoesisSuite\\dataSet"
+      },
+      {
+        "base": "suiteRoot",
+        "basedOnSuiteRoot": true,
+        "builtIn": true,
+        "configTarget": "tools.root",
+        "editable": true,
+        "exists": true,
+        "id": "toolsRoot",
+        "key": "toolsRoot",
+        "kind": "base",
+        "label": "toolsRoot",
+        "locked": false,
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools",
+        "relative": "tools",
+        "removable": true,
+        "renameable": true,
+        "source": "core",
+        "value": "tools"
+      },
+      {
+        "base": "suiteRoot",
+        "basedOnSuiteRoot": true,
+        "builtIn": true,
+        "configTarget": "paths.configRoot",
+        "editable": true,
+        "exists": true,
+        "id": "configRoot",
+        "key": "configRoot",
+        "kind": "base",
+        "label": "configRoot",
+        "locked": false,
+        "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\config\\noesis",
+        "relative": "config/noesis",
+        "removable": true,
+        "renameable": true,
+        "source": "core",
+        "value": "config/noesis"
+      }
+    ],
+    "schema": "noesis.dashboard.paths.v3",
+    "suiteRootKey": "suiteRoot",
+    "suiteRootPath": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
     "toolDescriptorRoots": [
       "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools\\toolbelt",
       "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\tools"
@@ -3069,12 +3473,12 @@
   "publishing": {
     "artifacts": [
       {
-        "bytes": 335235,
+        "bytes": 354538,
         "kind": "runs-index-json",
         "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\index\\runs.json"
       },
       {
-        "bytes": 297570,
+        "bytes": 306517,
         "kind": "dashboard-html",
         "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\dashboard\\index.html"
       }
@@ -7218,6 +7622,114 @@
       "wholeRepositoryReady": false
     }
   ],
+  "repositories": {
+    "commands": {
+      "doctor": "python -m noesis env doctor --repo-dir <repo-dir> --json",
+      "refresh": "python -m noesis runs index",
+      "status": "python -m noesis env status --repo-dir <repo-dir> --json"
+    },
+    "counts": {
+      "draftChanges": 0,
+      "needsAttention": 1,
+      "ok": 0,
+      "repositories": 1
+    },
+    "current": null,
+    "diagnostics": [
+      "repository index not found from C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite"
+    ],
+    "draft": {
+      "mode": "browser-local-draft",
+      "note": "Add, edit and delete are staged locally in the dashboard until an explicit repository index write action is enabled.",
+      "storageKey": "noesis.dashboard.repositories.draft.v1",
+      "writable": false
+    },
+    "rows": [
+      {
+        "artifactsDir": "C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer\\workspace\\artifacts",
+        "commandCount": 7,
+        "commands": [
+          "build",
+          "doctor",
+          "runPlatformer",
+          "runTopDown",
+          "test",
+          "topDownClasses",
+          "topDownDist"
+        ],
+        "current": false,
+        "datasetDir": "C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer\\dataset",
+        "description": "NOESIS Java game workspace: platformer plus standalone top-down prototype",
+        "diagnostics": [
+          "missing path tmp_dir: C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer\\workspace\\tmp"
+        ],
+        "doctorCommand": "python -m noesis env status --repo-dir C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer --json",
+        "executionCwd": "C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer\\workspace",
+        "id": "java-platformer",
+        "indexFile": "C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer\\indexFile.v1.json",
+        "kind": "game",
+        "logsDir": "C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer\\workspace\\logs",
+        "name": "java-platformer",
+        "ok": false,
+        "openCommand": "cd C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer",
+        "optionalTools": 2,
+        "repoDir": "C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer",
+        "reposRoot": "C:\\Users\\HUAWEI\\Documents\\Repos",
+        "requiredTools": 3,
+        "schemaOk": true,
+        "status": "needs-attention",
+        "tags": [],
+        "tmpDir": "C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer\\workspace\\tmp",
+        "workdir": "C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer\\workspace"
+      }
+    ],
+    "schema": "noesis.dashboard.repositories.v1",
+    "source": {
+      "currentRoot": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
+      "env": "TAKESOME_REPOS_ROOT",
+      "indexFilename": "indexFile.v1.json",
+      "mode": "static-dashboard-draft-editor",
+      "reposRoot": "C:\\Users\\HUAWEI\\Documents\\Repos"
+    },
+    "template": {
+      "commands": {},
+      "operator": {
+        "read_roots": [
+          ".",
+          "dataset",
+          "workspace"
+        ],
+        "write_roots": [
+          "workspace",
+          "dataset"
+        ]
+      },
+      "paths": {
+        "artifacts_dir": "workspace/artifacts",
+        "dataset_dir": "dataset",
+        "logs_dir": "workspace/logs",
+        "tmp_dir": "workspace/tmp",
+        "workdir": "workspace"
+      },
+      "repository": {
+        "description": "Repository managed by SuiteLab.",
+        "kind": "library",
+        "name": "new-repository",
+        "tags": []
+      },
+      "schema": "takesome.repository_operator_index.v1",
+      "tools": {
+        "optional": [
+          {
+            "command": "git",
+            "id": "git",
+            "version_arg": "--version"
+          }
+        ],
+        "required": []
+      }
+    }
+  },
   "root": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite",
   "schema": "noesis.runs.index.v3",
   "title": "NOESIS Run Dashboard",
@@ -7227,11 +7739,14 @@
     "surface": "dashboard.runs"
   },
   "worker": {
+    "machineId": "suite-node-01",
     "nodeGroup": {
       "enabled": true,
       "id": "noesis-cluster",
-      "memberCount": 0,
+      "memberCount": 1,
       "members": [],
+      "mode": "single-machine",
+      "networkMode": "single-host-first",
       "role": "operator"
     },
     "role": "operator",

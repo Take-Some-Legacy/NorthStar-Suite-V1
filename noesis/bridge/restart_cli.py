@@ -102,6 +102,19 @@ def _command_line(pid: int) -> str:
     return ""
 
 
+def ensure_noesis_import_path(env: dict[str, str], tool_root: Path) -> None:
+    current = env.get("PYTHONPATH", "").strip()
+    tool_root_text = str(tool_root)
+    parts = [part for part in current.split(os.pathsep) if part] if current else []
+    if tool_root_text not in parts:
+        parts.insert(0, tool_root_text)
+    env["PYTHONPATH"] = os.pathsep.join(parts)
+    env.setdefault("NORTHSTAR_TOOL_ROOT", tool_root_text)
+    env.setdefault("NORTHSTAR_SUITE_TOOL_ROOT", tool_root_text)
+    env.setdefault("TAKESOME_TOOL_ROOT", tool_root_text)
+
+
+
 def _listeners(port: int) -> list[Listener]:
     result: list[Listener] = []
     for pid, local, state in _netstat_listeners(port):
@@ -136,6 +149,7 @@ def _kill_origin(port: int, dry_run: bool = False) -> Dict[str, Any]:
 
 def cmd_preflight(args: argparse.Namespace) -> int:
     root = Path(args.root).resolve()
+    tool_root = Path(os.environ.get("NORTHSTAR_TOOL_ROOT") or os.environ.get("NORTHSTAR_SUITE_TOOL_ROOT") or os.environ.get("TAKESOME_TOOL_ROOT") or Path.cwd()).resolve()
     env = os.environ.copy()
     env.update({
         "PYTHONUTF8": "1",
@@ -143,11 +157,12 @@ def cmd_preflight(args: argparse.Namespace) -> int:
         "NORTHSTAR_SUITE_STDIO_ENCODING": "utf-8",
         "NORTHSTAR_SUITE_STDIO_ERRORS": "replace",
     })
+    ensure_noesis_import_path(env, tool_root)
     cmd = [sys.executable, "-m", "noesis", "bridge", "--root", str(root), "--hello"]
     started = time.time()
     proc = subprocess.run(
         cmd,
-        cwd=str(root),
+        cwd=str(tool_root),
         env=env,
         text=True,
         encoding="utf-8",
