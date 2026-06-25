@@ -71,7 +71,7 @@
         },
         "repos_root": {
           "type": "string",
-          "default": "C:/Users/HUAWEI/Documents/Repos"
+          "default": "%USERPROFILE%/Documents/Repos"
         }
       },
       "additionalProperties": true

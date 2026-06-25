@@ -458,6 +458,209 @@ class SupervisorError(RuntimeError):
     pass
 
 
+def _startup_path_problem(path: Path) -> str:
+    """Return an empty string when path is an existing directory, otherwise a diagnostic."""
+    try:
+        if not path.exists():
+            return "path does not exist"
+        if not path.is_dir():
+            return "path exists but is not a directory"
+        return ""
+    except OSError as exc:
+        return f"{type(exc).__name__}: {exc}"
+
+
+def _replace_windows_user_segment(path: Path) -> Path | None:
+    """Suggest C:\\Users\\<current>\\... when config still points at another Windows user."""
+    profile = os.environ.get("USERPROFILE", "").strip()
+    if not profile:
+        return None
+    text = str(path).strip().strip('"')
+    match = re.match(r"^([A-Za-z]:[\\/])Users[\\/][^\\/]+(?:[\\/](.*))?$", text)
+    if not match:
+        return None
+    suffix = match.group(2) or ""
+    candidate = Path(profile)
+    if suffix:
+        candidate = candidate / suffix
+    return candidate.expanduser().resolve()
+
+
+def _first_existing_directory(candidates: Iterable[Path | None]) -> Path | None:
+    seen: set[str] = set()
+    for candidate in candidates:
+        if candidate is None:
+            continue
+        try:
+            resolved = candidate.expanduser().resolve()
+        except OSError:
+            continue
+        key = os.path.normcase(str(resolved))
+        if key in seen:
+            continue
+        seen.add(key)
+        if not _startup_path_problem(resolved):
+            return resolved
+    return None
+
+
+def _suggest_workspace_root(launch_root: Path, current: Path) -> Path:
+    profile = os.environ.get("USERPROFILE", "").strip()
+    candidates: list[Path | None] = [
+        _replace_windows_user_segment(current),
+        (Path(profile) / "Documents" / "Repos") if profile else None,
+        launch_root,
+    ]
+    existing = _first_existing_directory(candidates)
+    if existing is not None:
+        return existing
+    for candidate in candidates:
+        if candidate is not None:
+            return candidate.expanduser().resolve()
+    return launch_root.resolve()
+
+
+def _suggest_tool_root(launch_root: Path, current: Path) -> Path:
+    profile = os.environ.get("USERPROFILE", "").strip()
+    candidates: list[Path | None] = [
+        launch_root,
+        _replace_windows_user_segment(current),
+        (Path(profile) / "Documents" / "TakeSomeDevSuite") if profile else None,
+        (Path(profile) / "Documents" / "Take Some" / "NorthStar-Suite") if profile else None,
+    ]
+    existing = _first_existing_directory(candidates)
+    if existing is not None:
+        return existing
+    return launch_root.resolve()
+
+
+def _resolve_operator_path_input(raw: str, launch_root: Path, default: Path) -> Path:
+    value = raw.strip().strip('"')
+    if not value:
+        return default.expanduser().resolve()
+    if value.lower() in {"q", "quit", "exit", "cancel"}:
+        raise SupervisorError("startup cancelled by operator during path correction")
+    value = os.path.expandvars(value)
+    candidate = Path(value).expanduser()
+    if not candidate.is_absolute():
+        candidate = launch_root / candidate
+    return candidate.resolve()
+
+
+def _prompt_existing_directory(label: str, config_key: str, current: Path, default: Path, launch_root: Path) -> Path:
+    if not sys.stdin.isatty():
+        problem = _startup_path_problem(current) or "invalid path"
+        raise SupervisorError(
+            f"{config_key} is invalid ({problem}): {current}. "
+            "Run serverBridge.bat in an interactive console or fix config/noesis/runtime.v1.json."
+        )
+
+    while True:
+        problem = _startup_path_problem(current) or "invalid path"
+        emit("WARN", f"{label} path requires correction", configured=str(current), reason=problem)
+        print(f"[INPUT] Enter corrected {config_key} directory")
+        print(f"        Press Enter to accept suggested path: {default}")
+        print("        Type 'cancel' to abort startup.")
+        try:
+            candidate = _resolve_operator_path_input(input("> "), launch_root, default)
+        except EOFError as exc:
+            raise SupervisorError(f"no input available while correcting {config_key}") from exc
+        candidate_problem = _startup_path_problem(candidate)
+        if not candidate_problem:
+            emit("OK", f"{label} path accepted", path=str(candidate))
+            return candidate
+        emit("ERROR", f"{label} path is still invalid", path=str(candidate), reason=candidate_problem)
+        current = candidate
+
+
+def _config_path_value(path: Path, launch_root: Path) -> str:
+    resolved = path.expanduser().resolve()
+    try:
+        rel = resolved.relative_to(launch_root.expanduser().resolve())
+        text = rel.as_posix()
+        return text if text and text != "." else "."
+    except ValueError:
+        return str(resolved)
+
+
+def _persist_startup_path_corrections(config: dict[str, Any], launch_root: Path, root: Path, tool_root: Path) -> None:
+    raw_config_path = str(config.get("_config_path") or "").strip()
+    if not raw_config_path:
+        emit("WARN", "path correction not persisted", reason="workspace config path is unknown")
+        return
+    config_path = Path(raw_config_path).expanduser()
+    if not config_path.is_absolute():
+        config_path = (launch_root / config_path).resolve()
+    if not config_path.exists():
+        emit("WARN", "path correction not persisted", reason="workspace config file is missing", config=str(config_path))
+        return
+
+    data = read_json(config_path)
+    if not data:
+        emit("WARN", "path correction not persisted", reason="workspace config is not a JSON object", config=str(config_path))
+        return
+
+    workspace = data.setdefault("workspace", {})
+    if not isinstance(workspace, dict):
+        workspace = {}
+        data["workspace"] = workspace
+
+    new_root = _config_path_value(root, launch_root)
+    new_tool_root = _config_path_value(tool_root, launch_root)
+    if workspace.get("root") == new_root and workspace.get("tool_root") == new_tool_root:
+        return
+
+    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    backup = config_path.with_name(config_path.name + f".before-path-correction-{stamp}.bak")
+    try:
+        shutil.copy2(config_path, backup)
+        workspace["root"] = new_root
+        workspace["tool_root"] = new_tool_root
+        tmp = config_path.with_suffix(config_path.suffix + ".tmp")
+        tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        tmp.replace(config_path)
+        emit("OK", "path correction saved", config=str(config_path), backup=str(backup))
+    except OSError as exc:
+        emit("WARN", "path correction not persisted", reason=f"{type(exc).__name__}: {exc}", config=str(config_path))
+
+
+def ensure_startup_paths_interactive(
+    launch_root: Path,
+    config: dict[str, Any],
+    root: Path,
+    tool_root: Path,
+) -> tuple[Path, Path]:
+    """Validate startup roots before subprocess cwd/preflight can throw low-level errors."""
+    root = root.expanduser().resolve()
+    tool_root = tool_root.expanduser().resolve()
+    corrected = False
+
+    if _startup_path_problem(root):
+        root = _prompt_existing_directory(
+            "Workspace",
+            "workspace.root",
+            root,
+            _suggest_workspace_root(launch_root, root),
+            launch_root,
+        )
+        corrected = True
+
+    if _startup_path_problem(tool_root):
+        tool_root = _prompt_existing_directory(
+            "Tool root",
+            "workspace.tool_root",
+            tool_root,
+            _suggest_tool_root(launch_root, tool_root),
+            launch_root,
+        )
+        corrected = True
+
+    if corrected:
+        _persist_startup_path_corrections(config, launch_root, root, tool_root)
+
+    return root.resolve(), tool_root.resolve()
+
+
 def _env_truthy(name: str) -> bool:
     return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "y", "on", "force", "sudo"}
 
@@ -1662,18 +1865,29 @@ def main(argv: list[str]) -> int:
     parser.add_argument("-sudo", action="store_true", help="Run operator sudo mode for Suite-owned confirmations and skip interactive tunnel setup prompts.")
     args = parser.parse_args(argv)
 
-    launch_root = Path.cwd().resolve()
-    workspace_config = load_workspace_config(launch_root, args.workspace_config)
-    if workspace_config.get("_config_path"):
-        os.environ["NORTHSTAR_SUITE_WORKSPACE_CONFIG"] = str(workspace_config["_config_path"])
-    root = resolve_workspace_root(launch_root, args.root, workspace_config)
-    tool_root = resolve_tool_root(launch_root, workspace_config)
-    apply_workspace_environment(root, workspace_config, tool_root)
-    selection_mode = os.environ.get("NORTHSTAR_CONSOLE_SELECTION_MODE", "allow")
-    _configure_windows_console_selection(selection_mode)
-    emit("INFO", "Console selection policy applied", mode=selection_mode)
-    routes = load_mcp_route_profile(tool_root)
-    os.environ.setdefault("NORTHSTAR_MCP_ENDPOINT_PATH", routes.endpoint)
+    try:
+        launch_root = Path.cwd().resolve()
+        workspace_config = load_workspace_config(launch_root, args.workspace_config)
+        if workspace_config.get("_config_path"):
+            os.environ["NORTHSTAR_SUITE_WORKSPACE_CONFIG"] = str(workspace_config["_config_path"])
+        root = resolve_workspace_root(launch_root, args.root, workspace_config)
+        tool_root = resolve_tool_root(launch_root, workspace_config)
+        root, tool_root = ensure_startup_paths_interactive(launch_root, workspace_config, root, tool_root)
+        apply_workspace_environment(root, workspace_config, tool_root)
+        selection_mode = os.environ.get("NORTHSTAR_CONSOLE_SELECTION_MODE", "allow")
+        _configure_windows_console_selection(selection_mode)
+        emit("INFO", "Console selection policy applied", mode=selection_mode)
+        routes = load_mcp_route_profile(tool_root)
+        os.environ.setdefault("NORTHSTAR_MCP_ENDPOINT_PATH", routes.endpoint)
+    except KeyboardInterrupt:
+        emit("INFO", "stopping serverBridge during startup path correction")
+        return 130
+    except SupervisorError as exc:
+        emit("ERROR", str(exc))
+        return 1
+    except Exception as exc:
+        emit("ERROR", f"unexpected supervisor startup error: {type(exc).__name__}: {exc}")
+        return 1
     if False:
         pass
         os.environ["NORTHSTAR_SUITE_SUDO_REASON"] = "serverBridge"

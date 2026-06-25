@@ -1,12 +1,21 @@
-@echo off
-setlocal EnableExtensions
-set "TEST_DIR=%~dp0"
-for %%I in ("%TEST_DIR%..") do set "TOOL_ROOT=%%~fI"
-set "TEST_DATA=%TOOL_ROOT%\testData"
-set "OUT_DIR=%TEST_DIR%_out"
-set "LOG=%OUT_DIR%\last-run.txt"
-if exist "%OUT_DIR%" rmdir /s /q "%OUT_DIR%" >nul 2>nul
-mkdir "%OUT_DIR%" >nul 2>nul
+@echo off
+
+setlocal EnableExtensions
+
+set "TEST_DIR=%~dp0"
+
+for %%I in ("%TEST_DIR%..") do set "TOOL_ROOT=%%~fI"
+
+set "TEST_DATA=%TOOL_ROOT%\testData"
+
+set "OUT_DIR=%TEST_DIR%_out"
+
+set "LOG=%OUT_DIR%\last-run.txt"
+
+if exist "%OUT_DIR%" rmdir /s /q "%OUT_DIR%" >nul 2>nul
+
+mkdir "%OUT_DIR%" >nul 2>nul
+
 set "TOOL_ID=northstar.neui_packer"
 set "EXE=%TOOL_ROOT%\bin\northstar-neui-packer.exe"
 set "SRC=%TEST_DATA%\buttons.neui.xml"

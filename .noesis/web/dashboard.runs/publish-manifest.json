@@ -1,17 +1,17 @@
 {
   "artifacts": [
     {
-      "bytes": 354538,
+      "bytes": 340628,
       "kind": "runs-index-json",
-      "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\index\\runs.json"
+      "path": "C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Suite\\.noesis\\index\\runs.json"
     },
     {
-      "bytes": 306517,
+      "bytes": 296845,
       "kind": "dashboard-html",
-      "path": "C:\\Users\\HUAWEI\\Documents\\TakeSomeDevSuite\\.noesis\\dashboard\\index.html"
+      "path": "C:\\Users\\Aiden\\Documents\\Take Some\\NorthStar-Suite\\.noesis\\dashboard\\index.html"
     }
   ],
-  "generatedUtc": "2026-06-18T14:40:53Z",
+  "generatedUtc": "2026-06-25T04:24:28Z",
   "schema": "noesis.web.publish_manifest.v1",
   "surface": "dashboard.runs"
 }

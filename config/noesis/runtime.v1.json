@@ -1,100 +1,55 @@
 {
-  "schema": "noesis.runtime.v1",
-  "workspace": {
-    "root": "C:/Users/HUAWEI/Documents/Repos",
-    "tool_root": "C:/Users/HUAWEI/Documents/TakeSomeDevSuite",
-    "kind": "repositories",
-    "stateRoot": ".noesis"
+  "dataset": {
+    "root": "C:\\Users\\Aiden\\AppData\\Local\\NoesisSuite\\dataSet"
   },
-  "bridge": {
-    "host": "127.0.0.1",
-    "port": 8797,
-    "endpoint": "/mcp-v2",
-    "routes": {
-      "profile": "mcp-v2"
-    },
-    "public_origin": "https://suite.kaylas-systems.ru",
-    "public_endpoint": "https://suite.kaylas-systems.ru/mcp-v2",
-    "local_origin": "http://127.0.0.1:8797"
-  },
-  "security": {
-    "writeEnabled": true,
-    "sudoEnabled": false,
-    "policy": "config-driven"
-  },
-  "cluster": {
-    "enabled": true,
-    "cluster_id": "noesis-cluster",
-    "machine_id": "suite-node-01",
-    "role": "operator",
-    "network_mode": "single-host-first",
-    "peers": []
-  },
-  "services": {
-    "discovery": {
-      "enabled": true,
-      "roots": [
-        "noesis.services",
-        "noesis.bridge",
-        "noesis.suite"
-      ]
-    }
+  "paths": {
+    "configRoot": "config/noesis",
+    "rows": [
+      {
+        "id": "workspaceRoot",
+        "label": "workspaceRoot",
+        "path": "C:\\Users\\Aiden\\Documents\\Repos",
+        "source": "core",
+        "target": "workspace.root"
+      },
+      {
+        "base": "suiteRoot",
+        "id": "stateRoot",
+        "label": "stateRoot",
+        "relative": ".noesis",
+        "source": "core",
+        "target": "workspace.stateRoot"
+      },
+      {
+        "id": "datasetRoot",
+        "label": "datasetRoot",
+        "path": "C:\\Users\\Aiden\\AppData\\Local\\NoesisSuite\\dataSet",
+        "source": "core",
+        "target": "dataset.root"
+      },
+      {
+        "base": "suiteRoot",
+        "id": "toolsRoot",
+        "label": "toolsRoot",
+        "relative": "tools",
+        "source": "core",
+        "target": "tools.root"
+      },
+      {
+        "base": "suiteRoot",
+        "id": "configRoot",
+        "label": "configRoot",
+        "relative": "config/noesis",
+        "source": "core",
+        "target": "paths.configRoot"
+      }
+    ]
   },
   "tools": {
-    "discovery": {
-      "enabled": true,
-      "descriptorRoots": [
-        "tools/toolbelt",
-        "tools"
-      ]
-    }
+    "root": "tools"
   },
-  "oauth": {
-    "public_origin": "https://suite.kaylas-systems.ru",
-    "authorize_path": "/oauth/authorize",
-    "callback_path": "/oauth/callback",
-    "requires_canonical_public_origin": true
-  },
-  "cloudflare": {
-    "mode": "cloudflare_named_tunnel",
-    "route_mode": "named",
-    "protocol": "quic",
-    "fallback_protocols": [
-      "auto",
-      "http2"
-    ],
-    "quick_protocol": "auto",
-    "quick_fallback_protocols": [
-      "auto",
-      "http2"
-    ],
-    "quick_tunnel_fallback": false,
-    "require_named_tunnel": true,
-    "named_tunnel": {
-      "tunnel_name": "northstar-suite-huawei",
-      "tunnel_id": "18100838-185e-4edd-b1db-e1a28974c09d",
-      "hostname": "suite.kaylas-systems.ru",
-      "public_origin": "https://suite.kaylas-systems.ru",
-      "public_endpoint": "https://suite.kaylas-systems.ru/mcp-v2",
-      "local_origin": "http://127.0.0.1:8797",
-      "credentials_file": "~/.cloudflared/18100838-185e-4edd-b1db-e1a28974c09d.json",
-      "origin_cert": "~/.cloudflared/cert.pem",
-      "dns_expected_target": "18100838-185e-4edd-b1db-e1a28974c09d.cfargotunnel.com",
-      "require_named_tunnel": true,
-      "quick_tunnel_fallback": false
-    }
-  },
-  "useDashboard": true,
-  "dashboard": {
-    "enabled": true,
-    "useDashboard": true,
-    "host": "127.0.0.1",
-    "port": 8798,
-    "openOnStart": false,
-    "surface": "dashboard.runs",
-    "path": "/dashboard",
-    "dataPath": "/dashboard/data.json",
-    "staticPath": "/dashboard/static",
-    "source": "config/noesis/runtime.v1.json"
+  "workspace": {
+    "root": "C:\\Users\\Aiden\\Documents\\Repos",
+    "stateRoot": ".noesis"
   }
 }

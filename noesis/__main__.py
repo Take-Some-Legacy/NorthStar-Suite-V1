@@ -44,7 +44,7 @@ def main(argv: list[str] | None = None) -> int:
         for service_id, spec in sorted(SERVICE_REGISTRY.items()):
             print(f"  {service_id:18} {spec.description}")
         print("Suite commands may also be called directly, e.g.:")
-        print("  python -m noesis env-doctor --repo-dir C:\\Users\\HUAWEI\\Documents\\Repos\\java-platformer")
+        print("  python -m noesis env-doctor --repo-dir %USERPROFILE%\\Documents\\Repos\\java-platformer")
         print("  python -m noesis noesis-test-dev-repo verify --scope noesis-core")
         return 0
 

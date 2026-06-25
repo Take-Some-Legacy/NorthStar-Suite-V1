@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,7 +11,7 @@ from .paths import rel
 
 REPOSITORY_INDEX_SCHEMA = "takesome.repository_operator_index.v1"
 REPOSITORY_INDEX_FILENAME = "indexFile.v1.json"
-DEFAULT_WINDOWS_REPOS_ROOT = Path(r"C:\Users\HUAWEI\Documents\Repos")
+DEFAULT_WINDOWS_REPOS_ROOT = Path(os.environ.get("USERPROFILE", str(Path.home()))) / "Documents" / "Repos"
 
 
 @dataclass(frozen=True)
