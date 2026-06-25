@@ -330,7 +330,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 )
                 self._send(doctor, request_id=request_id, started=started, trace={"cluster_result": doctor.get("result"), "request_count": (doctor.get("summary") or {}).get("request_count")})
             elif is_discovery_path(path, ctx.mcp_routes):
-                payload = discovery_payload(tools, ctx.mcp_routes)
+                payload = discovery_payload(tools, ctx.mcp_routes, ctx)
                 payload["serverInfo"] = server_info(ctx)
                 payload["_meta"] = {
                     "title": payload["serverInfo"].get("title"),
@@ -338,6 +338,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     "description": payload["serverInfo"].get("description"),
                     "product": payload["serverInfo"].get("product"),
                     "vendor": payload["serverInfo"].get("vendor"),
+                    "agentContext": payload.get("agentContext"),
                 }
                 accept = self.headers.get("Accept", "")
                 if "text/event-stream" in accept:

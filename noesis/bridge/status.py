@@ -63,6 +63,13 @@ def status(ctx: BridgeContext, args: Dict[str, Any] | None = None) -> Dict[str, 
         ]
     }
     ds = _dataset_summary(dataset.status(ctx, {}))
+    dataset_dirs = ds.get("directories") if isinstance(ds.get("directories"), dict) else {}
+    workspace_root = str(ctx.root)
+    suite_root = str(ctx.operator_root)
+    tools_root = str(ctx.operator_root / "tools")
+    runtime_root = str(ctx.suite_root)
+    dataset_root = str(ds.get("dataSetDirectory") or dataset_dirs.get("root") or "")
+    access_level = "sudo_write" if getattr(ctx, "sudo", False) else ("read_write" if ctx.write_enabled else "read_only")
     warnings = []
     if int(ds.get("archive_count") or 0) > 0:
         warnings.append("dataset archives still present; run diag.dataset.lifecycle or northstar.dataset_materialize_archives")
@@ -76,11 +83,30 @@ def status(ctx: BridgeContext, args: Dict[str, Any] | None = None) -> Dict[str, 
             "layout": "canonical-noesis-package",
         },
         "workspace": {
-            "root": str(ctx.root),
-            "tool_root": str(ctx.operator_root),
+            "root": workspace_root,
+            "workspaceRoot": workspace_root,
+            "kind": "projects_repository",
+            "containsMultipleProjects": True,
+            "projectSelectionRequired": True,
+            "activeProjectRoot": None,
+            "suiteRoot": suite_root,
+            "toolsRoot": tools_root,
+            "datasetRoot": dataset_root,
+            "runtimeRoot": runtime_root,
+            "tool_root": suite_root,
             "python_cmd": ctx.python_cmd,
             "platform": platform.platform(),
             "markers": markers,
+        },
+        "access": {
+            "schema": "northstar.bridge.access.v1",
+            "level": access_level,
+            "write_enabled": ctx.write_enabled,
+            "sudo": bool(getattr(ctx, "sudo", False)),
+            "write_boundary": "selectedProjectRootWithinWorkspaceRoot",
+            "toolsRoot_policy": "read_execute_default_change_only_when_explicitly_required",
+            "datasetRoot_policy": "reference_orientation_data_not_project_workspace",
+            "projectSelection_policy": "resolve_activeProjectRoot_before_project_scoped_work",
         },
         "host_binding": ctx.host_binding.as_dict() if ctx.host_binding else None,
         "cluster": cluster_summary(ctx.host_binding),

@@ -17,6 +17,147 @@ DEFAULT_PUBLIC_SUITE_TIMEOUT_SEC = 120
 MAX_PUBLIC_SUITE_TIMEOUT_SEC = 600
 PUBLIC_CONTENT_STREAM_PREVIEW_BYTES = 4 * 1024
 
+
+def _path_text(value: Any) -> str:
+    try:
+        return str(value.resolve())
+    except Exception:
+        return str(value)
+
+
+def _dataset_root_for_agent(ctx: BridgeContext) -> str:
+    try:
+        from . import dataset as dataset_module
+        summary = dataset_module.status(ctx, {})
+        if isinstance(summary, dict):
+            directories = summary.get("directories") if isinstance(summary.get("directories"), dict) else {}
+            value = summary.get("dataSetDirectory") or directories.get("root")
+            if value:
+                return str(value)
+    except Exception:
+        pass
+    try:
+        return _path_text(ctx.suite_root / "dataSet")
+    except Exception:
+        return ""
+
+
+def _agent_workspace(ctx: BridgeContext) -> Dict[str, Any]:
+    return {
+        "schema": "northstar.bridge.workspace.v1",
+        "workspaceRoot": _path_text(ctx.root.resolve()),
+        "kind": "projects_repository",
+        "containsMultipleProjects": True,
+        "projectSelectionRequired": True,
+        "activeProjectRoot": None,
+        "selectionPolicy": {
+            "beforeProjectScopedWork": "Resolve activeProjectRoot from the user request, a trusted prior active project context, or ask which project to use.",
+            "doNotAssumeWorkspaceRootIsProjectRoot": True,
+            "safeDiscovery": "List top-level directories under workspaceRoot to propose project candidates when the user did not specify a project.",
+        },
+    }
+
+
+def _agent_paths(ctx: BridgeContext) -> Dict[str, Any]:
+    suite_root = ctx.operator_root.resolve()
+    workspace_root = ctx.root.resolve()
+    tools_root = suite_root / "tools"
+    runtime_root = ctx.suite_root.resolve()
+    dataset_root = _dataset_root_for_agent(ctx)
+    return {
+        "schema": "northstar.bridge.agent_paths.v1",
+        "suiteRoot": _path_text(suite_root),
+        "workspaceRoot": _path_text(workspace_root),
+        "activeProjectRoot": None,
+        "toolsRoot": _path_text(tools_root),
+        "datasetRoot": dataset_root,
+        "runtimeRoot": _path_text(runtime_root),
+        "semantics": {
+            "suiteRoot": "Installed NOESIS/NorthStar Suite source and control plane root.",
+            "workspaceRoot": "Projects repository/container. It contains multiple projects and is not itself the active project.",
+            "activeProjectRoot": "Concrete selected project root for the current task. Resolve it before project-scoped edits, builds, tests or runs.",
+            "toolsRoot": "Suite toolbelt root. Read/execute by default; change only for explicit toolchain maintenance.",
+            "datasetRoot": "Reference/orientation data for agent work. Use for context; do not treat as project workspace.",
+            "runtimeRoot": "Machine-local Suite state, logs and endpoint reports.",
+        },
+    }
+
+
+def _agent_access(ctx: BridgeContext) -> Dict[str, Any]:
+    write_enabled = bool(getattr(ctx, "write_enabled", False))
+    sudo = bool(getattr(ctx, "sudo", False))
+    level = "sudo_write" if sudo else ("read_write" if write_enabled else "read_only")
+    return {
+        "schema": "northstar.bridge.agent_access.v1",
+        "level": level,
+        "writeEnabled": write_enabled,
+        "sudo": sudo,
+        "writeBoundary": "selectedProjectRootWithinWorkspaceRoot",
+        "policies": {
+            "workspaceRoot": "Container of projects. Do not perform broad edits, builds or tests at workspaceRoot unless the task explicitly targets workspace-level infrastructure.",
+            "activeProjectRoot": "Primary writable project area after project selection. Required for normal code edits, builds, tests and runs.",
+            "projectSelection": "If the user request does not name a project and no trusted activeProjectRoot exists, ask which project to use.",
+            "suiteRoot": "Suite source/control-plane area; change only with explicit operator intent.",
+            "toolsRoot": "Read/execute by default; change only when the task is toolchain maintenance.",
+            "datasetRoot": "Reference/orientation data; avoid changes unless the task updates the dataset or index.",
+            "pathPolicy": "File mutations remain bounded by the bridge path policy.",
+        },
+    }
+
+
+def _available_tool_context(tools: Dict[str, ToolSpec]) -> Dict[str, Any]:
+    descriptors = public_tool_descriptors(tools)
+    rows: list[Dict[str, Any]] = []
+    for desc in descriptors:
+        annotations = desc.get("annotations") if isinstance(desc.get("annotations"), dict) else {}
+        meta = desc.get("_meta") if isinstance(desc.get("_meta"), dict) else {}
+        rows.append({
+            "name": desc.get("name"),
+            "title": desc.get("title"),
+            "riskTier": meta.get("northstar/riskTier"),
+            "readOnly": annotations.get("readOnlyHint"),
+            "destructive": annotations.get("destructiveHint"),
+        })
+    return {
+        "schema": "northstar.bridge.available_tools.v1",
+        "count": len(rows),
+        "listMethod": "tools/list",
+        "callMethod": "tools/call",
+        "tools": rows,
+    }
+
+
+def _agent_context(ctx: BridgeContext, tools: Dict[str, ToolSpec] | None = None) -> Dict[str, Any]:
+    context: Dict[str, Any] = {
+        "schema": "northstar.bridge.agent_context.v1",
+        "kind": "software_authoring_bridge",
+        "purpose": "Bridge for inspecting, writing, validating and maintaining software projects through bounded Suite tools.",
+        "workspace": _agent_workspace(ctx),
+        "paths": _agent_paths(ctx),
+        "access": _agent_access(ctx),
+    }
+    if tools is not None:
+        context["availableTools"] = _available_tool_context(tools)
+    return context
+
+
+def _agent_instructions(ctx: BridgeContext, tools: Dict[str, ToolSpec]) -> str:
+    paths = _agent_paths(ctx)
+    access = _agent_access(ctx)
+    available = _available_tool_context(tools)
+    return (
+        "NOESIS Suite Operator Bridge. This is a bounded bridge for writing and maintaining software. "
+        f"suiteRoot={paths['suiteRoot']} is the installed Suite/control-plane root. "
+        f"workspaceRoot={paths['workspaceRoot']} is a projects repository containing multiple projects, not a single project root. "
+        "Before project-scoped work, resolve activeProjectRoot from the user's request, a trusted prior active project context, or ask which project to use. "
+        f"toolsRoot={paths['toolsRoot']} contains Suite tools; prefer read/execute and change only when explicitly required. "
+        f"datasetRoot={paths['datasetRoot']} contains reference/orientation data for agent work. "
+        f"runtimeRoot={paths['runtimeRoot']} contains machine-local Suite state and logs. "
+        f"Access level is {access['level']} (writeEnabled={access['writeEnabled']}, sudo={access['sudo']}). "
+        "File mutations remain bounded by bridge path policy. "
+        f"{available['count']} public MCP tools are available; use tools/list for descriptors and tools/call for execution."
+    )
+
 def rpc_result(request_id: Any, result: Any) -> Dict[str, Any]:
     return {"jsonrpc": "2.0", "id": request_id, "result": result}
 def rpc_error(request_id: Any, code: int, message: str, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -38,10 +179,17 @@ def server_info(ctx: BridgeContext | None = None) -> Dict[str, Any]:
     info["serverTitle"] = info["title"]
     info["displayTitle"] = info["title"]
     info["canonicalTitle"] = info["title"]
+    if ctx is not None:
+        agent_context = _agent_context(ctx)
+        info["agentContext"] = agent_context
+        info["workspace"] = agent_context["workspace"]
+        info["paths"] = agent_context["paths"]
+        info["access"] = agent_context["access"]
     return info
 
-def discovery_payload(tools: Dict[str, ToolSpec], routes: McpRouteProfile = DEFAULT_MCP_ROUTES) -> Dict[str, Any]:
-    info = server_info()
+def discovery_payload(tools: Dict[str, ToolSpec], routes: McpRouteProfile = DEFAULT_MCP_ROUTES, ctx: BridgeContext | None = None) -> Dict[str, Any]:
+    info = server_info(ctx)
+    agent_context = _agent_context(ctx, tools) if ctx is not None else {"availableTools": _available_tool_context(tools)}
     return {
         "ok": True,
         "name": info["name"],
@@ -51,6 +199,11 @@ def discovery_payload(tools: Dict[str, ToolSpec], routes: McpRouteProfile = DEFA
         "releaseName": info["releaseName"],
         "releaseNotes": info["releaseNotes"],
         "serverInfo": info,
+        "agentContext": agent_context,
+        "workspace": agent_context.get("workspace", {}),
+        "paths": agent_context.get("paths", {}),
+        "access": agent_context.get("access", {}),
+        "availableTools": agent_context.get("availableTools", {}),
         "_meta": {
             "title": info["title"],
             "server/title": info["title"],
@@ -304,27 +457,30 @@ def handle_rpc(ctx: BridgeContext, tools: Dict[str, ToolSpec], request: Dict[str
     try:
         if method == "initialize":
             info = server_info(ctx)
+            agent_context = _agent_context(ctx, tools)
             return rpc_result(request_id, {
                 "protocolVersion": PROTOCOL_VERSION,
                 "serverInfo": info,
                 "title": info["title"],
+                "agentContext": agent_context,
+                "workspace": agent_context["workspace"],
+                "paths": agent_context["paths"],
+                "access": agent_context["access"],
+                "availableTools": agent_context["availableTools"],
                 "_meta": {
                     "title": info["title"],
                     "server/title": info["title"],
                     "description": info["description"],
                     "product": info["product"],
                     "vendor": info["vendor"],
+                    "agentContext": agent_context,
                 },
                 "capabilities": {
                     "tools": {"listChanged": False},
                     "resources": {"subscribe": False, "listChanged": False},
                     "prompts": {"listChanged": False},
                 },
-                "instructions": (
-                    "NOESIS Suite Operator Bridge. Canonical SuiteLab MCP/OAuth control plane. "
-                    "Use tools/list and tools/call for bounded Suite operations. "
-                    "Write/delete execution requires configured bridge write mode and remains bounded to the repository root."
-                ),
+                "instructions": _agent_instructions(ctx, tools),
             })
         if method == "notifications/initialized":
             return None
