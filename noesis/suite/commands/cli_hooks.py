@@ -19,6 +19,21 @@ from ..deepseek_smoke import run_deepseek_smoke
 class _LogLike(Protocol):
     def emit(self, message: str) -> None: ...
 
+_FALSE_ENV_VALUES = {"0", "false", "no", "off"}
+
+
+def _suite_intelligence_enabled() -> bool:
+    return os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_ENABLED", "0").strip().lower() not in _FALSE_ENV_VALUES
+
+
+def _suite_intelligence_disabled_result(command: str, log: _LogLike | None) -> int:
+    message = f"{command} skipped: Suite Intelligence is disabled by NORTHSTAR_SUITE_INTELLIGENCE_ENABLED."
+    if log is not None:
+        log.emit(message)
+    else:
+        print(f"[INFO] {message}")
+    return 0
+
 
 def try_handle_registry_command(argv: Sequence[str], repo_root: Path, log: _LogLike | None = None, parsed_args: SimpleNamespace | None = None) -> int | None:
     """Small integration hook for the existing `takesome.py` CLI.
@@ -44,6 +59,8 @@ def try_handle_registry_command(argv: Sequence[str], repo_root: Path, log: _LogL
     if command == "suite-bridge-menu-generate":
         return run_suite_bridge_menu_generate(repo_root, log=log)
     if command == "suite-intelligence":
+        if not _suite_intelligence_enabled():
+            return _suite_intelligence_disabled_result(command, log)
         args = SimpleNamespace(
             goal=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_GOAL", ""),
             output=os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_OUTPUT", ""),
@@ -55,8 +72,12 @@ def try_handle_registry_command(argv: Sequence[str], repo_root: Path, log: _LogL
         )
         return suite_intelligence_command(repo_root, args)
     if command == "suite-intelligence-loop":
+        if not _suite_intelligence_enabled():
+            return _suite_intelligence_disabled_result(command, log)
         return suite_intelligence_loop_command(repo_root, loop_args_from_env(parsed_args=parsed_args))
     if command == "suite-intelligence-loop-check":
+        if not _suite_intelligence_enabled():
+            return _suite_intelligence_disabled_result(command, log)
         base = parsed_args or SimpleNamespace()
         setattr(base, "cycles", 1)
         return suite_intelligence_loop_command(repo_root, loop_args_from_env(cycles=1, parsed_args=base))

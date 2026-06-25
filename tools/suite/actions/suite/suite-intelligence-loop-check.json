@@ -2,7 +2,7 @@
   "action_id": "suite-intelligence-loop-check",
   "group": "Suite Intelligence",
   "title": "Run Noesis workloop check (CLI alias)",
-  "description": "CLI-compatible alias for suite.intelligence.loop.check. Runs one Noesis intelligence loop check cycle and writes operator/request state without executing dangerous actions.",
+  "description": "CLI-compatible alias for suite.intelligence.loop.check. Runs one Noesis intelligence loop check cycle and writes operator/request state without executing dangerous actions. Disabled by default; set NORTHSTAR_SUITE_INTELLIGENCE_ENABLED=1 and NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART=1 to opt in.",
   "command": "suite-intelligence-loop-check",
   "args": [],
   "requires_tools": [],
@@ -16,7 +16,7 @@
     ".takesome/intelligence/workloop-decision.json",
     ".takesome/intelligence/assigned-task.json"
   ],
-  "safe_for_menu": true,
+  "safe_for_menu": false,
   "danger_level": "normal",
   "aliasOf": "suite.intelligence.loop.check",
   "riskTier": "write",

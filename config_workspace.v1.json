@@ -19,10 +19,11 @@
     "skip_origin_preflight": true
   },
   "suite_intelligence": {
-    "autostart": true,
+    "autostart": false,
     "no_openai": true,
     "interval_sec": 30,
-    "openai_every": 1
+    "openai_every": 1,
+    "enabled": false
   },
   "llm": {
     "provider": "deepseek-pytorch-local",

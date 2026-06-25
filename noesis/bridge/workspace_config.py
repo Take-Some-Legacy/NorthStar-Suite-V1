@@ -170,6 +170,7 @@ def apply_workspace_environment(root: Path, config: dict[str, Any], tool_root: P
     _setdefault_path_env("NORTHSTAR_CLOUDFLARE_CREDENTIALS_FILE", root, named_tunnel.get("credentials_file"))
     _setdefault_path_env("NORTHSTAR_CLOUDFLARE_ORIGIN_CERT", root, named_tunnel.get("origin_cert"))
 
+    _setdefault_bool_env("NORTHSTAR_SUITE_INTELLIGENCE_ENABLED", intelligence.get("enabled"))
     _setdefault_bool_env("NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART", intelligence.get("autostart"))
     _setdefault_bool_env("NORTHSTAR_SUITE_INTELLIGENCE_NO_OPENAI", intelligence.get("no_openai"))
     _setdefault_env("NORTHSTAR_SUITE_INTELLIGENCE_INTERVAL_SEC", intelligence.get("interval_sec"))

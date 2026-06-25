@@ -1059,8 +1059,12 @@ def ensure_origin_alive(root: Path, tool_root: Path, write: bool, origin: Option
 
 
 def suite_intelligence_enabled() -> bool:
-    value = os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART", "1").strip().lower()
-    return value not in {"0", "false", "no", "off"}
+    false_values = {"0", "false", "no", "off"}
+    enabled = os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_ENABLED", "1").strip().lower()
+    if enabled in false_values:
+        return False
+    autostart = os.environ.get("NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART", "0").strip().lower()
+    return autostart not in false_values
 
 
 def suite_env_file(root: Path) -> Path:
@@ -1133,7 +1137,7 @@ def suppress_resident_for_main_task_owner(root: Path, tool_root: Path) -> bool:
 
 def spawn_suite_intelligence(root: Path, tool_root: Path, q: "queue.Queue[tuple[str, str]]") -> Optional[subprocess.Popen[str]]:
     if not suite_intelligence_enabled():
-        emit("STATE", "Suite Intelligence autostart disabled", env="NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART")
+        emit("STATE", "Suite Intelligence autostart disabled", env="NORTHSTAR_SUITE_INTELLIGENCE_ENABLED/NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART")
         return None
     if suppress_resident_for_main_task_owner(root, tool_root):
         return None

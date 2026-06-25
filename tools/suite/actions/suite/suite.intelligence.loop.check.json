@@ -2,7 +2,7 @@
   "action_id": "suite.intelligence.loop.check",
   "group": "Suite Intelligence",
   "title": "Run Suite Intelligence loop check",
-  "description": "Run exactly one resident intelligence loop cycle: scan workspace, self-check wiring, rank next tasks, call the configured cloud planner when available, and write loop state/events.",
+  "description": "Run exactly one resident intelligence loop cycle: scan workspace, self-check wiring, rank next tasks, call the configured cloud planner when available, and write loop state/events. Disabled by default; set NORTHSTAR_SUITE_INTELLIGENCE_ENABLED=1 and NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART=1 to opt in.",
   "command": "suite-intelligence-loop-check",
   "args": [],
   "requires_tools": [],
@@ -12,6 +12,6 @@
     ".takesome/intelligence/loop-events.jsonl",
     ".takesome/intelligence/operator-request.md"
   ],
-  "safe_for_menu": true,
+  "safe_for_menu": false,
   "danger_level": "normal"
 }

@@ -2,7 +2,7 @@
   "action_id": "suite.intelligence.loop",
   "group": "Suite Intelligence",
   "title": "Run Suite Intelligence resident loop",
-  "description": "Run the foreground resident intelligence loop. It scans workspace state, self-checks wiring, ranks next tasks, uses the configured local DeepSeek pilot state and only calls a cloud planner when explicitly enabled on a throttle, and writes state/events until stopped by the operator.",
+  "description": "Run the foreground resident intelligence loop. It scans workspace state, self-checks wiring, ranks next tasks, uses the configured local DeepSeek pilot state and only calls a cloud planner when explicitly enabled on a throttle, and writes state/events until stopped by the operator. Disabled by default; set NORTHSTAR_SUITE_INTELLIGENCE_ENABLED=1 and NORTHSTAR_SUITE_INTELLIGENCE_AUTOSTART=1 to opt in.",
   "command": "suite-intelligence-loop",
   "args": [],
   "requires_tools": [],
@@ -13,6 +13,6 @@
     ".takesome/intelligence/operator-request.md",
     ".takesome/intelligence/operator-response.md"
   ],
-  "safe_for_menu": true,
+  "safe_for_menu": false,
   "danger_level": "normal"
 }

@@ -51,5 +51,10 @@
   "workspace": {
     "root": "C:\\Users\\Aiden\\Documents\\Repos",
     "stateRoot": ".noesis"
+  },
+  "suite_intelligence": {
+    "enabled": false,
+    "autostart": false,
+    "no_openai": true
   }
 }
